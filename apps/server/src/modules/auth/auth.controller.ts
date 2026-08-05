@@ -91,6 +91,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
+    path: "/",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -120,7 +121,6 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     return sendError({ res, statusCode: 400, message: "Email/Username and password are required." });
   }
 
-  // 1. Verify User Record in Database or Mock Memory
   let dbUser = null;
   try {
     dbUser = await UserModel.findOne({
@@ -135,7 +135,6 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     return sendError({ res, statusCode: 401, message: "Invalid email or password credentials." });
   }
 
-  // 2. Verify Active Account Status
   if (user.isActive === false || user.isDeleted === true) {
     return sendError({
       res,
@@ -144,7 +143,6 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     });
   }
 
-  // 3. Verify Password (Bcrypt or Raw Fallback)
   let isPasswordValid = false;
   if (user.comparePassword && typeof user.comparePassword === "function") {
     isPasswordValid = await user.comparePassword(password);
@@ -158,7 +156,6 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     return sendError({ res, statusCode: 401, message: "Invalid email or password credentials." });
   }
 
-  // 4. Update lastLogin timestamp & generate tokens
   if (dbUser) {
     try {
       dbUser.lastLogin = new Date();
@@ -172,16 +169,15 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     role: user.role || "Owner",
   };
 
-  // Generate Access Token (15 minutes) & Refresh Token (7 days)
   const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
 
-  // Store Refresh Token in Secure HttpOnly Cookie
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    path: "/",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
   return sendSuccess({
@@ -227,6 +223,7 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
+    path: "/",
   });
 
   return sendSuccess({
