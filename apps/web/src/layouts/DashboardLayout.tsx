@@ -12,18 +12,18 @@ export interface DashboardLayoutProps {
 const allNavItems: SidebarItem[] = [
   { id: "dashboard", label: "Dashboard", icon: "📊", path: "/dashboard", roles: ["Owner", "Manager"] },
   { id: "pos", label: "POS Billing", icon: "⚡", path: "/pos", roles: ["Owner", "Manager", "Cashier"] },
-  { id: "products", label: "Products", icon: "📦", path: "/products", roles: ["Owner", "Manager", "Cashier", "Employee"] },
-  { id: "categories", label: "Categories", icon: "🏷️", path: "/products", roles: ["Owner", "Manager"] },
-  { id: "inventory", label: "Inventory", icon: "🏬", path: "/inventory", roles: ["Owner", "Manager"] },
-  { id: "orders", label: "Orders", icon: "🛒", path: "/orders", roles: ["Owner", "Manager", "Cashier", "Delivery Partner"] },
-  { id: "customers", label: "Customers & Khata", icon: "📒", path: "/customers", roles: ["Owner", "Manager", "Cashier"] },
-  { id: "suppliers", label: "Suppliers", icon: "🚚", path: "/suppliers", roles: ["Owner", "Manager"] },
-  { id: "expenses", label: "Expenses", icon: "💸", path: "/reports", roles: ["Owner", "Manager"] },
-  { id: "employees", label: "Employees", icon: "👥", path: "/settings", roles: ["Owner"] },
-  { id: "reports", label: "Reports", icon: "📈", path: "/reports", roles: ["Owner", "Manager"] },
-  { id: "coupons", label: "Coupons", icon: "🎟️", path: "/settings", roles: ["Owner", "Manager"] },
+  { id: "products", label: "Products", icon: "📦", path: "/dashboard/products", roles: ["Owner", "Manager", "Cashier", "Employee"] },
+  { id: "categories", label: "Categories", icon: "🏷️", path: "/dashboard/products", roles: ["Owner", "Manager"] },
+  { id: "inventory", label: "Inventory", icon: "🏬", path: "/dashboard/inventory", roles: ["Owner", "Manager"] },
+  { id: "orders", label: "Orders", icon: "🛒", path: "/dashboard/orders", roles: ["Owner", "Manager", "Cashier", "Delivery Partner"] },
+  { id: "customers", label: "Customers & Khata", icon: "📒", path: "/dashboard/customers", roles: ["Owner", "Manager", "Cashier"] },
+  { id: "suppliers", label: "Suppliers", icon: "🚚", path: "/dashboard/customers", roles: ["Owner", "Manager"] },
+  { id: "expenses", label: "Expenses", icon: "💸", path: "/dashboard/reports", roles: ["Owner", "Manager"] },
+  { id: "employees", label: "Employees", icon: "👥", path: "/dashboard/settings", roles: ["Owner"] },
+  { id: "reports", label: "Reports", icon: "📈", path: "/dashboard/reports", roles: ["Owner", "Manager"] },
+  { id: "coupons", label: "Coupons", icon: "🎟️", path: "/dashboard/settings", roles: ["Owner", "Manager"] },
   { id: "ai-assistant", label: "AI Assistant", icon: "🤖", path: "/dashboard", roles: ["Owner", "Manager", "Cashier"] },
-  { id: "settings", label: "Settings", icon: "⚙️", path: "/settings", roles: ["Owner"] },
+  { id: "settings", label: "Settings", icon: "⚙️", path: "/dashboard/settings", roles: ["Owner"] },
 ];
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
@@ -42,7 +42,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
-      {/* Sticky Navbar with Mobile Menu Drawer Trigger */}
+      {/* Sticky Navbar */}
       <div className="sticky top-0 z-40">
         <Navbar
           storeName="Rishabh Provision Store"
@@ -54,7 +54,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       </div>
 
       <div className="flex flex-1 overflow-hidden relative">
-        {/* Mobile Slide-Over Navigation Drawer */}
+        {/* Mobile Slide-Over Drawer */}
         {mobileMenuOpen && (
           <div className="fixed inset-0 z-50 flex md:hidden">
             <div
