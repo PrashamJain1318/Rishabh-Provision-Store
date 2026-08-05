@@ -1,35 +1,29 @@
-# 04. Database Architecture & MongoDB Atlas Setup Guide
+# 04. Database Architecture & Network Access Security Policy
 
-## 🍃 MongoDB Atlas Setup Instructions (Free M0 Cluster)
+## 🌐 Network Access Control Policy
 
-Follow these steps to create your free MongoDB Atlas database cluster:
+### 1. Development Mode Policy
+- **CIDR Block**: `0.0.0.0/0` (Allow Access From Anywhere).
+- **Purpose**: Enables seamless local dev server testing across developer workstations, automated test runners, and team environments.
 
-### Step 1: Create MongoDB Atlas Account
-1. Visit [https://www.mongodb.com/cloud/atlas/register](https://www.mongodb.com/cloud/atlas/register).
-2. Sign up or log in with your Google account.
+### 2. Production Hardening Policy (Pre-Deployment Checklist)
+> [!WARNING]
+> Before deploying `apps/server` to production hosting (Vercel / Render / AWS EC2):
+> 1. **Revoke `0.0.0.0/0`**: Remove wildcard IP access from MongoDB Atlas Network Access.
+> 2. **Whitelist Static IP / CIDR**: Add exact IP addresses of production backend servers (e.g. AWS Elastic IP or Vercel static egress IPs).
+> 3. **VPC Peering**: Configure AWS / GCP private VPC peering for encrypted database traffic.
 
-### Step 2: Create a Free Shared Cluster (M0)
-1. Select **Deploy a Database** ➔ Choose **M0 Free Tier**.
-2. **Provider**: AWS or GCP.
-3. **Region**: `ap-south-1` (Mumbai, India) — recommended for lowest latency in South Asia.
-4. **Cluster Name**: `RishabhStoreCluster`.
+---
 
-### Step 3: Configure Database User & Access Control
-1. **Database Access**: Create a database user (e.g. Username: `rishabh_admin`, Password: `<your_secure_password>`).
-2. **Network Access**: Add IP Address ➔ Select **Allow Access from Anywhere** (`0.0.0.0/0`) for local development.
+## 🍃 MongoDB Atlas Configuration Parameters
 
-### Step 4: Copy Connection URI
-1. Click **Connect** on your cluster card.
-2. Choose **Drivers** (Node.js).
-3. Copy the Connection String:
-   ```text
-   mongodb+srv://rishabh_admin:<password>@rishabhstorecluster.mongodb.net/rishabh_provision_store?retryWrites=true&w=majority
-   ```
-
-### Step 5: Update Environment Variables
-Paste your connection URI into `.env` and `apps/server/.env`:
-```env
-MONGODB_URI=mongodb+srv://rishabh_admin:<password>@rishabhstorecluster.mongodb.net/rishabh_provision_store?retryWrites=true&w=majority
+```text
+Database Name:     rishabh-provision-store
+Cluster Type:      M0 Free Tier (Shared)
+Cloud Provider:    AWS / GCP
+Primary Region:    ap-south-1 (Mumbai, India)
+Admin User:        rps_admin
+Network Access:    0.0.0.0/0 (Development Mode)
 ```
 
 ---
