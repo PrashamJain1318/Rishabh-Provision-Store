@@ -1,15 +1,34 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LandingPage from "./pages/Landing";
+import LoginPage from "./pages/Login";
+import RegisterPage from "./pages/Register";
+import DashboardPage from "./pages/Dashboard";
+import ProductsPage from "./pages/Products";
+import InventoryPage from "./pages/Inventory";
+import OrdersPage from "./pages/Orders";
+import POSPage from "./pages/POS";
+import CustomersPage from "./pages/Customers";
+import ReportsPage from "./pages/Reports";
+import SettingsPage from "./pages/Settings";
 import "./index.css";
 
 function App() {
   return (
-    <div className="min-h-screen bg-emerald-600 flex flex-col items-center justify-center gap-4 text-center p-4">
-      <h1 className="text-6xl font-bold text-white tracking-tight">
-        Rishabh Provision Store
-      </h1>
-      <p className="text-2xl font-medium text-emerald-100 italic">
-        Smart Grocery. Smarter Business.
-      </p>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/products" element={<ProductsPage />} />
+        <Route path="/inventory" element={<InventoryPage />} />
+        <Route path="/orders" element={<OrdersPage />} />
+        <Route path="/pos" element={<POSPage />} />
+        <Route path="/customers" element={<CustomersPage />} />
+        <Route path="/reports" element={<ReportsPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+      </Routes>
+    </Router>
   );
 }
 
