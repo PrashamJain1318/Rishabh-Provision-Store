@@ -9,13 +9,14 @@ import { requestIdMiddleware } from "./middlewares/requestId.middleware";
 import { requestLogger } from "./middlewares/logger.middleware";
 import { notFoundHandler } from "./middlewares/notFound.middleware";
 import { errorHandler } from "./middlewares/error.middleware";
+import authRouter from "./modules/auth/auth.router";
 import productRouter from "./modules/products/product.router";
 import billingRouter from "./modules/billing/billing.router";
 
 export const createApp = (): Application => {
   const app: Application = express();
 
-  // 1. Request ID Tracking Middleware (Attaches X-Request-Id header to all requests & responses)
+  // 1. Request ID Tracking Middleware
   app.use(requestIdMiddleware);
 
   // 2. Helmet Security Headers
@@ -34,14 +35,14 @@ export const createApp = (): Application => {
   // 4. Gzip Response Compression
   app.use(compression());
 
-  // 5. JSON & URL-Encoded Parsers (10MB Payload Limit)
+  // 5. JSON & URL-Encoded Parsers
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
   // 6. Cookie Parser Middleware
   app.use(cookieParser());
 
-  // 7. Morgan / Winston HTTP Request Logger Stream Integration
+  // 7. Morgan / Winston HTTP Request Logger Stream
   app.use(requestLogger);
 
   // Health Check Endpoint
@@ -56,6 +57,7 @@ export const createApp = (): Application => {
   });
 
   // REST API Routes
+  app.use(`${API_PREFIX}/auth`, authRouter);
   app.use(`${API_PREFIX}/products`, productRouter);
   app.use(`${API_PREFIX}/billing`, billingRouter);
 
