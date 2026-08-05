@@ -1,3 +1,5 @@
+import "./index.css";
+
 function App() {
   return (
     <div className="min-h-screen bg-emerald-600 flex items-center justify-center">
