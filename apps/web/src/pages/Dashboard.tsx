@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { DashboardCard, Table, Column, ChartCard, Avatar, Badge, LoadingSkeleton, EmptyState, Button } from "@rishabh-store/ui";
 import { motion } from "framer-motion";
-import { ShoppingCart, ArrowRight, Flame, AlertTriangle, RefreshCw } from "lucide-react";
+import { ShoppingCart, ArrowRight, Flame, AlertTriangle, RefreshCw, Sparkles, Bot, TrendingUp, Zap } from "lucide-react";
 
 const salesGraphData = [
   { time: "08:00 AM", sales: 1200, orders: 4 },
@@ -212,6 +212,95 @@ export const DashboardPage: React.FC = () => {
           />
         </div>
 
+        {/* ChatGPT / Gemini Inspired AI Insights Widget (Purple Accent, Glass Card, Recommendation Cards & Action Triggers) */}
+        <motion.div
+          whileHover={{ y: -3, transition: { duration: 0.2 } }}
+          className="glass-panel bg-white/70 dark:bg-slate-900/70 backdrop-blur-md rounded-3xl border border-purple-200/80 dark:border-purple-900/40 p-6 shadow-soft-sm hover:shadow-soft-md transition-all flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between mb-4 border-b border-purple-100 dark:border-purple-950/60 pb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-2xl bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400 flex items-center justify-center shadow-soft-sm">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                  Gemini AI Retail Insights <span className="px-2.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 text-[10px] font-mono font-bold">ChatGPT 4o Engine</span>
+                </h3>
+                <p className="text-xs text-slate-500">Autonomous grocery stock forecasting & demand predictions</p>
+              </div>
+            </div>
+
+            <a href="/dashboard/ai-assistant">
+              <Button size="sm" variant="primary" className="text-xs px-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white border-none">
+                <Bot className="w-4 h-4 mr-1.5 inline" /> Launch AI Assistant ➔
+              </Button>
+            </a>
+          </div>
+
+          {/* 3 AI Recommendation Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="p-4 rounded-2xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/40 space-y-2"
+            >
+              <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300 font-bold text-xs">
+                <TrendingUp className="w-4 h-4" /> Demand Surge Warning
+              </div>
+              <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+                Atta & Edible Oil demand is projected to rise +28% this weekend due to local festive holidays.
+              </p>
+              <div className="pt-1">
+                <button
+                  onClick={() => alert("AI Recommendation Applied: Reordering Atta & Oil stock...")}
+                  className="px-3 py-1 rounded-xl bg-purple-600 text-white font-bold text-[10px] hover:bg-purple-700 transition-all"
+                >
+                  Auto-Reorder Stock ➔
+                </button>
+              </div>
+            </motion.div>
+
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="p-4 rounded-2xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/40 space-y-2"
+            >
+              <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300 font-bold text-xs">
+                <Zap className="w-4 h-4" /> Perishable Expiry Audit
+              </div>
+              <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+                Mother Dairy Milk Batch #2026-06C expires in 2 days. 12 packets remain unsold.
+              </p>
+              <div className="pt-1">
+                <button
+                  onClick={() => alert("AI Recommendation Applied: 15% Discount applied to Dairy Milk Batch!")}
+                  className="px-3 py-1 rounded-xl bg-purple-600 text-white font-bold text-[10px] hover:bg-purple-700 transition-all"
+                >
+                  Apply 15% Clearance 🏷️
+                </button>
+              </div>
+            </motion.div>
+
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="p-4 rounded-2xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/40 space-y-2"
+            >
+              <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300 font-bold text-xs">
+                <Bot className="w-4 h-4" /> Khata Risk Score
+              </div>
+              <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+                Vikram Singh's Khata due balance (₹4,800) reached 48% of credit limit. Send automated reminder?
+              </p>
+              <div className="pt-1">
+                <button
+                  onClick={() => alert("WhatsApp Payment Reminder Statement dispatched to Vikram Singh!")}
+                  className="px-3 py-1 rounded-xl bg-purple-600 text-white font-bold text-[10px] hover:bg-purple-700 transition-all"
+                >
+                  Send WhatsApp Reminder 📲
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        </motion.div>
+
         {/* Sales Overview ChartCard */}
         <ChartCard data={salesGraphData} />
 
@@ -253,7 +342,7 @@ export const DashboardPage: React.FC = () => {
 
           {/* Low Stock & Top Products Sidebar Widgets (5 Cols) */}
           <div className="lg:col-span-5 flex flex-col gap-6">
-            {/* Low Stock Alert Widget (Red Accent, Warning Icon, Animated Pulse Badge & Reorder Trigger) */}
+            {/* Low Stock Alert Widget */}
             <motion.div
               whileHover={{ y: -3, transition: { duration: 0.2 } }}
               className="glass-panel bg-white/70 dark:bg-slate-900/70 backdrop-blur-md rounded-3xl border border-red-200/80 dark:border-red-900/40 p-6 shadow-soft-sm hover:shadow-soft-md transition-all flex flex-col justify-between"
@@ -295,7 +384,6 @@ export const DashboardPage: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      {/* Animated Red Pulse Badge */}
                       <motion.span
                         animate={{ scale: [1, 1.05, 1] }}
                         transition={{ repeat: Infinity, duration: 2 }}
