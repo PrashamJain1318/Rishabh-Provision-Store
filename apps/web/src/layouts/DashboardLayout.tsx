@@ -17,12 +17,12 @@ const allNavItems: SidebarItem[] = [
   { id: "inventory", label: "Inventory", icon: "🏬", path: "/dashboard/inventory", roles: ["Owner", "Manager"] },
   { id: "orders", label: "Orders", icon: "🛒", path: "/dashboard/orders", roles: ["Owner", "Manager", "Cashier", "Delivery Partner"] },
   { id: "customers", label: "Customers & Khata", icon: "📒", path: "/dashboard/customers", roles: ["Owner", "Manager", "Cashier"] },
-  { id: "suppliers", label: "Suppliers", icon: "🚚", path: "/dashboard/customers", roles: ["Owner", "Manager"] },
+  { id: "suppliers", label: "Suppliers", icon: "🚚", path: "/dashboard/suppliers", roles: ["Owner", "Manager"] },
   { id: "expenses", label: "Expenses", icon: "💸", path: "/dashboard/reports", roles: ["Owner", "Manager"] },
   { id: "employees", label: "Employees", icon: "👥", path: "/dashboard/settings", roles: ["Owner"] },
   { id: "reports", label: "Reports", icon: "📈", path: "/dashboard/reports", roles: ["Owner", "Manager"] },
   { id: "coupons", label: "Coupons", icon: "🎟️", path: "/dashboard/settings", roles: ["Owner", "Manager"] },
-  { id: "ai-assistant", label: "AI Assistant", icon: "🤖", path: "/dashboard", roles: ["Owner", "Manager", "Cashier"] },
+  { id: "ai-assistant", label: "AI Assistant", icon: "🤖", path: "/dashboard/ai-assistant", roles: ["Owner", "Manager", "Cashier"] },
   { id: "settings", label: "Settings", icon: "⚙️", path: "/dashboard/settings", roles: ["Owner"] },
 ];
 
