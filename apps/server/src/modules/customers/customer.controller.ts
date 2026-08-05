@@ -51,3 +51,67 @@ export const deleteCustomer = asyncHandler(async (req: Request, res: Response) =
     data: null,
   });
 });
+
+// SPRINT 9B - CUSTOMER ADDRESSES ENDPOINTS
+export const getCustomerAddresses = asyncHandler(async (req: Request, res: Response) => {
+  const mockAddresses = [
+    {
+      id: "ADDR-001",
+      customer: req.params.id,
+      type: "Home",
+      house: "Flat 402, Sunshine Heights",
+      street: "MIDC Central Road, Andheri East",
+      landmark: "Opp. SBI Bank",
+      city: "Mumbai",
+      state: "Maharashtra",
+      country: "India",
+      pincode: "400093",
+      latitude: 19.1136,
+      longitude: 72.8697,
+      isDefault: true,
+    },
+    {
+      id: "ADDR-002",
+      customer: req.params.id,
+      type: "Office",
+      house: "Unit 12, Technopark IT Hub",
+      street: "SEEPZ Zone, Andheri East",
+      city: "Mumbai",
+      state: "Maharashtra",
+      country: "India",
+      pincode: "400096",
+      isDefault: false,
+    },
+  ];
+
+  return sendSuccess({
+    res,
+    message: "Customer addresses retrieved successfully",
+    data: mockAddresses,
+  });
+});
+
+export const addCustomerAddress = asyncHandler(async (req: Request, res: Response) => {
+  const newAddress = {
+    id: `ADDR-00${Math.floor(Math.random() * 100)}`,
+    customer: req.params.id,
+    type: req.body.type || "Home",
+    house: req.body.house || "House #12",
+    street: req.body.street || "Main Street",
+    landmark: req.body.landmark,
+    city: req.body.city || "Mumbai",
+    state: req.body.state || "Maharashtra",
+    country: req.body.country || "India",
+    pincode: req.body.pincode || "400093",
+    latitude: req.body.latitude || 19.1136,
+    longitude: req.body.longitude || 72.8697,
+    isDefault: req.body.isDefault || false,
+  };
+
+  return sendSuccess({
+    res,
+    statusCode: 201,
+    message: "Address added successfully",
+    data: newAddress,
+  });
+});
