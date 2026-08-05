@@ -26,6 +26,7 @@ import {
   Image as ImageIcon,
   AlertTriangle,
   RotateCcw,
+  Upload,
 } from "lucide-react";
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { Button, BarcodeRenderer, BarcodeFormat } from "@rishabh-store/ui";
@@ -164,7 +165,7 @@ const initialProducts: ProductItem[] = [
   },
 ];
 
-const FORM_STEPS = ["Basic Information", "Pricing & Tax", "Inventory", "Supplier", "Images", "Review"];
+const FORM_STEPS = ["Basic Information", "Pricing", "Supplier", "Inventory", "Images", "Review"];
 
 export const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<ProductItem[]>(initialProducts);
@@ -198,16 +199,16 @@ export const ProductsPage: React.FC = () => {
     brand: "Aashirvaad",
     unit: "kg",
     description: "",
-    purchasePrice: "",
-    sellingPrice: "",
-    mrp: "",
-    discount: "0",
+    purchasePrice: "210",
+    sellingPrice: "245",
+    mrp: "275",
+    discount: "10.9",
     gst: "0",
     stock: "100",
     minimumStock: "10",
     maximumStock: "500",
-    batchNumber: "",
-    expiryDate: "",
+    batchNumber: "BAT-2026-X",
+    expiryDate: "2027-12-31",
     supplier: "ITC Grocery Wholesalers Ltd",
     imageUrl: "",
   });
@@ -314,10 +315,10 @@ export const ProductsPage: React.FC = () => {
           <div>
             <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-3">
               <Package className="w-8 h-8 text-emerald-600" />
-              8-Facet Simultaneous Filter Engine
+              Master Product Catalog & Barcode Engine
             </h1>
             <p className="text-slate-500 text-sm mt-1">
-              Filter by Category, Brand, Supplier, Price Range, Stock Level, Status, Expiry, and GST Rate simultaneously
+              Multi-step Wizard ➔ Basic Info ➔ Pricing ➔ Supplier ➔ Inventory ➔ Images ➔ Review
             </p>
           </div>
           <Button
@@ -325,13 +326,12 @@ export const ProductsPage: React.FC = () => {
             className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all hover:scale-105"
           >
             <Plus className="w-5 h-5" />
-            Add Product
+            Add Product Wizard
           </Button>
         </div>
 
         {/* Toolbar & 8 Simultaneous Filters Panel */}
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
-          {/* Top Row: Search + Actions */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="relative w-full sm:flex-1">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -376,7 +376,6 @@ export const ProductsPage: React.FC = () => {
 
           {/* 8 SIMULTANEOUS FILTER GRID */}
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
-            {/* 1. Category */}
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">1. Category</label>
               <select
@@ -392,7 +391,6 @@ export const ProductsPage: React.FC = () => {
               </select>
             </div>
 
-            {/* 2. Brand */}
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">2. Brand</label>
               <select
@@ -408,7 +406,6 @@ export const ProductsPage: React.FC = () => {
               </select>
             </div>
 
-            {/* 3. Supplier */}
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">3. Supplier</label>
               <select
@@ -423,7 +420,6 @@ export const ProductsPage: React.FC = () => {
               </select>
             </div>
 
-            {/* 4. Min Price */}
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">4. Min Price (₹)</label>
               <input
@@ -435,7 +431,6 @@ export const ProductsPage: React.FC = () => {
               />
             </div>
 
-            {/* 5. Max Price */}
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">5. Max Price (₹)</label>
               <input
@@ -447,7 +442,6 @@ export const ProductsPage: React.FC = () => {
               />
             </div>
 
-            {/* 6. Stock Level */}
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">6. Stock Level</label>
               <select
@@ -462,7 +456,6 @@ export const ProductsPage: React.FC = () => {
               </select>
             </div>
 
-            {/* 7. Status */}
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">7. Status</label>
               <select
@@ -476,7 +469,6 @@ export const ProductsPage: React.FC = () => {
               </select>
             </div>
 
-            {/* 8. GST Rate */}
             <div>
               <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">8. GST Tax</label>
               <select
@@ -496,7 +488,6 @@ export const ProductsPage: React.FC = () => {
 
         {/* View Mode Rendering */}
         {viewMode === "grid" ? (
-          /* Grid View */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
               <motion.div
@@ -532,7 +523,6 @@ export const ProductsPage: React.FC = () => {
                     </h3>
                   </div>
 
-                  {/* Rendered Live Barcode Thumbnail */}
                   <div
                     onClick={() => setSelectedBarcodeProduct(product)}
                     className="p-2 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center cursor-pointer hover:border-emerald-500 transition-colors"
@@ -557,7 +547,6 @@ export const ProductsPage: React.FC = () => {
             ))}
           </div>
         ) : (
-          /* Table View */
           <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
@@ -609,6 +598,424 @@ export const ProductsPage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* 6-STEP MULTI-STEP PRODUCT FORM WIZARD MODAL */}
+        <AnimatePresence>
+          {isModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-white dark:bg-slate-900 rounded-3xl p-6 w-full max-w-2xl shadow-2xl border border-slate-100 dark:border-slate-800 space-y-6 max-h-[90vh] overflow-y-auto"
+              >
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                      <Package className="w-5 h-5 text-emerald-600" />
+                      Add Product Wizard
+                    </h3>
+                    <p className="text-xs text-slate-500">Step {currentStep + 1} of {FORM_STEPS.length}: {FORM_STEPS[currentStep]}</p>
+                  </div>
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleSubmitProduct} className="space-y-4">
+                  {/* Step 0: Basic Information */}
+                  {currentStep === 0 && (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                          Product Name *
+                        </label>
+                        <input
+                          type="text"
+                          name="name"
+                          required
+                          placeholder="e.g. Aashirvaad Shudh Chakki Atta 5kg"
+                          value={formData.name}
+                          onChange={handleChange}
+                          className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            SKU Code *
+                          </label>
+                          <input
+                            type="text"
+                            name="sku"
+                            required
+                            placeholder="ATT-AASH-5KG"
+                            value={formData.sku}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Barcode Format
+                          </label>
+                          <select
+                            name="barcodeFormat"
+                            value={formData.barcodeFormat}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold"
+                          >
+                            <option value="EAN13">EAN-13 (Standard Retail)</option>
+                            <option value="CODE128">Code 128 (Alphanumeric)</option>
+                            <option value="UPC">UPC (Universal Product)</option>
+                            <option value="QR">QR Code (Matrix)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Barcode Digits
+                          </label>
+                          <input
+                            type="text"
+                            name="barcode"
+                            placeholder="8901058000123"
+                            value={formData.barcode}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Category *
+                          </label>
+                          <select
+                            name="category"
+                            value={formData.category}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold"
+                          >
+                            <option value="Atta & Flours">Atta & Flours</option>
+                            <option value="Rice & Grains">Rice & Grains</option>
+                            <option value="Edible Oils & Ghee">Edible Oils & Ghee</option>
+                            <option value="Masala & Spices">Masala & Spices</option>
+                            <option value="Dairy & Chilled">Dairy & Chilled</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Brand
+                          </label>
+                          <select
+                            name="brand"
+                            value={formData.brand}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold"
+                          >
+                            <option value="Aashirvaad">Aashirvaad</option>
+                            <option value="Fortune">Fortune</option>
+                            <option value="Amul">Amul</option>
+                            <option value="Tata Consumer">Tata Consumer</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Unit *
+                          </label>
+                          <select
+                            name="unit"
+                            value={formData.unit}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold"
+                          >
+                            <option value="kg">Kilogram (kg)</option>
+                            <option value="g">Gram (g)</option>
+                            <option value="L">Liter (L)</option>
+                            <option value="ml">Milliliter (ml)</option>
+                            <option value="pkt">Packet (pkt)</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 1: Pricing */}
+                  {currentStep === 1 && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Purchase Price (₹) *
+                          </label>
+                          <input
+                            type="number"
+                            name="purchasePrice"
+                            required
+                            placeholder="210"
+                            value={formData.purchasePrice}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Selling Price (₹) *
+                          </label>
+                          <input
+                            type="number"
+                            name="sellingPrice"
+                            required
+                            placeholder="245"
+                            value={formData.sellingPrice}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-emerald-600"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            MRP (₹) *
+                          </label>
+                          <input
+                            type="number"
+                            name="mrp"
+                            required
+                            placeholder="275"
+                            value={formData.mrp}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Discount (%)
+                          </label>
+                          <input
+                            type="number"
+                            name="discount"
+                            placeholder="10.9"
+                            value={formData.discount}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            GST Tax Rate (%)
+                          </label>
+                          <select
+                            name="gst"
+                            value={formData.gst}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold"
+                          >
+                            <option value="0">0% GST (Exempted)</option>
+                            <option value="5">5% GST (Essential)</option>
+                            <option value="12">12% GST (Processed)</option>
+                            <option value="18">18% GST (Standard)</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 2: Supplier */}
+                  {currentStep === 2 && (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                          Select Wholesale Supplier Vendor *
+                        </label>
+                        <select
+                          name="supplier"
+                          value={formData.supplier}
+                          onChange={handleChange}
+                          className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold"
+                        >
+                          <option value="ITC Grocery Wholesalers Ltd">ITC Grocery Wholesalers Ltd</option>
+                          <option value="Adani Wilmar Edible Oils Supply">Adani Wilmar Edible Oils Supply</option>
+                          <option value="Amul Anand Dairy Union Co">Amul Anand Dairy Union Co</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 3: Inventory */}
+                  {currentStep === 3 && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Initial Stock *
+                          </label>
+                          <input
+                            type="number"
+                            name="stock"
+                            required
+                            placeholder="100"
+                            value={formData.stock}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Min Stock Alert
+                          </label>
+                          <input
+                            type="number"
+                            name="minimumStock"
+                            placeholder="10"
+                            value={formData.minimumStock}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Max Stock Cap
+                          </label>
+                          <input
+                            type="number"
+                            name="maximumStock"
+                            placeholder="500"
+                            value={formData.maximumStock}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Batch Code *
+                          </label>
+                          <input
+                            type="text"
+                            name="batchNumber"
+                            required
+                            placeholder="BAT-2026-AUG-01"
+                            value={formData.batchNumber}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Expiry Date *
+                          </label>
+                          <input
+                            type="date"
+                            name="expiryDate"
+                            required
+                            value={formData.expiryDate}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 4: Images */}
+                  {currentStep === 4 && (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                          Product Image CDN URL (Cloudinary Upload Stream)
+                        </label>
+                        <input
+                          type="url"
+                          name="imageUrl"
+                          placeholder="https://res.cloudinary.com/..."
+                          value={formData.imageUrl}
+                          onChange={handleChange}
+                          className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
+                        />
+                      </div>
+
+                      <div className="p-6 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl flex flex-col items-center justify-center text-center space-y-2 bg-slate-50/50 dark:bg-slate-800/30">
+                        <Upload className="w-8 h-8 text-emerald-600" />
+                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Drag & Drop Image to Upload to Cloudinary CDN</span>
+                        <p className="text-[10px] text-slate-400">Supports JPG, PNG, WEBP up to 5MB</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 5: Review */}
+                  {currentStep === 5 && (
+                    <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+                      <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Product Specification Review</h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        <p><strong>Name:</strong> {formData.name}</p>
+                        <p><strong>SKU:</strong> {formData.sku}</p>
+                        <p><strong>Selling Price:</strong> ₹{formData.sellingPrice}</p>
+                        <p><strong>MRP:</strong> ₹{formData.mrp}</p>
+                        <p><strong>Initial Stock:</strong> {formData.stock} {formData.unit}</p>
+                        <p><strong>Supplier:</strong> {formData.supplier}</p>
+                      </div>
+
+                      {formData.barcode && (
+                        <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex flex-col items-center">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase mb-1">Generated Barcode Label ({formData.barcodeFormat})</span>
+                          <BarcodeRenderer value={formData.barcode} format={formData.barcodeFormat} height={45} />
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Actions Bar */}
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <Button
+                      type="button"
+                      onClick={handlePrevStep}
+                      disabled={currentStep === 0}
+                      className="px-4 py-2 text-sm text-slate-600 bg-slate-100 rounded-xl font-semibold disabled:opacity-50"
+                    >
+                      Previous
+                    </Button>
+
+                    {currentStep < FORM_STEPS.length - 1 ? (
+                      <Button
+                        type="button"
+                        onClick={handleNextStep}
+                        className="px-5 py-2 text-sm text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold shadow-lg shadow-emerald-500/20"
+                      >
+                        Next <ChevronRight className="w-4 h-4 inline ml-1" />
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        className="px-6 py-2 text-sm text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold shadow-lg shadow-emerald-500/20"
+                      >
+                        <Check className="w-4 h-4 inline mr-1" /> Register Product
+                      </Button>
+                    )}
+                  </div>
+                </form>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     </DashboardLayout>
   );
