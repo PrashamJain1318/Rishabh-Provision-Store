@@ -17,6 +17,7 @@ import authRouter from "./modules/auth/auth.router";
 import { productRouter } from "./modules/products";
 import { userRouter } from "./modules/users";
 import { brandRouter } from "./modules/brands";
+import { unitRouter } from "./modules/units";
 import billingRouter from "./modules/billing/billing.router";
 
 export const createApp = (): Application => {
@@ -91,6 +92,7 @@ export const createApp = (): Application => {
   app.use(`${API_PREFIX}/auth`, authRateLimiter, authRouter);
   app.use(`${API_PREFIX}/users`, userRouter);
   app.use(`${API_PREFIX}/brands`, brandRouter);
+  app.use(`${API_PREFIX}/units`, unitRouter);
   app.use(`${API_PREFIX}/products`, productRouter);
   app.use(`${API_PREFIX}/billing`, billingRouter);
 

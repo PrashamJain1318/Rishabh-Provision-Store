@@ -16,6 +16,7 @@ const allNavItems: SidebarItemData[] = [
   { id: "pos", label: "POS Billing", iconName: "pos", path: "/pos", roles: ["Owner", "Manager", "Cashier"] },
   { id: "products", label: "Products", iconName: "products", path: "/dashboard/products", roles: ["Owner", "Manager", "Cashier", "Employee"] },
   { id: "brands", label: "Brands", iconName: "brands", path: "/dashboard/brands", roles: ["Owner", "Manager"] },
+  { id: "units", label: "Units", iconName: "units", path: "/dashboard/units", roles: ["Owner", "Manager"] },
   { id: "categories", label: "Categories", iconName: "categories", path: "/dashboard/products", roles: ["Owner", "Manager"] },
   { id: "inventory", label: "Inventory", iconName: "inventory", path: "/dashboard/inventory", roles: ["Owner", "Manager"] },
   { id: "orders", label: "Orders", iconName: "orders", path: "/dashboard/orders", roles: ["Owner", "Manager", "Cashier", "Delivery Partner"] },
