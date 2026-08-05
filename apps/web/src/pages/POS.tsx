@@ -20,6 +20,8 @@ import {
   ShieldCheck,
   Percent,
   Keyboard,
+  AlertCircle,
+  Barcode,
 } from "lucide-react";
 
 interface POSProduct {
@@ -68,8 +70,8 @@ export const POSPage: React.FC = () => {
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  // Arrow Key Navigation Index
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [notFoundBarcode, setNotFoundBarcode] = useState<string | null>(null);
 
   const [cart, setCart] = useState<CartItem[]>([
     { id: "P1", code: "8901058000123", sku: "ATT-AASH-5KG", name: "Aashirvaad Shudh Chakki Atta 5kg", price: 245, gst: 0, qty: 1 },
@@ -78,16 +80,15 @@ export const POSPage: React.FC = () => {
   const [flatDiscount, setFlatDiscount] = useState(0);
   const [paymentMode, setPaymentMode] = useState<"CASH" | "CARD" | "UPI" | "SPLIT" | "KHATA">("CASH");
 
-  // Hold Bills & Returns Modals
+  // Modals
   const [heldBills, setHeldBills] = useState<HeldBill[]>([]);
   const [showHeldBillsModal, setShowHeldBillsModal] = useState(false);
-  const [showReturnModal, setShowReturnModal] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [completedBillNo, setCompletedBillNo] = useState("");
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // 300ms Debounce Effect for Instant Search Performance
+  // 150ms Debounce Effect
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedQuery(rawSearchQuery);
@@ -95,6 +96,42 @@ export const POSPage: React.FC = () => {
     }, 150);
     return () => clearTimeout(handler);
   }, [rawSearchQuery]);
+
+  // Hardware Barcode Scanner Keypress Listener (Code128, EAN13, UPC, QR)
+  useEffect(() => {
+    let scanBuffer = "";
+    let lastKeyTime = Date.now();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const currentTime = Date.now();
+      if (currentTime - lastKeyTime > 80) scanBuffer = "";
+      lastKeyTime = currentTime;
+
+      if (e.key === "Enter") {
+        if (scanBuffer.length >= 4) {
+          const barcodeVal = scanBuffer.trim();
+          const matchedProd = posCatalog.find(
+            (p) => p.code === barcodeVal || p.sku.toLowerCase() === barcodeVal.toLowerCase() || p.id === barcodeVal
+          );
+
+          if (matchedProd) {
+            addToCart(matchedProd);
+            setRawSearchQuery("");
+            setNotFoundBarcode(null);
+          } else {
+            setNotFoundBarcode(barcodeVal);
+            setTimeout(() => setNotFoundBarcode(null), 4000);
+          }
+          scanBuffer = "";
+        }
+      } else if (e.key.length === 1) {
+        scanBuffer += e.key;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [cart]);
 
   // Multi-facet Filter Catalog
   const filteredCatalog = posCatalog.filter((product) => {
@@ -111,50 +148,42 @@ export const POSPage: React.FC = () => {
     return matchesSearch && matchesCat;
   });
 
-  // Global Keyboard Navigation (F2, F8, F4, ArrowDown, ArrowUp, Enter, Escape)
+  // Global Keyboard Shortcuts
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      // F2 / Ctrl+F: Focus Search Bar
       if (e.key === "F2" || (e.ctrlKey && e.key.toLowerCase() === "f")) {
         e.preventDefault();
         searchInputRef.current?.focus();
-      }
-      // F8: Express Checkout
-      else if (e.key === "F8") {
+      } else if (e.key === "F8") {
         e.preventDefault();
         if (cart.length > 0) handleCheckout();
-      }
-      // F4: Hold Bills Drawer
-      else if (e.key === "F4") {
+      } else if (e.key === "F4") {
         e.preventDefault();
         setShowHeldBillsModal((prev) => !prev);
-      }
-      // Escape: Clear Search or Close Modal
-      else if (e.key === "Escape") {
+      } else if (e.key === "Escape") {
         setRawSearchQuery("");
         setShowReceiptModal(false);
         setShowHeldBillsModal(false);
-      }
-      // Arrow Key Navigation in Search Results
-      else if (e.key === "ArrowDown") {
+      } else if (e.key === "ArrowDown") {
         e.preventDefault();
         setSelectedIndex((prev) => (prev < filteredCatalog.length - 1 ? prev + 1 : prev));
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         setSelectedIndex((prev) => (prev > 0 ? prev - 1 : 0));
-      }
-      // Enter to Add Highlighted Product to Cart
-      else if (e.key === "Enter" && document.activeElement === searchInputRef.current) {
+      } else if (e.key === "Enter" && document.activeElement === searchInputRef.current) {
         if (filteredCatalog.length > 0 && filteredCatalog[selectedIndex]) {
           addToCart(filteredCatalog[selectedIndex]);
           setRawSearchQuery("");
+        } else if (rawSearchQuery.trim()) {
+          setNotFoundBarcode(rawSearchQuery.trim());
+          setTimeout(() => setNotFoundBarcode(null), 4000);
         }
       }
     };
 
     window.addEventListener("keydown", handleGlobalKeyDown);
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
-  }, [filteredCatalog, selectedIndex, cart]);
+  }, [filteredCatalog, selectedIndex, cart, rawSearchQuery]);
 
   const addToCart = (product: POSProduct) => {
     setCart((prev) => {
@@ -202,16 +231,14 @@ export const POSPage: React.FC = () => {
           </div>
           <div>
             <h2 className="font-extrabold text-base text-white">Rishabh Express POS Terminal #1</h2>
-            <p className="text-xs text-slate-400">Cashier: Prasham Jain | Instant Keyboard Shortcuts Active</p>
+            <p className="text-xs text-slate-400">Scanner Engine Active: Code128, EAN-13, UPC, QR Code</p>
           </div>
         </div>
 
-        {/* Keyboard Shortcuts Bar */}
         <div className="hidden lg:flex items-center gap-2 text-[11px] font-mono font-bold">
           <span className="px-2.5 py-1 rounded-xl bg-slate-800 text-emerald-400 border border-slate-700">F2: Search</span>
           <span className="px-2.5 py-1 rounded-xl bg-slate-800 text-emerald-400 border border-slate-700">↑↓: Navigate</span>
           <span className="px-2.5 py-1 rounded-xl bg-slate-800 text-emerald-400 border border-slate-700">↵: Add to Cart</span>
-          <span className="px-2.5 py-1 rounded-xl bg-slate-800 text-emerald-400 border border-slate-700">F4: Hold Bills</span>
           <span className="px-2.5 py-1 rounded-xl bg-emerald-950 text-emerald-300 border border-emerald-800">F8: Checkout</span>
           <a href="/dashboard">
             <Button size="sm" className="bg-slate-800 text-white hover:bg-slate-700 font-bold rounded-xl ml-2">
@@ -221,11 +248,22 @@ export const POSPage: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Terminal Layout */}
+      {/* Main POS Layout */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-0 overflow-hidden">
-        {/* Left Column: Instant Multi-Facet Search & Keyboard Nav Grid (7 Cols) */}
+        {/* Left Column: Search & Catalog Grid (7 Cols) */}
         <div className="lg:col-span-7 border-r border-slate-800 p-6 flex flex-col gap-4 overflow-y-auto">
-          {/* Instant Search Bar */}
+          {/* BARCODE NOT FOUND WARNING BANNER */}
+          {notFoundBarcode && (
+            <div className="bg-rose-950/90 border border-rose-800 text-rose-200 px-4 py-3 rounded-2xl flex items-center justify-between text-xs font-bold shadow-lg animate-bounce">
+              <span className="flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-rose-400" />
+                Product not found for barcode: <strong className="font-mono text-white text-sm">{notFoundBarcode}</strong>
+              </span>
+              <span className="text-[10px] text-rose-400 font-mono">Verify SKU in Inventory</span>
+            </div>
+          )}
+
+          {/* Search Input */}
           <div className="relative">
             <Search className="w-5 h-5 absolute left-4 top-3.5 text-slate-400" />
             <input
@@ -233,16 +271,15 @@ export const POSPage: React.FC = () => {
               type="text"
               value={rawSearchQuery}
               onChange={(e) => setRawSearchQuery(e.target.value)}
-              placeholder="🔍 Search across Barcode, SKU, Product Name, Category, Brand..."
+              placeholder="🔍 Instant Scan EAN/UPC Barcode or type Name/SKU..."
               className="w-full bg-slate-900 border border-slate-700 text-white placeholder-slate-400 text-sm pl-12 pr-32 py-3 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
               autoFocus
             />
             <span className="absolute right-4 top-3.5 text-[11px] text-emerald-400 font-mono font-bold flex items-center gap-1">
-              <Keyboard className="w-3.5 h-3.5" /> F2 Focus
+              <Barcode className="w-4 h-4 text-emerald-400" /> Scanner Ready
             </span>
           </div>
 
-          {/* Category Chips */}
           <div className="flex gap-2 overflow-x-auto pb-1 text-xs">
             {["All", "Atta & Flours", "Edible Oils", "Dairy & Chilled", "Masala & Spices", "Cleaning"].map((cat) => (
               <button
@@ -259,7 +296,6 @@ export const POSPage: React.FC = () => {
             ))}
           </div>
 
-          {/* Arrow Key Navigable Product Catalog Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto pr-1">
             {filteredCatalog.map((prod, index) => {
               const isSelected = index === selectedIndex;
@@ -280,17 +316,15 @@ export const POSPage: React.FC = () => {
                     <img src={prod.image} alt={prod.name} className="w-11 h-11 rounded-xl object-cover" />
                     <div>
                       <h4 className="text-xs font-bold text-slate-100 line-clamp-1">{prod.name}</h4>
-                      <span className="text-[10px] text-emerald-400 font-mono">{prod.sku} • {prod.brand}</span>
+                      <span className="text-[10px] text-emerald-400 font-mono">{prod.sku}</span>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between border-t border-slate-800 pt-2 mt-1">
                     <span className="text-sm font-extrabold text-emerald-400 font-mono">₹{prod.price}</span>
-                    {isSelected && (
-                      <span className="text-[9px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold">
-                        ↵ Press Enter
-                      </span>
-                    )}
+                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 font-mono">
+                      {prod.stock} in stock
+                    </span>
                   </div>
                 </div>
               );
@@ -298,7 +332,7 @@ export const POSPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column: Shopping Cart & Express Checkout (5 Cols) */}
+        {/* Right Column: Shopping Cart & Checkout (5 Cols) */}
         <div className="lg:col-span-5 p-6 bg-slate-900 flex flex-col justify-between overflow-y-auto">
           <div className="space-y-4">
             <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-between">
@@ -316,10 +350,9 @@ export const POSPage: React.FC = () => {
               </select>
             </div>
 
-            {/* Cart Table */}
             <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 max-h-56 overflow-y-auto space-y-2">
               {cart.length === 0 ? (
-                <div className="text-center py-10 text-slate-500 text-xs">Cart is empty. Use ↑↓ arrows + Enter to add.</div>
+                <div className="text-center py-10 text-slate-500 text-xs">Cart is empty. Scan barcode or click product.</div>
               ) : (
                 <table className="w-full text-left text-xs">
                   <thead>
@@ -361,7 +394,6 @@ export const POSPage: React.FC = () => {
               )}
             </div>
 
-            {/* Calculations & GST */}
             <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-2 text-xs font-mono text-slate-300">
               <div className="flex justify-between"><span>Subtotal:</span><span>₹{subtotal}.00</span></div>
               <div className="flex justify-between"><span>GST Tax:</span><span>₹{totalGst}.00</span></div>
@@ -389,9 +421,7 @@ export const POSPage: React.FC = () => {
           <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-300 text-2xl flex items-center justify-center mx-auto">
             <CheckCircle className="w-8 h-8" />
           </div>
-          <div>
-            <h3 className="text-xl font-bold font-mono">Invoice {completedBillNo}</h3>
-          </div>
+          <div><h3 className="text-xl font-bold font-mono">Invoice {completedBillNo}</h3></div>
           <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold" onClick={() => { setShowReceiptModal(false); setCart([]); }}>
             <Printer className="w-4 h-4 mr-2 inline" /> Print ESC/POS Thermal Bill
           </Button>
