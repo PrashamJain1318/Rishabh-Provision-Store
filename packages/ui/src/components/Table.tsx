@@ -9,26 +9,39 @@ export interface Column<T> {
 export interface TableProps<T> {
   columns: Column<T>[];
   data: T[];
+  onRowClick?: (row: T) => void;
+  className?: string;
 }
 
-export function Table<T extends Record<string, any>>({ columns, data }: TableProps<T>) {
+export function Table<T extends Record<string, any>>({
+  columns,
+  data,
+  onRowClick,
+  className = "",
+}: TableProps<T>) {
   return (
-    <div className="w-full overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-2xl">
-      <table className="w-full text-left border-collapse">
-        <thead className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold uppercase">
+    <div className="w-full overflow-x-auto rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-soft-sm">
+      <table className={`w-full text-left text-xs text-slate-700 dark:text-slate-300 border-collapse min-w-[600px] ${className}`}>
+        <thead className="bg-slate-100/80 dark:bg-slate-800/80 text-slate-900 dark:text-slate-100 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200/80 dark:border-slate-800">
           <tr>
             {columns.map((col) => (
-              <th key={col.key} className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">
+              <th key={col.key} className="px-4 py-3.5 whitespace-nowrap">
                 {col.header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-sm text-slate-900 dark:text-slate-100">
-          {data.map((row, idx) => (
-            <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-850 transition-colors">
+        <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+          {data.map((row, index) => (
+            <tr
+              key={index}
+              onClick={() => onRowClick?.(row)}
+              className={`transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/40 ${
+                onRowClick ? "cursor-pointer" : ""
+              }`}
+            >
               {columns.map((col) => (
-                <td key={col.key} className="px-4 py-3">
+                <td key={col.key} className="px-4 py-3.5 whitespace-nowrap font-medium">
                   {col.render ? col.render(row) : row[col.key]}
                 </td>
               ))}
@@ -39,3 +52,5 @@ export function Table<T extends Record<string, any>>({ columns, data }: TablePro
     </div>
   );
 }
+
+export default Table;
