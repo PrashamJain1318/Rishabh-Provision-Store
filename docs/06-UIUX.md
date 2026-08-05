@@ -1,5 +1,33 @@
 # 06. UI/UX Planning & Design System Specifications (Phase 0.6)
 
+## 🏗️ Application Shell Layout Hierarchy
+
+The application shell strictly follows a 4-tier structural hierarchy (`DashboardLayout.tsx`):
+
+```text
++-----------------------------------------------------------------------------------+
+|  [ 1. STICKY NAVBAR ] Store Name | Search Bar | Branch Switcher | User Profile     |
++-------------------+---------------------------------------------------------------+
+|                   |                                                               |
+|  [ 2. SIDEBAR ]   |  [ 3. MAIN CONTENT REGION ]                                   |
+|                   |                                                               |
+|  (Collapsible)    |  - Page Headers & Breadcrumbs                                 |
+|  - Expanded (w-64)|  - Dynamic Module Views & Data Grids                          |
+|  - Collapsed(w-16)|  - Action Modals & Drawers                                    |
+|                   |                                                               |
+|                   +---------------------------------------------------------------+
+|                   |  [ 4. PAGE FOOTER ] © 2026 Rishabh Store. All rights reserved. |
++-------------------+---------------------------------------------------------------+
+```
+
+### Layout Specifications
+1. **Sticky Navbar**: Fixed top bar (`sticky top-0 z-40`), ensuring store search, profile, and status are always accessible during scrolling.
+2. **Collapsible Sidebar**: Expandable/collapsible sidebar (`w-64` expanded, `w-16` collapsed) with smooth CSS transitions. On mobile (<768px), transforms into a slide-out drawer.
+3. **Main Content**: Dynamic fluid view region (`flex-1 p-4 sm:p-6 lg:p-8`) housing feature screens and datagrids.
+4. **Footer**: Clean bottom footer anchored at the end of content.
+
+---
+
 ## 📱 Responsive Multi-Device Directives
 
 Every page across **Rishabh Provision Store** must be fully responsive and optimized for seamless operation across all device viewports from the beginning:
