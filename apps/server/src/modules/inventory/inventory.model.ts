@@ -8,7 +8,7 @@ const inventoryLogSchema = new Schema<IInventoryLogDocument>(
     product: { type: Schema.Types.ObjectId as any, ref: "Product", required: true, index: true },
     type: {
       type: String,
-      enum: ["Opening Stock", "Purchase", "Sale", "Damage", "Return", "Adjustment"],
+      enum: ["Opening", "Purchase", "Sale", "Return", "Damage", "Adjustment", "Transfer"],
       required: true,
       index: true,
     },

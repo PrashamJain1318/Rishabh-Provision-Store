@@ -15,85 +15,36 @@ import {
   Box,
   TrendingUp,
   RefreshCw,
+  AlertOctagon,
+  CircleDollarSign,
+  ArrowLeftRight,
 } from "lucide-react";
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { Button } from "@rishabh-store/ui";
-
-interface InventoryAuditSummary {
-  sku: string;
-  name: string;
-  openingStock: number;
-  purchase: number;
-  sale: number;
-  damage: number;
-  returns: number;
-  adjustment: number;
-  closingStock: number;
-  unit: string;
-}
 
 interface InventoryLogItem {
   id: string;
   productName: string;
   sku: string;
-  type: "Opening Stock" | "Purchase" | "Sale" | "Damage" | "Return" | "Adjustment";
+  type: "Opening" | "Purchase" | "Sale" | "Return" | "Damage" | "Adjustment" | "Transfer";
   quantity: number;
   previousStock: number;
-  newStock: number;
-  reason: string;
-  timestamp: string;
+  balance: number;
+  remarks: string;
+  date: string;
 }
-
-const initialSummaryData: InventoryAuditSummary[] = [
-  {
-    sku: "ATT-AASH-5KG",
-    name: "Aashirvaad Shudh Chakki Atta 5kg",
-    openingStock: 100,
-    purchase: 50,
-    sale: -2,
-    damage: 0,
-    returns: 0,
-    adjustment: -3,
-    closingStock: 145,
-    unit: "kg",
-  },
-  {
-    sku: "OIL-FORT-1L",
-    name: "Fortune Kachi Ghani Mustard Oil 1L",
-    openingStock: 90,
-    purchase: 0,
-    sale: -5,
-    damage: -3,
-    returns: 0,
-    adjustment: 0,
-    closingStock: 82,
-    unit: "L",
-  },
-  {
-    sku: "BUT-AMUL-500G",
-    name: "Amul Pasteurised Cow Butter 500g",
-    openingStock: 20,
-    purchase: 30,
-    sale: -2,
-    damage: 0,
-    returns: 0,
-    adjustment: 0,
-    closingStock: 48,
-    unit: "pkt",
-  },
-];
 
 const initialLogsData: InventoryLogItem[] = [
   {
     id: "LOG-001",
     productName: "Aashirvaad Shudh Chakki Atta 5kg",
     sku: "ATT-AASH-5KG",
-    type: "Opening Stock",
+    type: "Opening",
     quantity: 100,
     previousStock: 0,
-    newStock: 100,
-    reason: "Initial warehouse inventory load during system setup",
-    timestamp: "2026-08-01 10:00 AM",
+    balance: 100,
+    remarks: "Initial warehouse inventory load during system setup",
+    date: "2026-08-01 10:00 AM",
   },
   {
     id: "LOG-002",
@@ -102,9 +53,9 @@ const initialLogsData: InventoryLogItem[] = [
     type: "Purchase",
     quantity: 50,
     previousStock: 100,
-    newStock: 150,
-    reason: "Received wholesale shipment PO #PO-9821 from ITC Wholesalers",
-    timestamp: "2026-08-03 02:15 PM",
+    balance: 150,
+    remarks: "Received wholesale shipment PO #PO-9821 from ITC Wholesalers",
+    date: "2026-08-03 02:15 PM",
   },
   {
     id: "LOG-003",
@@ -113,72 +64,63 @@ const initialLogsData: InventoryLogItem[] = [
     type: "Damage",
     quantity: -3,
     previousStock: 85,
-    newStock: 82,
-    reason: "Pouch leakage damage during shelf unboxing in Rack 3A",
-    timestamp: "2026-08-05 09:30 AM",
+    balance: 82,
+    remarks: "Pouch leakage damage during shelf unboxing in Rack 3A",
+    date: "2026-08-05 09:30 AM",
+  },
+  {
+    id: "LOG-004",
+    productName: "Amul Pasteurised Cow Butter 500g",
+    sku: "BUT-AMUL-500G",
+    type: "Transfer",
+    quantity: -10,
+    previousStock: 58,
+    balance: 48,
+    remarks: "Transferred 10 units to Front Counter Display Chiller #2",
+    date: "2026-08-05 11:00 AM",
   },
 ];
 
 export const InventoryPage: React.FC = () => {
-  const [summaryList, setSummaryList] = useState<InventoryAuditSummary[]>(initialSummaryData);
   const [logsList, setLogsList] = useState<InventoryLogItem[]>(initialLogsData);
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Form State for Mandatory Reason Audit Adjustment
+  // Form State
   const [selectedSku, setSelectedSku] = useState("ATT-AASH-5KG");
   const [movementType, setMovementType] = useState<
-    "Purchase" | "Damage" | "Return" | "Adjustment"
+    "Opening" | "Purchase" | "Sale" | "Return" | "Damage" | "Adjustment" | "Transfer"
   >("Damage");
   const [qtyChange, setQtyChange] = useState("-1");
-  const [reason, setReason] = useState("");
+  const [remarks, setRemarks] = useState("");
   const [reasonError, setReasonError] = useState("");
 
   const handleAdjustStock = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!reason.trim() || reason.trim().length < 5) {
-      setReasonError("⚠️ Stock should never be edited manually without recording a valid audit reason (min 5 chars).");
+    if (!remarks.trim() || remarks.trim().length < 5) {
+      setReasonError("⚠️ Mandatory Audit Rule: Detailed remarks (min 5 chars) must be recorded for any stock change.");
       return;
     }
 
     setReasonError("");
-    const targetProduct = summaryList.find((s) => s.sku === selectedSku);
-    if (!targetProduct) return;
-
     const changeVal = parseInt(qtyChange) || 0;
-    const prevStock = targetProduct.closingStock;
-    const newStock = Math.max(0, prevStock + changeVal);
+    const prevStock = 145;
+    const newBalance = Math.max(0, prevStock + changeVal);
 
-    // Update Summary
-    setSummaryList(
-      summaryList.map((item) => {
-        if (item.sku === selectedSku) {
-          const updatedItem = { ...item, closingStock: newStock };
-          if (movementType === "Purchase") updatedItem.purchase += Math.abs(changeVal);
-          if (movementType === "Damage") updatedItem.damage += changeVal;
-          if (movementType === "Return") updatedItem.returns += changeVal;
-          if (movementType === "Adjustment") updatedItem.adjustment += changeVal;
-          return updatedItem;
-        }
-        return item;
-      })
-    );
-
-    // Add Audit Log Entry
     const newLog: InventoryLogItem = {
       id: `LOG-00${logsList.length + 1}`,
-      productName: targetProduct.name,
-      sku: targetProduct.sku,
+      productName: selectedSku === "ATT-AASH-5KG" ? "Aashirvaad Shudh Chakki Atta 5kg" : "Fortune Mustard Oil 1L",
+      sku: selectedSku,
       type: movementType,
       quantity: changeVal,
       previousStock: prevStock,
-      newStock,
-      reason: reason.trim(),
-      timestamp: new Date().toLocaleString("en-IN"),
+      balance: newBalance,
+      remarks: remarks.trim(),
+      date: new Date().toLocaleString("en-IN"),
     };
 
     setLogsList([newLog, ...logsList]);
-    setReason("");
+    setRemarks("");
     setQtyChange("-1");
     setIsModalOpen(false);
   };
@@ -187,7 +129,8 @@ export const InventoryPage: React.FC = () => {
     (l) =>
       l.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       l.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      l.reason.toLowerCase().includes(searchQuery.toLowerCase())
+      l.remarks.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      l.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -198,10 +141,10 @@ export const InventoryPage: React.FC = () => {
           <div>
             <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-3">
               <Warehouse className="w-8 h-8 text-emerald-600" />
-              Stock Movement & Audit Ledger
+              Inventory Stock Ledger & Movement Audit
             </h1>
             <p className="text-slate-500 text-sm mt-1">
-              Audit log breakdown: Opening Stock ➔ Purchase ➔ Sale ➔ Damage ➔ Return ➔ Adjustment ➔ Closing Stock
+              Real-time movement audit across Opening, Purchase, Sale, Return, Damage, Adjustment, & Transfer
             </p>
           </div>
           <Button
@@ -213,76 +156,82 @@ export const InventoryPage: React.FC = () => {
           </Button>
         </div>
 
-        {/* Audit Policy Banner */}
-        <div className="bg-amber-50 dark:bg-amber-950/40 p-4 rounded-2xl border border-amber-200 dark:border-amber-800 flex items-start gap-3">
-          <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-          <div className="text-xs text-amber-800 dark:text-amber-300">
-            <strong className="font-bold">Strict Audit Requirement:</strong> Stock levels cannot be edited manually without recording a valid justification reason. All changes are immutably logged with timestamp and user ID.
-          </div>
-        </div>
-
-        {/* Master Stock Summary Matrix Table */}
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xl overflow-hidden">
-          <div className="p-4 bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-            <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
+        {/* 5 INVENTORY DASHBOARD METRIC CARDS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {/* Card 1: Total Stock */}
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
+              <span>Total Stock Units</span>
               <Box className="w-4 h-4 text-emerald-600" />
-              Product Inventory Ledger Summary
-            </h3>
-            <span className="text-xs font-semibold text-slate-500">
-              Live Real-Time Calculations
-            </span>
+            </div>
+            <div className="mt-2">
+              <h3 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100">24,850</h3>
+              <p className="text-[10px] text-emerald-600 font-bold mt-0.5">Across 384 SKUs</p>
+            </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-100/50 dark:bg-slate-800/30 text-slate-500 uppercase font-bold tracking-wider">
-                  <th className="py-3.5 px-4">Item SKU & Name</th>
-                  <th className="py-3.5 px-4 text-center">Opening Stock</th>
-                  <th className="py-3.5 px-4 text-center text-emerald-600">Purchase (+)</th>
-                  <th className="py-3.5 px-4 text-center text-blue-600">Sale (-)</th>
-                  <th className="py-3.5 px-4 text-center text-rose-600">Damage (-)</th>
-                  <th className="py-3.5 px-4 text-center text-indigo-600">Return (±)</th>
-                  <th className="py-3.5 px-4 text-center text-amber-600">Adjustment (±)</th>
-                  <th className="py-3.5 px-4 text-center font-extrabold bg-slate-100 dark:bg-slate-800">Closing Stock</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {summaryList.map((item) => (
-                  <tr key={item.sku} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors font-medium">
-                    <td className="py-3.5 px-4">
-                      <p className="font-bold text-slate-900 dark:text-slate-100">{item.name}</p>
-                      <span className="font-mono text-[10px] text-slate-400">{item.sku}</span>
-                    </td>
-                    <td className="py-3.5 px-4 text-center font-bold text-slate-600">{item.openingStock} {item.unit}</td>
-                    <td className="py-3.5 px-4 text-center font-bold text-emerald-600">+{item.purchase}</td>
-                    <td className="py-3.5 px-4 text-center font-bold text-blue-600">{item.sale}</td>
-                    <td className="py-3.5 px-4 text-center font-bold text-rose-600">{item.damage}</td>
-                    <td className="py-3.5 px-4 text-center font-bold text-indigo-600">{item.returns}</td>
-                    <td className="py-3.5 px-4 text-center font-bold text-amber-600">{item.adjustment}</td>
-                    <td className="py-3.5 px-4 text-center font-extrabold text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100">
-                      {item.closingStock} {item.unit}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {/* Card 2: Inventory Value */}
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
+              <span>Inventory Value</span>
+              <CircleDollarSign className="w-4 h-4 text-blue-600" />
+            </div>
+            <div className="mt-2">
+              <h3 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100">₹4,85,200</h3>
+              <p className="text-[10px] text-blue-600 font-bold mt-0.5">Asset Valuation</p>
+            </div>
+          </div>
+
+          {/* Card 3: Low Stock */}
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-amber-200 dark:border-amber-900/50 shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between text-amber-600 text-xs font-semibold">
+              <span>Low Stock</span>
+              <AlertTriangle className="w-4 h-4 text-amber-600" />
+            </div>
+            <div className="mt-2">
+              <h3 className="text-2xl font-extrabold text-amber-600">8 Items</h3>
+              <p className="text-[10px] text-amber-600 font-bold mt-0.5">Below Threshold</p>
+            </div>
+          </div>
+
+          {/* Card 4: Out of Stock */}
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-rose-200 dark:border-rose-900/50 shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between text-rose-600 text-xs font-semibold">
+              <span>Out Of Stock</span>
+              <AlertOctagon className="w-4 h-4 text-rose-600" />
+            </div>
+            <div className="mt-2">
+              <h3 className="text-2xl font-extrabold text-rose-600">4 Items</h3>
+              <p className="text-[10px] text-rose-600 font-bold mt-0.5">PO Required</p>
+            </div>
+          </div>
+
+          {/* Card 5: Expiring Soon */}
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-orange-200 dark:border-orange-900/50 shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between text-orange-600 text-xs font-semibold">
+              <span>Expiring Soon</span>
+              <Clock className="w-4 h-4 text-orange-600" />
+            </div>
+            <div className="mt-2">
+              <h3 className="text-2xl font-extrabold text-orange-600">3 Batches</h3>
+              <p className="text-[10px] text-orange-600 font-bold mt-0.5">&lt; 30 Days</p>
+            </div>
           </div>
         </div>
 
-        {/* Audit Log Movement History */}
+        {/* IMMUTABLE STOCK LEDGER TABLE */}
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xl overflow-hidden p-6 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 flex items-center gap-2">
               <Clock className="w-5 h-5 text-emerald-600" />
-              Immutable Audit Log Trail
+              Stock Movement Audit Ledger
             </h3>
 
             <div className="relative w-full sm:w-72">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search audit logs by SKU or reason..."
+                placeholder="Search ledger by SKU, type, or remarks..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs"
@@ -293,43 +242,49 @@ export const InventoryPage: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-slate-500 font-bold uppercase">
-                  <th className="py-3 px-4">Log ID</th>
-                  <th className="py-3 px-4">Product Item</th>
-                  <th className="py-3 px-4">Type</th>
-                  <th className="py-3 px-4 text-center">Prev Stock ➔ New Stock</th>
-                  <th className="py-3 px-4">Audit Justification Reason</th>
-                  <th className="py-3 px-4 text-right">Timestamp</th>
+                <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-slate-500 font-bold uppercase tracking-wider">
+                  <th className="py-3.5 px-4">Date & Time</th>
+                  <th className="py-3.5 px-4">Product Item & SKU</th>
+                  <th className="py-3.5 px-4">Stock Type</th>
+                  <th className="py-3.5 px-4 text-center">Quantity (±)</th>
+                  <th className="py-3.5 px-4 text-center font-extrabold bg-slate-100 dark:bg-slate-800">Closing Balance</th>
+                  <th className="py-3.5 px-4">Audit Remarks</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {filteredLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                    <td className="py-3 px-4 font-mono font-bold text-emerald-600">{log.id}</td>
-                    <td className="py-3 px-4">
+                  <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors font-medium">
+                    <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400">{log.date}</td>
+                    <td className="py-3.5 px-4">
                       <p className="font-bold text-slate-900 dark:text-slate-100">{log.productName}</p>
                       <span className="font-mono text-[10px] text-slate-400">{log.sku}</span>
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-3.5 px-4">
                       <span
                         className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                          log.type === "Opening Stock" ? "bg-slate-100 text-slate-800" :
+                          log.type === "Opening" ? "bg-slate-100 text-slate-800" :
                           log.type === "Purchase" ? "bg-emerald-100 text-emerald-800" :
                           log.type === "Sale" ? "bg-blue-100 text-blue-800" :
                           log.type === "Damage" ? "bg-rose-100 text-rose-800" :
+                          log.type === "Return" ? "bg-indigo-100 text-indigo-800" :
+                          log.type === "Transfer" ? "bg-purple-100 text-purple-800" :
                           "bg-amber-100 text-amber-800"
                         }`}
                       >
                         {log.type}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-center font-mono font-semibold">
-                      {log.previousStock} ➔ <strong className="text-emerald-600">{log.newStock}</strong> ({log.quantity > 0 ? `+${log.quantity}` : log.quantity})
+                    <td className="py-3.5 px-4 text-center font-mono font-extrabold text-sm">
+                      <span className={log.quantity > 0 ? "text-emerald-600" : "text-rose-600"}>
+                        {log.quantity > 0 ? `+${log.quantity}` : log.quantity}
+                      </span>
                     </td>
-                    <td className="py-3 px-4 text-slate-700 dark:text-slate-300 italic max-w-xs truncate">
-                      "{log.reason}"
+                    <td className="py-3.5 px-4 text-center font-extrabold text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+                      {log.balance} Units
                     </td>
-                    <td className="py-3 px-4 text-right font-mono text-[11px] text-slate-400">{log.timestamp}</td>
+                    <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 italic max-w-xs truncate">
+                      "{log.remarks}"
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -350,7 +305,7 @@ export const InventoryPage: React.FC = () => {
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                   <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                     <ShieldAlert className="w-5 h-5 text-emerald-600" />
-                    Record Stock Movement Audit
+                    Record Stock Movement Entry
                   </h3>
                   <button
                     onClick={() => setIsModalOpen(false)}
@@ -363,35 +318,36 @@ export const InventoryPage: React.FC = () => {
                 <form onSubmit={handleAdjustStock} className="space-y-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                      Select Target Product SKU *
+                      Select Target Product *
                     </label>
                     <select
                       value={selectedSku}
                       onChange={(e) => setSelectedSku(e.target.value)}
                       className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold"
                     >
-                      {summaryList.map((item) => (
-                        <option key={item.sku} value={item.sku}>
-                          {item.name} ({item.sku}) - Current: {item.closingStock} {item.unit}
-                        </option>
-                      ))}
+                      <option value="ATT-AASH-5KG">Aashirvaad Shudh Chakki Atta 5kg (ATT-AASH-5KG)</option>
+                      <option value="OIL-FORT-1L">Fortune Kachi Ghani Mustard Oil 1L (OIL-FORT-1L)</option>
+                      <option value="BUT-AMUL-500G">Amul Pasteurised Cow Butter 500g (BUT-AMUL-500G)</option>
                     </select>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                        Movement Type *
+                        Stock Movement Type *
                       </label>
                       <select
                         value={movementType}
                         onChange={(e) => setMovementType(e.target.value as any)}
                         className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold"
                       >
-                        <option value="Purchase">Purchase (+)</option>
-                        <option value="Damage">Damage (-)</option>
-                        <option value="Return">Return (±)</option>
-                        <option value="Adjustment">Adjustment (±)</option>
+                        <option value="Opening">Opening</option>
+                        <option value="Purchase">Purchase</option>
+                        <option value="Sale">Sale</option>
+                        <option value="Return">Return</option>
+                        <option value="Damage">Damage</option>
+                        <option value="Adjustment">Adjustment</option>
+                        <option value="Transfer">Transfer</option>
                       </select>
                     </div>
 
@@ -410,21 +366,17 @@ export const InventoryPage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Mandatory Reason Input */}
                   <div>
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                      Audit Justification Reason * (Mandatory)
+                      Audit Remarks * (Mandatory)
                     </label>
                     <textarea
                       rows={3}
                       required
-                      placeholder="e.g. Water leak damage on lower shelf 4B / Received supplier credit note #CR-104..."
-                      value={reason}
-                      onChange={(e) => {
-                        setReason(e.target.value);
-                        if (e.target.value.trim().length >= 5) setReasonError("");
-                      }}
-                      className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                      placeholder="e.g. Rack breakage damage / Inter-shelf rack 2B transfer..."
+                      value={remarks}
+                      onChange={(e) => setRemarks(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
                     />
                     {reasonError && (
                       <p className="text-xs text-rose-600 font-semibold mt-1 flex items-center gap-1">
@@ -446,7 +398,7 @@ export const InventoryPage: React.FC = () => {
                       type="submit"
                       className="px-5 py-2 text-sm text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold shadow-lg shadow-emerald-500/20"
                     >
-                      Record Audit Entry
+                      Record Stock Entry
                     </Button>
                   </div>
                 </form>
