@@ -22,10 +22,8 @@ import {
   Edit3,
   FileText,
   Lock,
-  Phone,
-  Mail,
-  Building,
-  MapPin,
+  Percent,
+  Gift,
 } from "lucide-react";
 
 interface POSProduct {
@@ -51,77 +49,54 @@ interface CartItem {
   originalPrice: number;
   gst: number;
   qty: number;
+  itemDiscountVal?: number;
+  itemDiscountType?: "percentage" | "fixed";
   notes?: string;
 }
-
-interface CustomerProfile {
-  id: string;
-  name: string;
-  phone: string;
-  email?: string;
-  gst?: string;
-  address?: string;
-  type: "Walk-in" | "Regular" | "Wholesale";
-}
-
-const initialCustomers: CustomerProfile[] = [
-  { id: "CUST-000", name: "Walk-in Customer", phone: "N/A", type: "Walk-in" },
-  { id: "CUST-001", name: "Ramesh Kumar (Wholesale)", phone: "+91 98201 11223", email: "ramesh@gmail.com", gst: "27AAACI1681G1ZM", address: "Shop 12, Main Market, Mumbai", type: "Wholesale" },
-  { id: "CUST-002", name: "Sita Sharma", phone: "+91 98980 44556", email: "sita.sharma@yahoo.com", address: "Flat 402, Sunshine Heights, Mumbai", type: "Regular" },
-];
 
 const posCatalog: POSProduct[] = [
   { id: "P1", code: "8901058000123", sku: "ATT-AASH-5KG", name: "Aashirvaad Shudh Chakki Atta 5kg", brand: "Aashirvaad", category: "Atta & Flours", price: 245, mrp: 275, gst: 0, stock: 145, image: "https://images.unsplash.com/photo-1574323758207-f60101053e2c?w=300" },
   { id: "P2", code: "8906007280054", sku: "OIL-FORT-1L", name: "Fortune Kachi Ghani Mustard Oil 1L", brand: "Fortune", category: "Edible Oils", price: 142, mrp: 165, gst: 5, stock: 82, image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=300" },
   { id: "P3", code: "8901262010052", sku: "BUT-AMUL-500G", name: "Amul Pasteurised Cow Butter 500g", brand: "Amul", category: "Dairy & Chilled", price: 275, mrp: 280, gst: 12, stock: 48, image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300" },
-  { id: "P4", code: "8901058852310", sku: "SLT-TATA-1KG", name: "Tata Salt Iodized Vacuum Salt 1kg", brand: "Tata Consumer", category: "Masala & Spices", price: 27, mrp: 28, gst: 0, stock: 320, image: "https://images.unsplash.com/photo-1563822249510-04678c78fa85?w=300" },
 ];
 
 export const POSPage: React.FC = () => {
-  const [customersList, setCustomersList] = useState<CustomerProfile[]>(initialCustomers);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string>("CUST-000");
-
-  // New Customer Modal
-  const [showAddCustomerModal, setShowAddCustomerModal] = useState(false);
-  const [newCustName, setNewCustName] = useState("");
-  const [newCustPhone, setNewCustPhone] = useState("");
-  const [newCustEmail, setNewCustEmail] = useState("");
-  const [newCustGst, setNewCustGst] = useState("");
-  const [newCustAddress, setNewCustAddress] = useState("");
-
   const [rawSearchQuery, setRawSearchQuery] = useState("");
   const [cart, setCart] = useState<CartItem[]>([
-    { id: "P1", code: "8901058000123", sku: "ATT-AASH-5KG", name: "Aashirvaad Shudh Chakki Atta 5kg", price: 245, originalPrice: 245, gst: 0, qty: 1 },
+    { id: "P1", code: "8901058000123", sku: "ATT-AASH-5KG", name: "Aashirvaad Shudh Chakki Atta 5kg", price: 245, originalPrice: 245, gst: 0, qty: 2 },
   ]);
+
+  // COUPON & DISCOUNT ENGINE STATE
+  const [couponCode, setCouponCode] = useState("");
+  const [activeCouponMessage, setActiveCouponMessage] = useState<string | null>(null);
+  const [cartDiscountType, setCartDiscountType] = useState<"percentage" | "fixed">("percentage");
+  const [cartDiscountVal, setCartDiscountVal] = useState<number>(0);
 
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [completedBillNo, setCompletedBillNo] = useState("");
-  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const selectedCustomer = customersList.find((c) => c.id === selectedCustomerId) || initialCustomers[0];
+  // Apply Coupon Logic (Percentage, Flat, Buy X Get Y)
+  const handleApplyCoupon = () => {
+    const code = couponCode.trim().toUpperCase();
+    if (!code) return;
 
-  const handleCreateCustomer = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCustName.trim() || !newCustPhone.trim()) return;
-
-    const created: CustomerProfile = {
-      id: `CUST-00${customersList.length}`,
-      name: newCustName.trim(),
-      phone: newCustPhone.trim(),
-      email: newCustEmail.trim() || undefined,
-      gst: newCustGst.trim().toUpperCase() || undefined,
-      address: newCustAddress.trim() || undefined,
-      type: newCustGst ? "Wholesale" : "Regular",
-    };
-
-    setCustomersList([...customersList, created]);
-    setSelectedCustomerId(created.id);
-    setShowAddCustomerModal(false);
-    setNewCustName("");
-    setNewCustPhone("");
-    setNewCustEmail("");
-    setNewCustGst("");
-    setNewCustAddress("");
+    if (code === "SAVE10") {
+      setCartDiscountType("percentage");
+      setCartDiscountVal(10);
+      setActiveCouponMessage("🎉 Coupon SAVE10 Applied: 10% Off Cart Subtotal!");
+    } else if (code === "FLAT50") {
+      setCartDiscountType("fixed");
+      setCartDiscountVal(50);
+      setActiveCouponMessage("🎉 Coupon FLAT50 Applied: Flat ₹50 Off!");
+    } else if (code === "BUY2GET1") {
+      // Buy 2 Get 1 Free Promo
+      setCart((prev) =>
+        prev.map((item) => (item.qty >= 2 ? { ...item, qty: item.qty + 1, itemDiscountVal: item.price } : item))
+      );
+      setActiveCouponMessage("🎁 Promo BUY2GET1 Applied: 1 Unit Free added to items with Qty >= 2!");
+    } else {
+      setActiveCouponMessage("❌ Invalid Coupon Code. Try SAVE10, FLAT50, or BUY2GET1.");
+    }
   };
 
   const addToCart = (product: POSProduct) => {
@@ -137,9 +112,22 @@ export const POSPage: React.FC = () => {
     });
   };
 
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  // Financial Calculations
+  const subtotal = cart.reduce((sum, item) => {
+    const itemTotal = item.price * item.qty;
+    const itemDisc = item.itemDiscountVal
+      ? item.itemDiscountType === "percentage"
+        ? (itemTotal * item.itemDiscountVal) / 100
+        : item.itemDiscountVal
+      : 0;
+    return sum + Math.max(0, itemTotal - itemDisc);
+  }, 0);
+
+  const computedCartDiscount =
+    cartDiscountType === "percentage" ? (subtotal * cartDiscountVal) / 100 : cartDiscountVal;
+
   const totalGst = Math.round(cart.reduce((sum, item) => sum + (item.price * item.qty * item.gst) / 100, 0));
-  const grandTotal = subtotal + totalGst;
+  const grandTotal = Math.max(0, subtotal - computedCartDiscount + totalGst);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
@@ -151,7 +139,7 @@ export const POSPage: React.FC = () => {
           </div>
           <div>
             <h2 className="font-extrabold text-base text-white">Rishabh Express POS Terminal #1</h2>
-            <p className="text-xs text-slate-400">Customer Management: Walk-in, Existing & Quick Registration</p>
+            <p className="text-xs text-slate-400">Discounts & Coupons Engine: Percentage, Flat, Item-Level & BOGO Promos</p>
           </div>
         </div>
 
@@ -164,17 +152,16 @@ export const POSPage: React.FC = () => {
 
       {/* Main Grid */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-0 overflow-hidden">
-        {/* Left Column: Product Grid (7 Cols) */}
+        {/* Left Column: Product Grid */}
         <div className="lg:col-span-7 border-r border-slate-800 p-6 flex flex-col gap-4 overflow-y-auto">
           <div className="relative">
             <Search className="w-5 h-5 absolute left-4 top-3.5 text-slate-400" />
             <input
-              ref={searchInputRef}
               type="text"
               value={rawSearchQuery}
               onChange={(e) => setRawSearchQuery(e.target.value)}
               placeholder="🔍 Search products or scan barcode..."
-              className="w-full bg-slate-900 border border-slate-700 text-white placeholder-slate-400 text-sm pl-12 pr-4 py-3 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
+              className="w-full bg-slate-900 border border-slate-700 text-white placeholder-slate-400 text-sm pl-12 pr-4 py-3 rounded-2xl font-mono"
             />
           </div>
 
@@ -204,53 +191,73 @@ export const POSPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column: Customer Selection & Cart (5 Cols) */}
+        {/* Right Column: Discounts & Coupons Panel (5 Cols) */}
         <div className="lg:col-span-5 p-6 bg-slate-900 flex flex-col justify-between overflow-y-auto">
           <div className="space-y-4">
-            {/* CUSTOMER MODULE SELECTOR & NEW CUSTOMER TRIGGER */}
+            <h3 className="font-extrabold text-sm text-slate-200 uppercase tracking-wider flex items-center gap-2">
+              <Tag className="w-4 h-4 text-emerald-400" /> Discounts & Promotional Coupons
+            </h3>
+
+            {/* COUPON REDEEM INPUT */}
             <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-slate-300 uppercase flex items-center gap-1.5">
-                  <UserCheck className="w-4 h-4 text-emerald-400" /> Customer Options
-                </span>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Enter Coupon Code (e.g. SAVE10, FLAT50, BUY2GET1)"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  className="flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs font-mono font-bold text-white uppercase focus:ring-1 focus:ring-emerald-500"
+                />
                 <button
-                  onClick={() => setShowAddCustomerModal(true)}
-                  className="px-2.5 py-1 bg-emerald-950 text-emerald-400 border border-emerald-800/80 rounded-xl text-xs font-bold flex items-center gap-1 hover:bg-emerald-900"
+                  onClick={handleApplyCoupon}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl"
                 >
-                  <UserPlus className="w-3.5 h-3.5" /> + New Customer
+                  Apply Coupon
                 </button>
               </div>
 
-              <select
-                value={selectedCustomerId}
-                onChange={(e) => setSelectedCustomerId(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 text-white text-xs rounded-xl px-3 py-2 font-bold focus:ring-1 focus:ring-emerald-500"
-              >
-                {customersList.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name} {c.phone !== "N/A" ? `(${c.phone})` : ""} {c.gst ? `- GST: ${c.gst}` : ""}
-                  </option>
-                ))}
-              </select>
-
-              {/* Selected Customer Details */}
-              {selectedCustomer.id !== "CUST-000" && (
-                <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 text-[11px] space-y-1 text-slate-300 font-mono">
-                  <p><strong>Phone:</strong> {selectedCustomer.phone}</p>
-                  {selectedCustomer.email && <p><strong>Email:</strong> {selectedCustomer.email}</p>}
-                  {selectedCustomer.gst && <p><strong className="text-emerald-400">GSTIN:</strong> {selectedCustomer.gst}</p>}
-                  {selectedCustomer.address && <p><strong>Address:</strong> {selectedCustomer.address}</p>}
-                </div>
+              {activeCouponMessage && (
+                <p className="text-xs font-bold text-emerald-400 font-mono">{activeCouponMessage}</p>
               )}
             </div>
 
-            {/* Shopping Cart Summary */}
+            {/* CART-LEVEL MANUAL DISCOUNT */}
+            <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3 text-xs font-mono">
+              <span className="font-bold text-slate-300 uppercase">Cart-Level Manual Discount</span>
+              <div className="grid grid-cols-3 gap-2">
+                <select
+                  value={cartDiscountType}
+                  onChange={(e) => setCartDiscountType(e.target.value as any)}
+                  className="bg-slate-900 border border-slate-700 text-white rounded-xl px-2 py-1.5 font-bold"
+                >
+                  <option value="percentage">% Percentage</option>
+                  <option value="fixed">₹ Fixed Amount</option>
+                </select>
+
+                <input
+                  type="number"
+                  placeholder="0"
+                  value={cartDiscountVal}
+                  onChange={(e) => setCartDiscountVal(parseFloat(e.target.value) || 0)}
+                  className="col-span-2 bg-slate-900 border border-slate-700 text-white rounded-xl px-3 py-1.5 font-bold text-right"
+                />
+              </div>
+            </div>
+
+            {/* Shopping Cart Breakdown */}
             <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-2 text-xs font-mono text-slate-300">
               <div className="flex justify-between"><span>Subtotal:</span><span>₹{subtotal}.00</span></div>
-              <div className="flex justify-between"><span>GST Tax:</span><span>₹{totalGst}.00</span></div>
+              {computedCartDiscount > 0 && (
+                <div className="flex justify-between text-emerald-400 font-bold">
+                  <span>Cart Discount ({cartDiscountType === "percentage" ? `${cartDiscountVal}%` : `₹${cartDiscountVal}`}):</span>
+                  <span>- ₹{computedCartDiscount.toFixed(2)}</span>
+                </div>
+              )}
+              <div className="flex justify-between"><span>Automated GST:</span><span>₹{totalGst}.00</span></div>
+
               <div className="bg-emerald-950 border border-emerald-800/60 rounded-xl p-3 text-center mt-3">
-                <span className="text-[10px] uppercase text-emerald-300 font-extrabold tracking-wider">Grand Total</span>
-                <div className="text-3xl font-extrabold text-white font-mono mt-0.5">₹{grandTotal}.00</div>
+                <span className="text-[10px] uppercase text-emerald-300 font-extrabold tracking-wider">Grand Total Payable</span>
+                <div className="text-3xl font-extrabold text-white font-mono mt-0.5">₹{grandTotal.toFixed(2)}</div>
               </div>
             </div>
           </div>
@@ -263,81 +270,10 @@ export const POSPage: React.FC = () => {
             }}
             className="w-full mt-4 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-emerald-500/20"
           >
-            <Printer className="w-4 h-4 mr-2 inline" /> Checkout ({selectedCustomer.name})
+            <Printer className="w-4 h-4 mr-2 inline" /> Checkout & Thermal Print
           </Button>
         </div>
       </div>
-
-      {/* CREATE NEW CUSTOMER MODAL */}
-      <Modal isOpen={showAddCustomerModal} onClose={() => setShowAddCustomerModal(false)} title="Create New Customer Profile">
-        <form onSubmit={handleCreateCustomer} className="space-y-3 text-slate-900 dark:text-slate-100">
-          <div>
-            <label className="block text-xs font-bold uppercase mb-1">Customer Full Name *</label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. Ramesh Kumar / Anjali Mehta"
-              value={newCustName}
-              onChange={(e) => setNewCustName(e.target.value)}
-              className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold uppercase mb-1">Mobile Phone *</label>
-              <input
-                type="text"
-                required
-                placeholder="+91 98201 12345"
-                value={newCustPhone}
-                onChange={(e) => setNewCustPhone(e.target.value)}
-                className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase mb-1">Email Address</label>
-              <input
-                type="email"
-                placeholder="customer@email.com"
-                value={newCustEmail}
-                onChange={(e) => setNewCustEmail(e.target.value)}
-                className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold uppercase mb-1">GSTIN Number (15 Digits)</label>
-              <input
-                type="text"
-                placeholder="27AAACI1681G1ZM"
-                value={newCustGst}
-                onChange={(e) => setNewCustGst(e.target.value)}
-                className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono uppercase"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase mb-1">Street Address</label>
-              <input
-                type="text"
-                placeholder="Shop 12, Main Market"
-                value={newCustAddress}
-                onChange={(e) => setNewCustAddress(e.target.value)}
-                className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-2 pt-3">
-            <Button type="button" variant="outline" onClick={() => setShowAddCustomerModal(false)}>Cancel</Button>
-            <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold">Register Customer</Button>
-          </div>
-        </form>
-      </Modal>
 
       {/* Thermal Receipt Print Modal */}
       <Modal isOpen={showReceiptModal} onClose={() => setShowReceiptModal(false)} title="Thermal Bill Receipt">
@@ -345,7 +281,7 @@ export const POSPage: React.FC = () => {
           <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-300 text-2xl flex items-center justify-center mx-auto">
             <CheckCircle className="w-8 h-8" />
           </div>
-          <div><h3 className="text-xl font-bold font-mono">Invoice {completedBillNo}</h3><p className="text-xs text-slate-500">Customer: {selectedCustomer.name}</p></div>
+          <div><h3 className="text-xl font-bold font-mono">Invoice {completedBillNo}</h3></div>
           <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold" onClick={() => { setShowReceiptModal(false); setCart([]); }}>
             <Printer className="w-4 h-4 mr-2 inline" /> Print ESC/POS Thermal Bill
           </Button>
