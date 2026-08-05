@@ -3,7 +3,7 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import LandingPage from "./pages/Landing";
 import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
-import DashboardPage from "./pages/Dashboard";
+import InventoryDashboardPage from "./pages/InventoryDashboard";
 import ProductsPage from "./pages/Products";
 import BrandsPage from "./pages/Brands";
 import UnitsPage from "./pages/Units";
@@ -34,7 +34,8 @@ function App() {
           <Route path="/pos" element={<POSPage />} />
 
           {/* Dashboard Sub-routes */}
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/dashboard" element={<InventoryDashboardPage />} />
+          <Route path="/dashboard/inventory-dashboard" element={<InventoryDashboardPage />} />
           <Route path="/dashboard/products" element={<ProductsPage />} />
           <Route path="/dashboard/brands" element={<BrandsPage />} />
           <Route path="/dashboard/units" element={<UnitsPage />} />
