@@ -9,6 +9,7 @@ import {
 import { sendSuccess, sendError } from "../../utils/response";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { UserModel } from "../users/user.model";
+import { AuthRequest } from "../../middlewares/auth.middleware";
 
 // Seed / Cache store for dev fallback
 const mockUsersDb: Record<string, any> = {
@@ -230,5 +231,18 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
     res,
     message: "User logged out successfully",
     data: {},
+  });
+});
+
+export const getProfile = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const user = req.user;
+  if (!user) {
+    return sendError({ res, statusCode: 401, message: "Unauthorized request." });
+  }
+
+  return sendSuccess({
+    res,
+    message: "User profile retrieved successfully",
+    data: user,
   });
 });

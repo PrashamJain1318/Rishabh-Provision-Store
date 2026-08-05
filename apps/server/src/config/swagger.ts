@@ -16,7 +16,8 @@ export const swaggerSpec = {
     },
   ],
   tags: [
-    { name: "Auth", description: "Authentication, Registration, Refresh Tokens & Sessions" },
+    { name: "Auth", description: "Authentication, Registration, Refresh Tokens & User Profile" },
+    { name: "Users", description: "User Management & Role Administration" },
     { name: "Products", description: "Grocery Catalog Items, SKU Search & Pricing" },
     { name: "Inventory", description: "Stock Levels, Batch Expiry Alert Monitor & Reorders" },
     { name: "Orders", description: "Omnichannel Orders & Fulfillment Stream" },
@@ -39,15 +40,43 @@ export const swaggerSpec = {
         summary: "Server Health Check Endpoint",
         tags: ["System"],
         responses: {
-          200: {
-            description: "Server is online and healthy",
+          200: { description: "Server is online and healthy" },
+        },
+      },
+    },
+    "/auth/register": {
+      post: {
+        summary: "Register Store Staff or Customer Account",
+        tags: ["Auth"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["firstName", "lastName", "email", "password"],
+                properties: {
+                  firstName: { type: "string", example: "Ramesh" },
+                  lastName: { type: "string", example: "Kumar" },
+                  email: { type: "string", example: "ramesh@gmail.com" },
+                  phone: { type: "string", example: "9812345678" },
+                  password: { type: "string", example: "RameshPass123@" },
+                  role: { type: "string", enum: ["Owner", "Manager", "Cashier", "Employee", "Delivery Partner", "Customer"], example: "Customer" },
+                },
+              },
+            },
           },
+        },
+        responses: {
+          201: { description: "Registration successful" },
+          400: { description: "Validation failed" },
+          409: { description: "Email or phone already exists" },
         },
       },
     },
     "/auth/login": {
       post: {
-        summary: "Sign In with Email & Password",
+        summary: "Sign In with Email/Username & Password",
         tags: ["Auth"],
         requestBody: {
           required: true,
@@ -56,8 +85,9 @@ export const swaggerSpec = {
               schema: {
                 type: "object",
                 properties: {
-                  email: { type: "string", example: "owner@rishabhstore.com" },
-                  password: { type: "string", example: "admin123" },
+                  username: { type: "string", example: "rps_admin" },
+                  email: { type: "string", example: "admin@rishabhstore.com" },
+                  password: { type: "string", example: "rishabh1234@" },
                 },
               },
             },
@@ -66,6 +96,37 @@ export const swaggerSpec = {
         responses: {
           200: { description: "Sign in successful" },
           401: { description: "Invalid credentials" },
+          403: { description: "Account deactivated" },
+        },
+      },
+    },
+    "/auth/refresh": {
+      post: {
+        summary: "Renew Access Token using HttpOnly Refresh Cookie",
+        tags: ["Auth"],
+        responses: {
+          200: { description: "Access token refreshed successfully" },
+          401: { description: "Refresh token missing or expired" },
+        },
+      },
+    },
+    "/auth/logout": {
+      post: {
+        summary: "Sign Out & Evict HttpOnly Refresh Cookie",
+        tags: ["Auth"],
+        responses: {
+          200: { description: "User logged out successfully" },
+        },
+      },
+    },
+    "/auth/me": {
+      get: {
+        summary: "Retrieve Authenticated User Profile",
+        tags: ["Auth"],
+        security: [{ BearerAuth: [] }],
+        responses: {
+          200: { description: "User profile retrieved successfully" },
+          401: { description: "Unauthorized token missing or invalid" },
         },
       },
     },
