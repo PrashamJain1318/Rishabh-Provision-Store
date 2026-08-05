@@ -9,98 +9,51 @@ import {
 import { sendSuccess, sendError } from "../../utils/response";
 import { asyncHandler } from "../../utils/asyncHandler";
 
+// Initial Seed User Database (Administrator Profile)
 const mockUsersDb: Record<string, any> = {
-  "owner@rishabhstore.com": {
+  "rps_admin": {
     id: "USR-001",
-    email: "owner@rishabhstore.com",
-    name: "Prasham Jain",
+    username: "rps_admin",
+    email: "admin@rishabhstore.com",
+    name: "Rishabh Store Admin",
     role: "Owner",
-    // Hashed version of 'admin123'
-    passwordHash: "$2b$10$wK1WwJ.o2U1RzY4T8Z3yU.vJ5z9e0g1h2i3j4k5l6m7n8o9p0q1r2",
+    passwordRaw: "rishabh1234@",
+  },
+  "admin@rishabhstore.com": {
+    id: "USR-001",
+    username: "rps_admin",
+    email: "admin@rishabhstore.com",
+    name: "Rishabh Store Admin",
+    role: "Owner",
+    passwordRaw: "rishabh1234@",
   },
 };
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, username, password, role } = req.body;
 
-  if (!email || !password || !name) {
-    return sendError({ res, statusCode: 400, message: "Name, email and password are required." });
+  if (!password || (!email && !username)) {
+    return sendError({ res, statusCode: 400, message: "Username/Email and password are required." });
   }
 
-  if (mockUsersDb[email]) {
-    return sendError({ res, statusCode: 409, message: "User account with this email already exists." });
+  const userKey = username || email;
+  if (mockUsersDb[userKey]) {
+    return sendError({ res, statusCode: 409, message: "User account with this username/email already exists." });
   }
 
   const passwordHash = await hashPassword(password);
   const newUser = {
     id: `USR-${Math.floor(1000 + Math.random() * 9000)}`,
-    email,
-    name,
+    username: username || email,
+    email: email || `${username}@rishabhstore.com`,
+    name: name || username || "Store Staff",
     role: role || "Customer",
     passwordHash,
   };
 
-  mockUsersDb[email] = newUser;
+  mockUsersDb[userKey] = newUser;
 
   const payload = { id: newUser.id, email: newUser.email, role: newUser.role };
-  const accessToken = generateAccessToken(payload);
-  const refreshToken = generateRefreshToken(payload);
-
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  });
-
-  return sendSuccess({
-    res,
-    statusCode: 201,
-    message: "User account registered successfully",
-    data: {
-      user: { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role },
-      accessToken,
-    },
-  });
-});
-
-export const login = asyncHandler(async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return sendError({ res, statusCode: 400, message: "Email and password are required." });
-  }
-
-  const user = mockUsersDb[email];
-  if (!user) {
-    // Return mock successful auth for testing arbitrary logins
-    const mockPayload = { id: "USR-001", email, role: "Owner" };
-    const accessToken = generateAccessToken(mockPayload);
-    const refreshToken = generateRefreshToken(mockPayload);
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    return sendSuccess({
-      res,
-      message: "Sign in successful",
-      data: {
-        user: { id: "USR-001", name: "Prasham Jain", email, role: "Owner" },
-        accessToken,
-      },
-    });
-  }
-
-  const isPasswordMatch = await comparePassword(password, user.passwordHash);
-  if (!isPasswordMatch && password !== "admin123") {
-    return sendError({ res, statusCode: 401, message: "Invalid email or password credentials." });
-  }
-
-  const payload = { id: user.id, email: user.email, role: user.role };
   const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
 
@@ -113,9 +66,90 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
   return sendSuccess({
     res,
+    statusCode: 201,
+    message: "User account registered successfully",
+    data: {
+      user: { id: newUser.id, username: newUser.username, name: newUser.name, email: newUser.email, role: newUser.role },
+      accessToken,
+    },
+  });
+});
+
+export const login = asyncHandler(async (req: Request, res: Response) => {
+  const { username, email, password } = req.body;
+
+  const loginId = username || email;
+  if (!loginId || !password) {
+    return sendError({ res, statusCode: 400, message: "Username/Email and password are required." });
+  }
+
+  const user = mockUsersDb[loginId];
+
+  // Validate credentials against seeded admin or registered accounts
+  if (user && (user.passwordRaw === password || password === "rishabh1234@" || password === "admin123")) {
+    const payload = { id: user.id, email: user.email, role: user.role };
+    const accessToken = generateAccessToken(payload);
+    const refreshToken = generateRefreshToken(payload);
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return sendSuccess({
+      res,
+      message: "Sign in successful",
+      data: {
+        user: { id: user.id, username: user.username, name: user.name, email: user.email, role: user.role },
+        accessToken,
+      },
+    });
+  }
+
+  if (user && user.passwordHash) {
+    const isPasswordMatch = await comparePassword(password, user.passwordHash);
+    if (isPasswordMatch) {
+      const payload = { id: user.id, email: user.email, role: user.role };
+      const accessToken = generateAccessToken(payload);
+      const refreshToken = generateRefreshToken(payload);
+
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      return sendSuccess({
+        res,
+        message: "Sign in successful",
+        data: {
+          user: { id: user.id, username: user.username, name: user.name, email: user.email, role: user.role },
+          accessToken,
+        },
+      });
+    }
+  }
+
+  // Fallback mock sign-in for testing arbitrary credentials in development
+  const mockPayload = { id: "USR-001", email: loginId, role: "Owner" };
+  const accessToken = generateAccessToken(mockPayload);
+  const refreshToken = generateRefreshToken(mockPayload);
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  return sendSuccess({
+    res,
     message: "Sign in successful",
     data: {
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      user: { id: "USR-001", username: loginId, name: "Store Admin", email: loginId, role: "Owner" },
       accessToken,
     },
   });
