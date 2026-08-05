@@ -41,8 +41,8 @@ export interface IOrderDelivery {
 export interface IOrderTimelineEvent {
   status: OrderStatus;
   timestamp: Date | string;
-  note?: string;
   performedBy?: string;
+  note?: string;
 }
 
 export interface IOrder {
@@ -72,5 +72,6 @@ export interface ICreateOrderInput {
 
 export interface IUpdateOrderStatusInput {
   status: OrderStatus;
+  performedBy?: string;
   note?: string;
 }

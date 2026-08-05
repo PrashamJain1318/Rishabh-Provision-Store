@@ -36,48 +36,13 @@ const mockOrders: IOrder[] = [
     status: "Out For Delivery",
     invoiceNumber: "INV-2026-9821",
     timeline: [
-      { status: "Pending", timestamp: new Date("2026-08-06T00:00:00Z"), note: "Order placed via Web Storefront" },
-      { status: "Confirmed", timestamp: new Date("2026-08-06T00:02:00Z"), note: "Merchant confirmed order" },
-      { status: "Packed", timestamp: new Date("2026-08-06T00:05:00Z"), note: "Packed at Store Hub #1" },
-      { status: "Out For Delivery", timestamp: new Date("2026-08-06T00:10:00Z"), note: "Dispatched with rider Vikram" },
+      { status: "Pending", timestamp: new Date("2026-08-06T00:00:00Z"), performedBy: "Customer (Mobile App)", note: "Order placed via Storefront" },
+      { status: "Confirmed", timestamp: new Date("2026-08-06T00:02:00Z"), performedBy: "Prasham Jain (Store Manager)", note: "Merchant confirmed order" },
+      { status: "Packed", timestamp: new Date("2026-08-06T00:05:00Z"), performedBy: "Hub Packer #2", note: "Packed at Store Hub #1" },
+      { status: "Out For Delivery", timestamp: new Date("2026-08-06T00:10:00Z"), performedBy: "Vikram Singh (Rider)", note: "Dispatched with rider Vikram" },
     ],
     notes: "Leave package at front security desk if unavailable",
     createdAt: new Date("2026-08-06T00:00:00Z"),
-  },
-  {
-    id: "ORD-002",
-    orderNumber: "ORD-2026-4412",
-    customer: "CUST-002",
-    customerName: "Sita Sharma",
-    customerPhone: "+91 98980 44556",
-    items: [
-      {
-        product: "PROD-003",
-        productName: "Amul Pasteurised Cow Butter 500g Pack",
-        sku: "BUT-AMUL-500G",
-        quantity: 1,
-        price: 275,
-        discount: 0,
-        gst: 12,
-        lineTotal: 275,
-      },
-    ],
-    payment: {
-      method: "Cash",
-      status: "Completed",
-      amount: 275,
-    },
-    delivery: {
-      address: "Store POS Counter Billing #1",
-      pincode: "400093",
-    },
-    status: "Delivered",
-    invoiceNumber: "INV-2026-4412",
-    timeline: [
-      { status: "Pending", timestamp: new Date("2026-08-05T18:00:00Z") },
-      { status: "Delivered", timestamp: new Date("2026-08-05T18:01:00Z"), note: "POS Counter Checkout" },
-    ],
-    createdAt: new Date("2026-08-05T18:00:00Z"),
   },
 ];
 
@@ -130,7 +95,9 @@ export class OrderRepository {
         orderNumber,
         invoiceNumber,
         status: "Pending",
-        timeline: [{ status: "Pending", timestamp: new Date(), note: "Order placed" }],
+        timeline: [
+          { status: "Pending", timestamp: new Date(), performedBy: "System Auto-Dispatcher", note: "Order placed" },
+        ],
       });
       return await newOrder.save();
     } catch {
@@ -144,7 +111,9 @@ export class OrderRepository {
         payment: input.payment,
         delivery: input.delivery,
         status: "Pending",
-        timeline: [{ status: "Pending", timestamp: new Date().toISOString(), note: "Order placed" }],
+        timeline: [
+          { status: "Pending", timestamp: new Date().toISOString(), performedBy: "System Auto-Dispatcher", note: "Order placed" },
+        ],
         notes: input.notes,
         createdAt: new Date(),
       };
@@ -161,6 +130,7 @@ export class OrderRepository {
         order.timeline.push({
           status: input.status,
           timestamp: new Date(),
+          performedBy: input.performedBy || "Store Manager",
           note: input.note || `Status updated to ${input.status}`,
         } as any);
         return await order.save();
@@ -174,6 +144,7 @@ export class OrderRepository {
     mockOrders[index].timeline.push({
       status: input.status,
       timestamp: new Date().toISOString(),
+      performedBy: input.performedBy || "Store Manager",
       note: input.note || `Status updated to ${input.status}`,
     });
     mockOrders[index].updatedAt = new Date();
