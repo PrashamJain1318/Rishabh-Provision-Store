@@ -14,7 +14,7 @@ import { globalRateLimiter, authRateLimiter } from "./middlewares/rateLimiter.mi
 import { notFoundHandler } from "./middlewares/notFound.middleware";
 import { errorHandler } from "./middlewares/error.middleware";
 import authRouter from "./modules/auth/auth.router";
-import productRouter from "./modules/products/product.router";
+import { productRouter } from "./modules/products";
 import billingRouter from "./modules/billing/billing.router";
 
 export const createApp = (): Application => {
@@ -69,7 +69,7 @@ export const createApp = (): Application => {
   // 9. Interactive Swagger OpenAPI UI Documentation Endpoint
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-  // Health Check Endpoint (Standardized Payload)
+  // Health Check Endpoint
   app.get(`${API_PREFIX}/health`, (req: Request, res: Response) => {
     return sendSuccess({
       res,
