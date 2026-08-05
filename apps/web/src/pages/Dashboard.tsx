@@ -1,17 +1,7 @@
 import React from "react";
 import { DashboardLayout } from "../layouts/DashboardLayout";
-import { DashboardCard, Table, Column } from "@rishabh-store/ui";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { DashboardCard, Table, Column, ChartCard } from "@rishabh-store/ui";
 
-// Mock Sales Velocity & Revenue Data
 const salesGraphData = [
   { time: "08:00 AM", sales: 1200, orders: 4 },
   { time: "10:00 AM", sales: 4500, orders: 15 },
@@ -21,7 +11,6 @@ const salesGraphData = [
   { time: "06:00 PM", sales: 24850, orders: 88 },
 ];
 
-// Mock Recent Orders Datagrid
 interface RecentOrder {
   orderNo: string;
   customer: string;
@@ -39,7 +28,6 @@ const recentOrders: RecentOrder[] = [
   { orderNo: "#BILL-1041", customer: "Ramesh Kumar", type: "Khata Udhar", total: "₹ 650.00", status: "Completed", time: "42 mins ago" },
 ];
 
-// Mock Low Stock Products
 interface LowStockItem {
   id: string;
   name: string;
@@ -54,7 +42,6 @@ const lowStockItems: LowStockItem[] = [
   { id: "PROD-012", name: "Mother Dairy Milk (500ml)", category: "Dairy", currentStock: 4, minThreshold: 20 },
 ];
 
-// Mock Top Selling Products
 interface TopProduct {
   name: string;
   category: string;
@@ -97,7 +84,7 @@ export const DashboardPage: React.FC = () => {
   return (
     <DashboardLayout activeNavId="dashboard">
       <div className="flex flex-col gap-6">
-        {/* Top Title Bar */}
+        {/* Top Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-section-title text-slate-900 dark:text-slate-100 font-bold">
@@ -108,7 +95,7 @@ export const DashboardPage: React.FC = () => {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <a href="/reports">
+            <a href="/dashboard/reports">
               <button className="px-4 py-2 rounded-2xl border border-slate-300 dark:border-slate-700 font-semibold text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
                 📈 View Reports
               </button>
@@ -121,7 +108,7 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 1-5. 5 Glassmorphism Metric Stat Cards */}
+        {/* 5 Glassmorphism Metric Stat Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <DashboardCard
             title="Monthly Revenue"
@@ -159,79 +146,33 @@ export const DashboardPage: React.FC = () => {
           />
         </div>
 
-        {/* 6. Interactive Sales Graph (Recharts Area Chart) */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-soft-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-card-title font-bold text-slate-900 dark:text-slate-100">
-                Today's Cumulative Sales Velocity
-              </h3>
-              <p className="text-xs text-slate-500">
-                Real-time hourly revenue trajectory across POS cashier terminals.
-              </p>
-            </div>
-            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">
-              Live Feed
-            </span>
-          </div>
+        {/* Recharts Modern Smooth Gradient Area Chart Overview */}
+        <ChartCard data={salesGraphData} />
 
-          <div className="h-72 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={salesGraphData}>
-                <defs>
-                  <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#059669" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#059669" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                <XAxis dataKey="time" stroke="#94a3b8" fontSize={12} />
-                <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(val) => `₹${val}`} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#0f172a",
-                    borderColor: "#334155",
-                    borderRadius: "12px",
-                    color: "#fff",
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="sales"
-                  stroke="#059669"
-                  strokeWidth={3}
-                  fillOpacity={1}
-                  fill="url(#colorSales)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* 7 & 8-9. Bottom Grid Split (7. Recent Orders vs 8-9. Inventory & Top Products) */}
+        {/* Bottom Grid Split (Recent Orders vs Low Stock & Top Products) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* 7. Recent Orders Datagrid (7 cols) */}
-          <div className="lg:col-span-7 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-soft-sm">
+          {/* Recent Orders Datagrid */}
+          <div className="lg:col-span-7 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-soft-sm">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-card-title font-bold text-slate-900 dark:text-slate-100">
                 Recent Orders & POS Bills
               </h3>
-              <a href="/orders" className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">
+              <a href="/dashboard/orders" className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">
                 View All Orders ➔
               </a>
             </div>
             <Table columns={orderColumns} data={recentOrders} />
           </div>
 
-          {/* 8-9. Low Stock & Top Selling Sidebar Cards (5 cols) */}
+          {/* Low Stock & Top Selling Sidebar Cards */}
           <div className="lg:col-span-5 flex flex-col gap-6">
-            {/* 8. Low Stock Products */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-soft-sm">
+            {/* Low Stock Products */}
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-soft-sm">
               <div className="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-800 pb-2">
                 <h4 className="font-bold text-base text-slate-900 dark:text-slate-100">
                   ⚠️ Low Stock Products
                 </h4>
-                <a href="/inventory" className="text-xs font-semibold text-amber-600 hover:underline">
+                <a href="/dashboard/inventory" className="text-xs font-semibold text-amber-600 hover:underline">
                   Reorder Stock ➔
                 </a>
               </div>
@@ -239,7 +180,7 @@ export const DashboardPage: React.FC = () => {
                 {lowStockItems.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60"
+                    className="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60"
                   >
                     <div>
                       <h5 className="text-xs font-bold text-slate-900 dark:text-slate-100">
@@ -255,13 +196,13 @@ export const DashboardPage: React.FC = () => {
               </div>
             </div>
 
-            {/* 9. Top Selling Products */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-soft-sm">
+            {/* Top Selling Products */}
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-soft-sm">
               <div className="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-800 pb-2">
                 <h4 className="font-bold text-base text-slate-900 dark:text-slate-100">
                   🔥 Top Selling Products
                 </h4>
-                <a href="/products" className="text-xs font-semibold text-emerald-600 hover:underline">
+                <a href="/dashboard/products" className="text-xs font-semibold text-emerald-600 hover:underline">
                   Catalog ➔
                 </a>
               </div>
@@ -269,7 +210,7 @@ export const DashboardPage: React.FC = () => {
                 {topProducts.map((prod, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60"
+                    className="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60"
                   >
                     <div>
                       <h5 className="text-xs font-bold text-slate-900 dark:text-slate-100">
