@@ -12,6 +12,9 @@ export default defineConfig({
       '@rishabh-store/ui': path.resolve(__dirname, '../../packages/ui/src/index.ts'),
     },
   },
+  optimizeDeps: {
+    include: ['recharts', 'framer-motion', 'lucide-react', '@react-three/fiber', '@react-three/drei', 'three', 'lenis'],
+  },
   server: {
     port: 5173,
     open: true,
