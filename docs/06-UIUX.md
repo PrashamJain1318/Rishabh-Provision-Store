@@ -1,18 +1,41 @@
 # 06. UI/UX Planning & Design System Specifications (Phase 0.6)
 
-## 🎨 Design System Aesthetic Guidelines
+## 🎨 Design System & Color Palette
 
 ### Aesthetic DNA
 - **Design Fusion**: **Modern Enterprise + Apple + Stripe + Linear**
-- **Tone**: Clean, professional, minimal, ultra-fast, and distraction-free. Avoid overly flashy or noisy decorative elements.
+- **Tone**: Clean, professional, minimal, ultra-fast, and distraction-free.
+
+---
+
+### 🎨 Color Palette Specifications
+
+| Role | Color Name | Hex Code / Tailwind Class | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Primary** | Emerald Green | `#059669` (`emerald-600`) / `#10B981` | Grocery identity, freshness, trust, and primary actions. |
+| **Secondary** | Enterprise Slate | `#475569` (`slate-600`) / `#0F172A` | Professional enterprise look, secondary buttons & text. |
+| **Accent** | Amber | `#F59E0B` (`amber-500`) / `#FBBF24` | Special offers, discount tags, and important highlighted CTAs. |
+| **Success** | Green | `#22C55E` (`green-500`) | Successful operations, paid status, and positive stock trends. |
+| **Warning** | Orange | `#F97316` (`orange-500`) | Low stock alerts, pending approvals, and expiring stock warnings. |
+| **Error** | Red | `#EF4444` (`red-500`) | Out-of-stock alerts, failed payments, and delete actions. |
+| **Info** | Blue | `#3B82F6` (`blue-500`) | Informational badges, tooltips, and neutral status updates. |
+
+---
+
+### 🌗 Light vs. Dark Theme Rules
+
+- **Light Theme**: Pure white background (`#FFFFFF`) with soft light-gray section backgrounds (`#F8FAFC` / `slate-50`).
+- **Dark Theme**: Almost black slate background (`#0B0F17` / `slate-950`). Strictly **NO pure black (`#000000`)** to prevent high-contrast eye strain.
+
+---
 
 ### 🔳 Border Radius
 - **Card Radius**: `rounded-2xl` (`1rem` / `16px`)
 - **Button Radius**: `rounded-2xl` (`0.75rem` - `1rem`)
 - **Input Radius**: `rounded-2xl` (`0.75rem` - `1rem`)
 
-### 🌫️ Soft Shadows
-- **Rule**: Use soft ambient shadows only (`rgba(15, 23, 42, 0.06 - 0.10)`).
+### 🌫️ Soft Ambient Shadows
+- **Rule**: Use multi-layered soft ambient shadows only (`rgba(15, 23, 42, 0.06 - 0.10)`).
 - **Prohibited**: No harsh black shadows or heavy opacity drops.
 
 ### ✨ Glassmorphism Boundaries
@@ -21,7 +44,7 @@
   2. **Analytics Cards**
   3. **AI Assistant Modal & Drawer**
   4. **Promotional Banner Sections**
-- **Do NOT use glassmorphism everywhere** (e.g. keep standard tables, forms, POS grids, and navigation sidebars clean solid surfaces for maximum performance and readability).
+- **Do NOT use glassmorphism everywhere** (keep standard tables, forms, POS grids, and navigation sidebars clean solid surfaces for maximum performance and readability).
 
 ---
 

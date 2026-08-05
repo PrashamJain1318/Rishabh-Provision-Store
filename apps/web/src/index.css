@@ -1,32 +1,79 @@
-/* Rishabh Provision Store Design Tokens & Global CSS */
-/* Style Inspiration: Modern Enterprise + Apple + Stripe + Linear */
+/* Rishabh Provision Store Design System & Color Tokens */
+/* Aesthetics: Modern Enterprise + Apple + Stripe + Linear */
 
 @layer base {
   :root {
-    --radius-card: 1rem;       /* 2xl rounded cards */
-    --radius-btn: 0.75rem;     /* 2xl rounded buttons */
-    --radius-input: 0.75rem;   /* 2xl rounded inputs */
+    /* Color Palette - Light Theme */
+    --color-bg-primary: #ffffff;             /* Pure white background */
+    --color-bg-secondary: #f8fafc;           /* Light gray section background (slate-50) */
+    --color-surface: #ffffff;                /* Card surface background */
+    --color-surface-hover: #f1f5f9;          /* Surface hover (slate-100) */
+    --color-border: #e2e8f0;                 /* Border color (slate-200) */
 
-    /* Curated Soft Shadow Tokens (No harsh black shadows) */
+    /* Typography Colors */
+    --color-text-primary: #0f172a;           /* Dark slate text (slate-900) */
+    --color-text-secondary: #475569;         /* Slate text (slate-600) */
+    --color-text-muted: #94a3b8;             /* Muted text (slate-400) */
+
+    /* Brand & Accent Colors */
+    --color-primary: #059669;                /* Emerald Green - Grocery, Freshness & Trust */
+    --color-primary-hover: #047857;          /* Darker Emerald */
+    --color-primary-light: #d1fae5;          /* Light Emerald tint */
+    --color-secondary: #475569;              /* Professional Enterprise Slate */
+    --color-accent: #f59e0b;                 /* Amber - Offers, Discounts & Actions */
+    --color-accent-hover: #d97706;
+
+    /* Semantic Feedback Colors */
+    --color-success: #22c55e;                /* Green */
+    --color-warning: #f97316;                /* Orange */
+    --color-error: #ef4444;                  /* Red */
+    --color-info: #3b82f6;                   /* Blue */
+
+    /* Border Radius Tokens */
+    --radius-card: 1rem;                     /* 2xl rounded cards (16px) */
+    --radius-btn: 0.75rem;                   /* 2xl rounded buttons (12px) */
+    --radius-input: 0.75rem;                 /* 2xl rounded inputs (12px) */
+
+    /* Soft Ambient Shadow Tokens (No harsh black shadows) */
     --shadow-soft-sm: 0 2px 8px -2px rgba(15, 23, 42, 0.06), 0 1px 4px -1px rgba(15, 23, 42, 0.04);
     --shadow-soft-md: 0 8px 24px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.05);
     --shadow-soft-lg: 0 16px 32px -8px rgba(15, 23, 42, 0.10), 0 8px 16px -4px rgba(15, 23, 42, 0.06);
 
-    /* Glassmorphism utility variables (Restricted to Hero, Analytics Cards, AI Assistant, Promo) */
-    --glass-bg: rgba(255, 255, 255, 0.75);
-    --glass-border: rgba(255, 255, 255, 0.4);
+    /* Glassmorphism Utility Tokens (Restricted to Hero, Analytics Cards, AI Assistant, Promo) */
+    --glass-bg: rgba(255, 255, 255, 0.80);
+    --glass-border: rgba(255, 255, 255, 0.5);
     --glass-backdrop: blur(16px);
   }
 
   .dark {
+    /* Color Palette - Dark Theme (Almost Black, Not Pure Black) */
+    --color-bg-primary: #0b0f17;             /* Almost black slate-950 */
+    --color-bg-secondary: #0f172a;           /* Dark slate section background */
+    --color-surface: #1e293b;                /* Dark surface background (slate-800) */
+    --color-surface-hover: #334155;          /* Surface hover (slate-700) */
+    --color-border: #334155;                 /* Border color (slate-700) */
+
+    /* Typography Colors - Dark Theme */
+    --color-text-primary: #f8fafc;           /* Light text (slate-50) */
+    --color-text-secondary: #cbd5e1;         /* Muted light text (slate-300) */
+    --color-text-muted: #64748b;             /* Dim text (slate-500) */
+
+    /* Brand & Accent Colors - Dark Theme */
+    --color-primary: #10b981;                /* Bright Emerald Green */
+    --color-primary-hover: #059669;
+    --color-primary-light: rgba(16, 185, 129, 0.15);
+    --color-secondary: #94a3b8;
+    --color-accent: #fbbf24;
+
+    /* Glassmorphism Utility Tokens - Dark Theme */
     --glass-bg: rgba(15, 23, 42, 0.75);
     --glass-border: rgba(255, 255, 255, 0.1);
-    --shadow-soft-sm: 0 2px 8px -2px rgba(0, 0, 0, 0.25);
-    --shadow-soft-md: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
+    --shadow-soft-sm: 0 2px 8px -2px rgba(0, 0, 0, 0.30);
+    --shadow-soft-md: 0 8px 24px -4px rgba(0, 0, 0, 0.40);
   }
 }
 
-/* Glassmorphism Utility (Use ONLY on Hero, Analytics Cards, AI Assistant, and Promo sections) */
+/* Glassmorphism Utility (Restricted ONLY to Hero Banner, Analytics Cards, AI Assistant, and Promo) */
 .glass-panel {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-backdrop);
