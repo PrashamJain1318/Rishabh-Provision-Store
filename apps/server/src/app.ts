@@ -7,6 +7,7 @@ import swaggerUi from "swagger-ui-express";
 import env from "./config/env";
 import { API_PREFIX } from "./config/constants";
 import { swaggerSpec } from "./config/swagger";
+import { sendSuccess } from "./utils/response";
 import { requestIdMiddleware } from "./middlewares/requestId.middleware";
 import { requestLogger } from "./middlewares/logger.middleware";
 import { globalRateLimiter, authRateLimiter } from "./middlewares/rateLimiter.middleware";
@@ -68,15 +69,19 @@ export const createApp = (): Application => {
   // 9. Interactive Swagger OpenAPI UI Documentation Endpoint
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-  // Health Check Endpoint
+  // Health Check Endpoint (Standardized Payload)
   app.get(`${API_PREFIX}/health`, (req: Request, res: Response) => {
-    res.json({
-      status: "UP",
-      service: "Rishabh Provision Store Server API",
-      timestamp: new Date().toISOString(),
-      version: "1.0.0",
-      environment: env.NODE_ENV,
-      swaggerDocs: "http://localhost:5001/api-docs",
+    return sendSuccess({
+      res,
+      message: "Server API health check operational",
+      data: {
+        status: "UP",
+        service: "Rishabh Provision Store Server API",
+        timestamp: new Date().toISOString(),
+        version: "1.0.0",
+        environment: env.NODE_ENV,
+        swaggerDocs: "http://localhost:5001/api-docs",
+      },
     });
   });
 
