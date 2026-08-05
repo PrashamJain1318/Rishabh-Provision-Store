@@ -1,193 +1,841 @@
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Plus,
+  Search,
+  Package,
+  CheckCircle,
+  XCircle,
+  Trash2,
+  Edit3,
+  X,
+  Grid,
+  List,
+  Filter,
+  Tag,
+  Barcode,
+  Building2,
+  Scale,
+  Truck,
+  Check,
+  ChevronRight,
+  ChevronLeft,
+  DollarSign,
+  Calendar,
+  Layers,
+  Image as ImageIcon,
+  AlertTriangle,
+} from "lucide-react";
 import { DashboardLayout } from "../layouts/DashboardLayout";
-import { Table, Column, SearchBar, Button, ProductCard, Pagination } from "@rishabh-store/ui";
-import { LayoutGrid, List } from "lucide-react";
+import { Button } from "@rishabh-store/ui";
 
-interface Product {
+interface ProductItem {
   id: string;
   name: string;
+  slug: string;
+  sku: string;
+  barcode: string;
+  brand: string;
   category: string;
-  price: string;
-  mrp: string;
-  stock: number;
+  subcategory: string;
+  supplier: string;
   unit: string;
-  rating: number;
-  image: string;
+  description: string;
+  purchasePrice: number;
+  sellingPrice: number;
+  mrp: number;
+  discount: number;
+  gst: number;
+  stock: number;
+  minimumStock: number;
+  maximumStock: number;
+  expiryDate: string;
+  batchNumber: string;
+  images: string[];
+  status: "Active" | "Inactive" | "Out of Stock";
 }
 
-const mockCatalogProducts: Product[] = [
-  { id: "PROD-001", name: "Aashirvaad Shuddh Chakki Atta (5kg)", category: "Atta & Flours", price: "₹ 245", mrp: "₹ 275", stock: 45, unit: "bag", rating: 4.8, image: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=400&q=80" },
-  { id: "PROD-002", name: "Fortune Sunlite Sunflower Oil (1L)", category: "Edible Oils", price: "₹ 135", mrp: "₹ 155", stock: 8, unit: "pouch", rating: 4.6, image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=400&q=80" },
-  { id: "PROD-003", name: "Amul Butter Pasteurized (500g)", category: "Dairy & Chilled", price: "₹ 275", mrp: "₹ 275", stock: 18, unit: "pack", rating: 4.9, image: "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=400&q=80" },
-  { id: "PROD-004", name: "Tata Salt Vacuum Evaporated (1kg)", category: "Salt & Sugar", price: "₹ 28", mrp: "₹ 28", stock: 120, unit: "pkt", rating: 4.7, image: "https://images.unsplash.com/photo-1518110168401-f2877ee2c088?auto=format&fit=crop&w=400&q=80" },
-  { id: "PROD-005", name: "Surf Excel Easy Wash Powder (1kg)", category: "Detergents", price: "₹ 140", mrp: "₹ 155", stock: 3, unit: "pkt", rating: 4.5, image: "https://images.unsplash.com/photo-1583947215259-38e31be8751f?auto=format&fit=crop&w=400&q=80" },
-  { id: "PROD-006", name: "Mother Dairy Toned Milk (500ml)", category: "Dairy & Chilled", price: "₹ 27", mrp: "₹ 27", stock: 30, unit: "pkt", rating: 4.8, image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=400&q=80" },
-  { id: "PROD-007", name: "Toor Dal Desi Premium (1kg)", category: "Pulses & Dals", price: "₹ 165", mrp: "₹ 180", stock: 25, unit: "pkt", rating: 4.7, image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=400&q=80" },
-  { id: "PROD-008", name: "Britannia Good Day Butter (200g)", category: "Snacks & Biscuits", price: "₹ 40", mrp: "₹ 45", stock: 50, unit: "pkt", rating: 4.6, image: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=400&q=80" },
+const initialProducts: ProductItem[] = [
+  {
+    id: "PROD-001",
+    name: "Aashirvaad Shudh Chakki Whole Wheat Atta 5kg",
+    slug: "aashirvaad-shudh-chakki-whole-wheat-atta-5kg",
+    sku: "ATT-AASH-5KG",
+    barcode: "8901058000123",
+    brand: "Aashirvaad",
+    category: "Atta & Flours",
+    subcategory: "Chakki Fresh Atta",
+    supplier: "ITC Grocery Wholesalers Ltd",
+    unit: "kg",
+    description: "100% pure whole wheat flour milled from selected golden grains",
+    purchasePrice: 210,
+    sellingPrice: 245,
+    mrp: 275,
+    discount: 10.9,
+    gst: 0,
+    stock: 145,
+    minimumStock: 20,
+    maximumStock: 500,
+    expiryDate: "2026-11-30",
+    batchNumber: "BAT-ATT-2026A",
+    images: ["https://images.unsplash.com/photo-1574323758207-f60101053e2c?w=400"],
+    status: "Active",
+  },
+  {
+    id: "PROD-002",
+    name: "Fortune Kachi Ghani Pure Mustard Oil 1L Pouch",
+    slug: "fortune-kachi-ghani-pure-mustard-oil-1l-pouch",
+    sku: "OIL-FORT-1L",
+    barcode: "8906007280054",
+    brand: "Fortune",
+    category: "Edible Oils & Ghee",
+    subcategory: "Mustard Oil",
+    supplier: "Adani Wilmar Edible Oils Supply",
+    unit: "L",
+    description: "Traditional cold-pressed mustard oil with pungent aroma",
+    purchasePrice: 128,
+    sellingPrice: 142,
+    mrp: 165,
+    discount: 13.9,
+    gst: 5,
+    stock: 82,
+    minimumStock: 15,
+    maximumStock: 300,
+    expiryDate: "2027-02-28",
+    batchNumber: "BAT-OIL-2026B",
+    images: ["https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400"],
+    status: "Active",
+  },
+  {
+    id: "PROD-003",
+    name: "Amul Pasteurised Pure Cow Butter 500g Pack",
+    slug: "amul-pasteurised-pure-cow-butter-500g-pack",
+    sku: "BUT-AMUL-500G",
+    barcode: "8901262010052",
+    brand: "Amul",
+    category: "Dairy & Chilled",
+    subcategory: "Butter & Cheese Blocks",
+    supplier: "Amul Anand Dairy Union Co",
+    unit: "pkt",
+    description: "Utterly butterly delicious fresh pasteurised butter",
+    purchasePrice: 240,
+    sellingPrice: 275,
+    mrp: 280,
+    discount: 1.8,
+    gst: 12,
+    stock: 48,
+    minimumStock: 10,
+    maximumStock: 200,
+    expiryDate: "2026-09-15",
+    batchNumber: "BAT-AMUL-2026C",
+    images: ["https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400"],
+    status: "Active",
+  },
+  {
+    id: "PROD-004",
+    name: "Tata Salt Vacuum Evaporated Iodized Salt 1kg",
+    slug: "tata-salt-vacuum-evaporated-iodized-salt-1kg",
+    sku: "SLT-TATA-1KG",
+    barcode: "8901058852310",
+    brand: "Tata Consumer",
+    category: "Masala & Spices",
+    subcategory: "Powdered Ground Spices",
+    supplier: "ITC Grocery Wholesalers Ltd",
+    unit: "kg",
+    description: "Desh ka namak - high purity iodized vacuum salt",
+    purchasePrice: 22,
+    sellingPrice: 27,
+    mrp: 28,
+    discount: 3.5,
+    gst: 0,
+    stock: 320,
+    minimumStock: 50,
+    maximumStock: 1000,
+    expiryDate: "2028-05-31",
+    batchNumber: "BAT-SLT-2026D",
+    images: ["https://images.unsplash.com/photo-1563822249510-04678c78fa85?w=400"],
+    status: "Active",
+  },
 ];
 
-const categories = ["All Categories", "Atta & Flours", "Edible Oils", "Dairy & Chilled", "Salt & Sugar", "Detergents", "Pulses & Dals", "Snacks & Biscuits"];
+const FORM_STEPS = ["Basic Information", "Pricing & Tax", "Inventory", "Supplier", "Images", "Review"];
 
 export const ProductsPage: React.FC = () => {
+  const [products, setProducts] = useState<ProductItem[]>(initialProducts);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All Categories");
-  const [viewMode, setViewMode] = useState<"table" | "grid">("grid");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [categoryFilter, setCategoryFilter] = useState("All");
+  const [brandFilter, setBrandFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
 
-  // Filter products by search query and category
-  const filteredProducts = mockCatalogProducts.filter((product) => {
-    const matchesSearch =
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.id.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "All Categories" || product.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+  // Multi-step Wizard Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+
+  // Form Fields
+  const [formData, setFormData] = useState({
+    name: "",
+    sku: "",
+    barcode: "",
+    category: "Atta & Flours",
+    subcategory: "Chakki Fresh Atta",
+    brand: "Aashirvaad",
+    unit: "kg",
+    description: "",
+    purchasePrice: "",
+    sellingPrice: "",
+    mrp: "",
+    discount: "0",
+    gst: "0",
+    stock: "100",
+    minimumStock: "10",
+    maximumStock: "500",
+    batchNumber: "",
+    expiryDate: "",
+    supplier: "ITC Grocery Wholesalers Ltd",
+    imageUrl: "",
   });
 
-  const columns: Column<Product>[] = [
-    { key: "id", header: "SKU Code" },
-    { key: "name", header: "Product Name" },
-    { key: "category", header: "Category" },
-    { key: "price", header: "Selling Price" },
-    { key: "mrp", header: "MRP" },
-    {
-      key: "stock",
-      header: "Stock Quantity",
-      render: (row) => (
-        <span
-          className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-            row.stock <= 5
-              ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
-              : row.stock <= 15
-              ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
-              : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-          }`}
-        >
-          {row.stock} {row.unit}s
-        </span>
-      ),
-    },
-    {
-      key: "id",
-      header: "Actions",
-      render: (row) => (
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => alert(`Edit ${row.name}`)}
-            className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
-          >
-            Edit
-          </button>
-        </div>
-      ),
-    },
-  ];
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleNextStep = () => {
+    if (currentStep < FORM_STEPS.length - 1) setCurrentStep((prev) => prev + 1);
+  };
+
+  const handlePrevStep = () => {
+    if (currentStep > 0) setCurrentStep((prev) => prev - 1);
+  };
+
+  const handleSubmitProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newProduct: ProductItem = {
+      id: `PROD-00${products.length + 1}`,
+      name: formData.name || "Sample Grocery Item",
+      slug: (formData.name || "Sample Item").toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      sku: formData.sku || `SKU-${Math.floor(1000 + Math.random() * 9000)}`,
+      barcode: formData.barcode || "8901058009999",
+      brand: formData.brand,
+      category: formData.category,
+      subcategory: formData.subcategory,
+      supplier: formData.supplier,
+      unit: formData.unit,
+      description: formData.description,
+      purchasePrice: parseFloat(formData.purchasePrice) || 100,
+      sellingPrice: parseFloat(formData.sellingPrice) || 120,
+      mrp: parseFloat(formData.mrp) || 130,
+      discount: parseFloat(formData.discount) || 0,
+      gst: parseFloat(formData.gst) || 0,
+      stock: parseInt(formData.stock) || 50,
+      minimumStock: parseInt(formData.minimumStock) || 10,
+      maximumStock: parseInt(formData.maximumStock) || 500,
+      expiryDate: formData.expiryDate || "2027-12-31",
+      batchNumber: formData.batchNumber || "BAT-2026-X",
+      images: formData.imageUrl ? [formData.imageUrl] : ["https://images.unsplash.com/photo-1542838132-92c53300491e?w=400"],
+      status: "Active",
+    };
+
+    setProducts([newProduct, ...products]);
+    setIsModalOpen(false);
+    setCurrentStep(0);
+  };
+
+  const filteredProducts = products.filter((p) => {
+    const matchesSearch =
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.barcode.includes(searchQuery);
+    const matchesCategory = categoryFilter === "All" || p.category === categoryFilter;
+    const matchesBrand = brandFilter === "All" || p.brand === brandFilter;
+    const matchesStatus = statusFilter === "All" || p.status === statusFilter;
+    return matchesSearch && matchesCategory && matchesBrand && matchesStatus;
+  });
 
   return (
     <DashboardLayout activeNavId="products">
-      <div className="flex flex-col gap-6">
-        {/* Page Title & Action Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="space-y-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-section-title text-slate-900 dark:text-slate-100 font-bold">
-              Product Catalog
+            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-3">
+              <Package className="w-8 h-8 text-emerald-600" />
+              Master Product Catalog
             </h1>
-            <p className="text-sm text-slate-500">
-              Manage inventory products, MRP, selling price, and category tags.
+            <p className="text-slate-500 text-sm mt-1">
+              Manage inventory SKUs, barcodes, pricing structures, MRPs, and stock thresholds
             </p>
           </div>
-          <Button variant="primary" onClick={() => alert("Add Product Modal Opened")}>
-            + Add New Product
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all hover:scale-105"
+          >
+            <Plus className="w-5 h-5" />
+            Add Product
           </Button>
         </div>
 
-        {/* Search, Category Filter & View Mode Switcher Controls */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-soft-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex flex-1 flex-col sm:flex-row items-center gap-3 w-full">
-            {/* Search Bar */}
-            <div className="w-full sm:w-72">
-              <SearchBar
-                value={searchQuery}
-                onChange={setSearchQuery}
-                placeholder="Search by product name or SKU..."
-              />
-            </div>
-
-            {/* Category Dropdown Filter */}
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full sm:w-48 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm rounded-2xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            >
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
+        {/* Toolbar & Filters */}
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+          {/* Search Bar */}
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search products by name, SKU or barcode..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+            />
           </div>
 
-          {/* View Switcher (Grid vs Table) */}
-          <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-2xl border border-slate-200 dark:border-slate-700">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`p-2 rounded-xl transition-all ${
-                viewMode === "grid"
-                  ? "bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-soft-sm"
-                  : "text-slate-500"
-              }`}
-              title="Grid View"
+          {/* Filters & View Switcher */}
+          <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+            {/* Category Filter */}
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold"
             >
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode("table")}
-              className={`p-2 rounded-xl transition-all ${
-                viewMode === "table"
-                  ? "bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-soft-sm"
-                  : "text-slate-500"
-              }`}
-              title="Table View"
-            >
-              <List className="w-4 h-4" />
-            </button>
+              <option value="All">All Categories</option>
+              <option value="Atta & Flours">Atta & Flours</option>
+              <option value="Edible Oils & Ghee">Edible Oils & Ghee</option>
+              <option value="Dairy & Chilled">Dairy & Chilled</option>
+              <option value="Masala & Spices">Masala & Spices</option>
+            </select>
+
+            {/* View Mode Toggle */}
+            <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`p-1.5 rounded-lg transition-all ${
+                  viewMode === "grid" ? "bg-white dark:bg-slate-700 text-emerald-600 shadow-sm" : "text-slate-400"
+                }`}
+              >
+                <Grid className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("table")}
+                className={`p-1.5 rounded-lg transition-all ${
+                  viewMode === "table" ? "bg-white dark:bg-slate-700 text-emerald-600 shadow-sm" : "text-slate-400"
+                }`}
+              >
+                <List className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Product Grid View OR Product Table Datagrid View */}
+        {/* View Mode Rendering */}
         {viewMode === "grid" ? (
+          /* Grid View */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProducts.map((prod) => (
-              <ProductCard
-                key={prod.id}
-                name={prod.name}
-                category={prod.category}
-                price={prod.price}
-                originalPrice={prod.mrp}
-                rating={prod.rating}
-                inStock={prod.stock > 0}
-                image={prod.image}
-                onAddToCart={() => alert(`Added ${prod.name} to cart!`)}
-              />
+            {filteredProducts.map((product) => (
+              <motion.div
+                key={product.id}
+                whileHover={{ scale: 1.02, y: -2 }}
+                className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-lg overflow-hidden flex flex-col justify-between group"
+              >
+                {/* Image Banner */}
+                <div className="relative h-44 overflow-hidden bg-slate-100 dark:bg-slate-800">
+                  <img
+                    src={product.images[0]}
+                    alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                    <span className="font-mono text-[10px] font-bold bg-slate-900/80 text-white px-2 py-0.5 rounded-md backdrop-blur-sm">
+                      {product.sku}
+                    </span>
+                  </div>
+                  <div className="absolute bottom-3 right-3">
+                    <span className="font-bold text-xs bg-emerald-600 text-white px-2.5 py-1 rounded-full shadow-md">
+                      ₹{product.sellingPrice} <span className="text-[10px] line-through text-emerald-200">₹{product.mrp}</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                  <div>
+                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                      {product.category}
+                    </span>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 line-clamp-2 mt-0.5">
+                      {product.name}
+                    </h3>
+                  </div>
+
+                  {/* Stock & Expiry */}
+                  <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <span className="font-semibold text-slate-600 dark:text-slate-300">
+                      Stock: <strong className="text-slate-900 dark:text-slate-100">{product.stock} {product.unit}</strong>
+                    </span>
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      EXP: {product.expiryDate}
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
             ))}
           </div>
         ) : (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-soft-sm">
-            <Table columns={columns} data={filteredProducts} />
+          /* Table View */
+          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    <th className="py-4 px-6">Product Details</th>
+                    <th className="py-4 px-6">SKU & Barcode</th>
+                    <th className="py-4 px-6">Category & Brand</th>
+                    <th className="py-4 px-6">Selling Price / MRP</th>
+                    <th className="py-4 px-6">Stock Level</th>
+                    <th className="py-4 px-6 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
+                  {filteredProducts.map((p) => (
+                    <tr key={p.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                      <td className="py-4 px-6 flex items-center gap-3">
+                        <img src={p.images[0]} alt={p.name} className="w-10 h-10 rounded-xl object-cover border border-slate-200" />
+                        <div>
+                          <p className="font-bold text-slate-900 dark:text-slate-100 text-xs">{p.name}</p>
+                          <p className="text-[11px] text-slate-400">{p.supplier}</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 font-mono text-xs">
+                        <p className="font-bold text-slate-800 dark:text-slate-200">{p.sku}</p>
+                        <p className="text-slate-400 text-[10px]">EAN: {p.barcode}</p>
+                      </td>
+                      <td className="py-4 px-6 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                        <p>{p.category}</p>
+                        <span className="text-[10px] text-emerald-600 font-bold">{p.brand}</span>
+                      </td>
+                      <td className="py-4 px-6 font-bold text-xs text-slate-900 dark:text-slate-100">
+                        ₹{p.sellingPrice} <span className="text-slate-400 line-through text-[10px]">₹{p.mrp}</span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold">
+                          {p.stock} {p.unit}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6 text-right space-x-1">
+                        <button className="p-2 text-slate-400 hover:text-emerald-600 rounded-lg">
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                        <button className="p-2 text-slate-400 hover:text-rose-600 rounded-lg">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
-        {/* Pagination Bar */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-soft-sm flex items-center justify-between">
-          <span className="text-xs text-slate-500">
-            Showing {filteredProducts.length} of {mockCatalogProducts.length} Products
-          </span>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={3}
-            onPageChange={setCurrentPage}
-          />
-        </div>
+        {/* Multi-step Product Form Wizard Modal */}
+        <AnimatePresence>
+          {isModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-white dark:bg-slate-900 rounded-3xl p-6 w-full max-w-2xl shadow-2xl border border-slate-100 dark:border-slate-800 space-y-6 max-h-[90vh] overflow-y-auto"
+              >
+                {/* Modal Header */}
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                      <Package className="w-5 h-5 text-emerald-600" />
+                      Add Product Wizard
+                    </h3>
+                    <p className="text-xs text-slate-500">Step {currentStep + 1} of {FORM_STEPS.length}: {FORM_STEPS[currentStep]}</p>
+                  </div>
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Stepper Indicator */}
+                <div className="flex items-center justify-between gap-1 overflow-x-auto pb-2 border-b border-slate-100 dark:border-slate-800">
+                  {FORM_STEPS.map((stepName, idx) => (
+                    <div
+                      key={stepName}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                        currentStep === idx
+                          ? "bg-emerald-600 text-white shadow-md"
+                          : currentStep > idx
+                          ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                          : "bg-slate-100 dark:bg-slate-800 text-slate-400"
+                      }`}
+                    >
+                      <span className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold border border-current">
+                        {idx + 1}
+                      </span>
+                      {stepName}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Form Step Body */}
+                <form onSubmit={handleSubmitProduct} className="space-y-4">
+                  {currentStep === 0 && (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                          Product Name *
+                        </label>
+                        <input
+                          type="text"
+                          name="name"
+                          required
+                          placeholder="e.g. Aashirvaad Shudh Chakki Atta 5kg"
+                          value={formData.name}
+                          onChange={handleChange}
+                          className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            SKU Code *
+                          </label>
+                          <input
+                            type="text"
+                            name="sku"
+                            required
+                            placeholder="ATT-AASH-5KG"
+                            value={formData.sku}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            EAN / UPC Barcode
+                          </label>
+                          <input
+                            type="text"
+                            name="barcode"
+                            placeholder="8901058000123"
+                            value={formData.barcode}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Category *
+                          </label>
+                          <select
+                            name="category"
+                            value={formData.category}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold"
+                          >
+                            <option value="Atta & Flours">Atta & Flours</option>
+                            <option value="Rice & Grains">Rice & Grains</option>
+                            <option value="Edible Oils & Ghee">Edible Oils & Ghee</option>
+                            <option value="Masala & Spices">Masala & Spices</option>
+                            <option value="Dairy & Chilled">Dairy & Chilled</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Brand
+                          </label>
+                          <select
+                            name="brand"
+                            value={formData.brand}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold"
+                          >
+                            <option value="Aashirvaad">Aashirvaad</option>
+                            <option value="Fortune">Fortune</option>
+                            <option value="Amul">Amul</option>
+                            <option value="Tata Consumer">Tata Consumer</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Measurement Unit *
+                          </label>
+                          <select
+                            name="unit"
+                            value={formData.unit}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold"
+                          >
+                            <option value="kg">Kilogram (kg)</option>
+                            <option value="g">Gram (g)</option>
+                            <option value="L">Liter (L)</option>
+                            <option value="ml">Milliliter (ml)</option>
+                            <option value="pkt">Packet (pkt)</option>
+                            <option value="pc">Piece (pc)</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentStep === 1 && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Purchase Price (₹) *
+                          </label>
+                          <input
+                            type="number"
+                            name="purchasePrice"
+                            required
+                            placeholder="210"
+                            value={formData.purchasePrice}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Selling Price (₹) *
+                          </label>
+                          <input
+                            type="number"
+                            name="sellingPrice"
+                            required
+                            placeholder="245"
+                            value={formData.sellingPrice}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-emerald-600"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            MRP (₹) *
+                          </label>
+                          <input
+                            type="number"
+                            name="mrp"
+                            required
+                            placeholder="275"
+                            value={formData.mrp}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Discount (%)
+                          </label>
+                          <input
+                            type="number"
+                            name="discount"
+                            placeholder="10"
+                            value={formData.discount}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            GST Tax Rate (%)
+                          </label>
+                          <select
+                            name="gst"
+                            value={formData.gst}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold"
+                          >
+                            <option value="0">0% (Exempt)</option>
+                            <option value="5">5% GST</option>
+                            <option value="12">12% GST</option>
+                            <option value="18">18% GST</option>
+                            <option value="28">28% GST</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentStep === 2 && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Current Stock *
+                          </label>
+                          <input
+                            type="number"
+                            name="stock"
+                            required
+                            placeholder="100"
+                            value={formData.stock}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Minimum Stock Level
+                          </label>
+                          <input
+                            type="number"
+                            name="minimumStock"
+                            placeholder="10"
+                            value={formData.minimumStock}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Maximum Stock Limit
+                          </label>
+                          <input
+                            type="number"
+                            name="maximumStock"
+                            placeholder="500"
+                            value={formData.maximumStock}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Batch Number
+                          </label>
+                          <input
+                            type="text"
+                            name="batchNumber"
+                            placeholder="BAT-2026-X"
+                            value={formData.batchNumber}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Expiry Date
+                          </label>
+                          <input
+                            type="date"
+                            name="expiryDate"
+                            value={formData.expiryDate}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentStep === 3 && (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                          Primary Wholesale Supplier *
+                        </label>
+                        <select
+                          name="supplier"
+                          value={formData.supplier}
+                          onChange={handleChange}
+                          className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold"
+                        >
+                          <option value="ITC Grocery Wholesalers Ltd">ITC Grocery Wholesalers Ltd</option>
+                          <option value="Adani Wilmar Edible Oils Supply">Adani Wilmar Edible Oils Supply</option>
+                          <option value="Amul Anand Dairy Union Co">Amul Anand Dairy Union Co</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentStep === 4 && (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                          Product Image URL
+                        </label>
+                        <input
+                          type="url"
+                          name="imageUrl"
+                          placeholder="https://images.unsplash.com/..."
+                          value={formData.imageUrl}
+                          onChange={handleChange}
+                          className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {currentStep === 5 && (
+                    <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
+                      <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Product Summary Review</h4>
+                      <p><strong>Name:</strong> {formData.name || "N/A"}</p>
+                      <p><strong>SKU:</strong> {formData.sku || "N/A"} | <strong>Barcode:</strong> {formData.barcode || "N/A"}</p>
+                      <p><strong>Pricing:</strong> Selling ₹{formData.sellingPrice || "0"} / MRP ₹{formData.mrp || "0"}</p>
+                      <p><strong>Stock:</strong> {formData.stock || "0"} {formData.unit}</p>
+                    </div>
+                  )}
+
+                  {/* Actions Bar */}
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <Button
+                      type="button"
+                      onClick={handlePrevStep}
+                      disabled={currentStep === 0}
+                      className="px-4 py-2 text-sm text-slate-600 bg-slate-100 rounded-xl font-semibold disabled:opacity-50"
+                    >
+                      <ChevronLeft className="w-4 h-4 inline mr-1" /> Previous
+                    </Button>
+
+                    {currentStep < FORM_STEPS.length - 1 ? (
+                      <Button
+                        type="button"
+                        onClick={handleNextStep}
+                        className="px-5 py-2 text-sm text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold shadow-lg shadow-emerald-500/20"
+                      >
+                        Next <ChevronRight className="w-4 h-4 inline ml-1" />
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        className="px-6 py-2 text-sm text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold shadow-lg shadow-emerald-500/20"
+                      >
+                        <Check className="w-4 h-4 inline mr-1" /> Submit Product
+                      </Button>
+                    )}
+                  </div>
+                </form>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     </DashboardLayout>
   );

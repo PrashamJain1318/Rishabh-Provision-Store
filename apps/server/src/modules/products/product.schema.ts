@@ -1,18 +1,38 @@
 import { z } from "zod";
 
-export const productSchema = z.object({
-  code: z.string().min(1, "Product SKU / Barcode is required"),
+export const createProductSchema = z.object({
   name: z.string().min(1, "Product name is required"),
+  sku: z.string().min(1, "SKU code is required"),
+  barcode: z.string().optional(),
+  brand: z.string().optional(),
   category: z.string().min(1, "Category is required"),
-  price: z.number().positive("Selling price must be greater than zero"),
-  mrp: z.number().positive("MRP must be greater than zero"),
-  stock: z.number().int().min(0, "Stock quantity cannot be negative"),
-  unit: z.string().default("unit"),
+  subcategory: z.string().optional(),
+  supplier: z.string().optional(),
+  unit: z.string().min(1, "Unit of measurement is required"),
+  description: z.string().optional(),
+  purchasePrice: z.number().min(0, "Purchase price must be positive"),
+  sellingPrice: z.number().min(0, "Selling price must be positive"),
+  mrp: z.number().min(0, "MRP must be positive"),
+  discount: z.number().min(0).max(100).optional().default(0),
+  gst: z.number().min(0).max(28).default(0),
+  stock: z.number().min(0, "Stock cannot be negative").default(0),
+  minimumStock: z.number().min(0).default(5),
+  maximumStock: z.number().min(1).default(500),
+  expiryDate: z.string().optional(),
+  batchNumber: z.string().optional(),
+  images: z.array(z.string().url()).optional().default([]),
+  status: z.enum(["Active", "Inactive", "Out of Stock"]).default("Active"),
 });
 
+export const updateProductSchema = createProductSchema.partial();
+
 export const productQuerySchema = z.object({
-  category: z.string().optional(),
   search: z.string().optional(),
+  category: z.string().optional(),
+  brand: z.string().optional(),
+  supplier: z.string().optional(),
+  status: z.enum(["Active", "Inactive", "Out of Stock"]).optional(),
+  stockStatus: z.enum(["in_stock", "low_stock", "out_of_stock"]).optional(),
   page: z.string().optional(),
   limit: z.string().optional(),
 });
