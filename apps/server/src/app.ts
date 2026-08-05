@@ -20,6 +20,7 @@ import { brandRouter } from "./modules/brands";
 import { unitRouter } from "./modules/units";
 import { categoryRouter } from "./modules/categories";
 import { supplierRouter } from "./modules/suppliers";
+import { uploadRouter } from "./modules/upload";
 import billingRouter from "./modules/billing/billing.router";
 
 export const createApp = (): Application => {
@@ -37,7 +38,7 @@ export const createApp = (): Application => {
           scriptSrc: ["'self'", "'unsafe-inline'"],
           styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
           fontSrc: ["'self'", "https://fonts.gstatic.com"],
-          imgSrc: ["'self'", "data:", "https://images.unsplash.com"],
+          imgSrc: ["'self'", "data:", "https://images.unsplash.com", "https://res.cloudinary.com"],
         },
       },
       crossOriginEmbedderPolicy: false,
@@ -98,6 +99,7 @@ export const createApp = (): Application => {
   app.use(`${API_PREFIX}/categories`, categoryRouter);
   app.use(`${API_PREFIX}/suppliers`, supplierRouter);
   app.use(`${API_PREFIX}/products`, productRouter);
+  app.use(`${API_PREFIX}/upload`, uploadRouter);
   app.use(`${API_PREFIX}/billing`, billingRouter);
 
   // Fallbacks
