@@ -44,6 +44,19 @@ To digitize and automate grocery store operations through a unified platform tha
 
 ---
 
+## 📏 Coding Standards & Conventions
+
+| Element | Convention | Example |
+| :--- | :--- | :--- |
+| **Components & Layouts** | `PascalCase.tsx` | `ProductCard.tsx`, `DashboardLayout.tsx` |
+| **Backend Services/Routes** | `lowercase.suffix.ts` | `product.service.ts`, `order.controller.ts`, `inventory.routes.ts` |
+| **Variables & Functions** | `camelCase` | `productPrice`, `totalQuantity` |
+| **Constants** | `UPPER_CASE` | `DEFAULT_CURRENCY`, `MAX_REORDER_LIMIT` |
+| **Interfaces** | `PascalCase` | `interface Product`, `interface User` |
+| **Types** | `PascalCase` | `type OrderStatus`, `type PaymentMode` |
+
+---
+
 ## 🛠️ Tech Stack & Architecture
 
 ### Frontend (Feature-Driven Architecture)
@@ -169,6 +182,7 @@ Detailed documentation is available in the [`docs/`](docs/) directory:
 - [`08-Todo.md`](docs/08-Todo.md) - Active task tracking
 - [`09-Environment.md`](docs/09-Environment.md) - Tech stack & env configs
 - [`10-Changelog.md`](docs/10-Changelog.md) - Version release history
+- [`11-Code-Conventions.md`](docs/11-Code-Conventions.md) - Coding standards & naming rules
 
 ---
 
