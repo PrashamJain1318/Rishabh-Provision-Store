@@ -117,7 +117,7 @@ export class ProductRepository {
     try {
       const filterQuery: any = {};
 
-      // Indexed Search by Name, SKU, or Barcode
+      // 1. Text / Regex Search (Name, SKU, Barcode)
       if (queryObj.search) {
         const s = queryObj.search.trim();
         filterQuery.$or = [
@@ -127,31 +127,36 @@ export class ProductRepository {
         ];
       }
 
-      // Indexed Filter by Category
-      if (queryObj.category && queryObj.category !== "All") {
-        filterQuery.category = queryObj.category;
+      // 2. Category Filter
+      if (queryObj.category && queryObj.category !== "All") filterQuery.category = queryObj.category;
+      // 3. Brand Filter
+      if (queryObj.brand && queryObj.brand !== "All") filterQuery.brand = queryObj.brand;
+      // 4. Supplier Filter
+      if (queryObj.supplier && queryObj.supplier !== "All") filterQuery.supplier = queryObj.supplier;
+      // 5. Status Filter
+      if (queryObj.status && queryObj.status !== "All") filterQuery.status = queryObj.status;
+      // 6. GST Rate Filter
+      if (queryObj.gst && queryObj.gst !== "All") filterQuery.gst = parseInt(queryObj.gst);
+
+      // 7. Price Range Filter
+      if (queryObj.minPrice || queryObj.maxPrice) {
+        filterQuery.sellingPrice = {};
+        if (queryObj.minPrice) filterQuery.sellingPrice.$gte = parseFloat(queryObj.minPrice);
+        if (queryObj.maxPrice) filterQuery.sellingPrice.$lte = parseFloat(queryObj.maxPrice);
       }
 
-      // Indexed Filter by Brand
-      if (queryObj.brand && queryObj.brand !== "All") {
-        filterQuery.brand = queryObj.brand;
-      }
-
-      // Indexed Filter by Supplier
-      if (queryObj.supplier && queryObj.supplier !== "All") {
-        filterQuery.supplier = queryObj.supplier;
-      }
-
-      // Indexed Filter by Status
-      if (queryObj.status && queryObj.status !== "All") {
-        filterQuery.status = queryObj.status;
+      // 8. Stock Level Filter
+      if (queryObj.stockStatus && queryObj.stockStatus !== "All") {
+        if (queryObj.stockStatus === "in_stock") filterQuery.stock = { $gt: 10 };
+        if (queryObj.stockStatus === "low_stock") filterQuery.stock = { $gt: 0, $lte: 10 };
+        if (queryObj.stockStatus === "out_of_stock") filterQuery.stock = 0;
       }
 
       const dbProducts = await ProductModel.find(filterQuery).populate("category brand supplier");
       if (dbProducts.length > 0) return dbProducts;
     } catch {}
 
-    // Mock Search Fallback
+    // Mock Multi-Filter Engine Fallback
     let filtered = mockProducts;
     if (queryObj.search) {
       const s = queryObj.search.toLowerCase().trim();
@@ -159,25 +164,21 @@ export class ProductRepository {
         (p) =>
           p.name.toLowerCase().includes(s) ||
           p.sku.toLowerCase().includes(s) ||
-          (p.barcode && p.barcode.toLowerCase().includes(s)) ||
-          p.category.toLowerCase().includes(s) ||
-          (p.brand && p.brand.toLowerCase().includes(s)) ||
-          (p.supplier && p.supplier.toLowerCase().includes(s))
+          (p.barcode && p.barcode.toLowerCase().includes(s))
       );
     }
+    if (queryObj.category && queryObj.category !== "All") filtered = filtered.filter((p) => p.category === queryObj.category);
+    if (queryObj.brand && queryObj.brand !== "All") filtered = filtered.filter((p) => p.brand === queryObj.brand);
+    if (queryObj.supplier && queryObj.supplier !== "All") filtered = filtered.filter((p) => p.supplier === queryObj.supplier);
+    if (queryObj.status && queryObj.status !== "All") filtered = filtered.filter((p) => p.status === queryObj.status);
+    if (queryObj.gst && queryObj.gst !== "All") filtered = filtered.filter((p) => p.gst === parseInt(queryObj.gst));
 
-    if (queryObj.category && queryObj.category !== "All") {
-      filtered = filtered.filter((p) => p.category === queryObj.category);
-    }
-    if (queryObj.brand && queryObj.brand !== "All") {
-      filtered = filtered.filter((p) => p.brand === queryObj.brand);
-    }
-    if (queryObj.supplier && queryObj.supplier !== "All") {
-      filtered = filtered.filter((p) => p.supplier === queryObj.supplier);
-    }
-    if (queryObj.status && queryObj.status !== "All") {
-      filtered = filtered.filter((p) => p.status === queryObj.status);
-    }
+    if (queryObj.minPrice) filtered = filtered.filter((p) => p.sellingPrice >= parseFloat(queryObj.minPrice));
+    if (queryObj.maxPrice) filtered = filtered.filter((p) => p.sellingPrice <= parseFloat(queryObj.maxPrice));
+
+    if (queryObj.stockStatus === "in_stock") filtered = filtered.filter((p) => p.stock > 10);
+    if (queryObj.stockStatus === "low_stock") filtered = filtered.filter((p) => p.stock > 0 && p.stock <= 10);
+    if (queryObj.stockStatus === "out_of_stock") filtered = filtered.filter((p) => p.stock === 0);
 
     return filtered;
   }

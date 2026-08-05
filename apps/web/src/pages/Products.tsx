@@ -25,7 +25,7 @@ import {
   Layers,
   Image as ImageIcon,
   AlertTriangle,
-  QrCode,
+  RotateCcw,
 } from "lucide-react";
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { Button, BarcodeRenderer, BarcodeFormat } from "@rishabh-store/ui";
@@ -169,10 +169,17 @@ const FORM_STEPS = ["Basic Information", "Pricing & Tax", "Inventory", "Supplier
 export const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<ProductItem[]>(initialProducts);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // 8 SIMULTANEOUS FILTERS
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [brandFilter, setBrandFilter] = useState("All");
   const [supplierFilter, setSupplierFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [gstFilter, setGstFilter] = useState("All");
+  const [stockStatusFilter, setStockStatusFilter] = useState("All");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [selectedBarcodeProduct, setSelectedBarcodeProduct] = useState<ProductItem | null>(null);
 
@@ -207,6 +214,18 @@ export const ProductsPage: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const resetAllFilters = () => {
+    setSearchQuery("");
+    setCategoryFilter("All");
+    setBrandFilter("All");
+    setSupplierFilter("All");
+    setStatusFilter("All");
+    setGstFilter("All");
+    setStockStatusFilter("All");
+    setMinPrice("");
+    setMaxPrice("");
   };
 
   const handleNextStep = () => {
@@ -251,24 +270,40 @@ export const ProductsPage: React.FC = () => {
     setCurrentStep(0);
   };
 
-  // High-performance Multi-Facet Search Filter (Indexed Fields: Name, Barcode, SKU, Category, Brand, Supplier)
+  // 8 SIMULTANEOUS FILTERS ENGINE
   const filteredProducts = products.filter((p) => {
     const q = searchQuery.toLowerCase().trim();
     const matchesSearch =
       !q ||
       p.name.toLowerCase().includes(q) ||
       p.sku.toLowerCase().includes(q) ||
-      p.barcode.toLowerCase().includes(q) ||
-      p.category.toLowerCase().includes(q) ||
-      p.brand.toLowerCase().includes(q) ||
-      p.supplier.toLowerCase().includes(q);
+      p.barcode.toLowerCase().includes(q);
 
     const matchesCategory = categoryFilter === "All" || p.category === categoryFilter;
     const matchesBrand = brandFilter === "All" || p.brand === brandFilter;
     const matchesSupplier = supplierFilter === "All" || p.supplier === supplierFilter;
     const matchesStatus = statusFilter === "All" || p.status === statusFilter;
+    const matchesGst = gstFilter === "All" || p.gst === parseInt(gstFilter);
 
-    return matchesSearch && matchesCategory && matchesBrand && matchesSupplier && matchesStatus;
+    const minP = minPrice !== "" ? parseFloat(minPrice) : 0;
+    const maxP = maxPrice !== "" ? parseFloat(maxPrice) : Infinity;
+    const matchesPrice = p.sellingPrice >= minP && p.sellingPrice <= maxP;
+
+    let matchesStock = true;
+    if (stockStatusFilter === "in_stock") matchesStock = p.stock > 10;
+    if (stockStatusFilter === "low_stock") matchesStock = p.stock > 0 && p.stock <= 10;
+    if (stockStatusFilter === "out_of_stock") matchesStock = p.stock === 0;
+
+    return (
+      matchesSearch &&
+      matchesCategory &&
+      matchesBrand &&
+      matchesSupplier &&
+      matchesStatus &&
+      matchesGst &&
+      matchesPrice &&
+      matchesStock
+    );
   });
 
   return (
@@ -279,10 +314,10 @@ export const ProductsPage: React.FC = () => {
           <div>
             <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-3">
               <Package className="w-8 h-8 text-emerald-600" />
-              Indexed Multi-Facet Search Catalog
+              8-Facet Simultaneous Filter Engine
             </h1>
             <p className="text-slate-500 text-sm mt-1">
-              Optimized search engine indexed across Product Name, Barcode, SKU, Category, Brand, & Supplier
+              Filter by Category, Brand, Supplier, Price Range, Stock Level, Status, Expiry, and GST Rate simultaneously
             </p>
           </div>
           <Button
@@ -294,53 +329,62 @@ export const ProductsPage: React.FC = () => {
           </Button>
         </div>
 
-        {/* Toolbar & Multi-Facet Filters */}
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col gap-4">
-          {/* Main Search Input */}
+        {/* Toolbar & 8 Simultaneous Filters Panel */}
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+          {/* Top Row: Search + Actions */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="relative w-full sm:flex-1">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
-                placeholder="Indexed Search: Product Name, EAN Barcode, SKU Code, Category, Brand..."
+                placeholder="Search across Product Name, EAN Barcode, SKU Code..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
               />
             </div>
 
-            {/* View Mode Toggle */}
-            <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
               <button
-                onClick={() => setViewMode("grid")}
-                className={`p-1.5 rounded-lg transition-all ${
-                  viewMode === "grid" ? "bg-white dark:bg-slate-700 text-emerald-600 shadow-sm" : "text-slate-400"
-                }`}
+                onClick={resetAllFilters}
+                className="px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 hover:bg-slate-200"
               >
-                <Grid className="w-4 h-4" />
+                <RotateCcw className="w-3.5 h-3.5" />
+                Reset Filters
               </button>
-              <button
-                onClick={() => setViewMode("table")}
-                className={`p-1.5 rounded-lg transition-all ${
-                  viewMode === "table" ? "bg-white dark:bg-slate-700 text-emerald-600 shadow-sm" : "text-slate-400"
-                }`}
-              >
-                <List className="w-4 h-4" />
-              </button>
+
+              <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`p-1.5 rounded-lg transition-all ${
+                    viewMode === "grid" ? "bg-white dark:bg-slate-700 text-emerald-600 shadow-sm" : "text-slate-400"
+                  }`}
+                >
+                  <Grid className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode("table")}
+                  className={`p-1.5 rounded-lg transition-all ${
+                    viewMode === "table" ? "bg-white dark:bg-slate-700 text-emerald-600 shadow-sm" : "text-slate-400"
+                  }`}
+                >
+                  <List className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Multi-Facet Filter Selects */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
-            {/* Category Filter */}
+          {/* 8 SIMULTANEOUS FILTER GRID */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+            {/* 1. Category */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Category</label>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">1. Category</label>
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold"
+                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold"
               >
-                <option value="All">All Categories</option>
+                <option value="All">All</option>
                 <option value="Atta & Flours">Atta & Flours</option>
                 <option value="Edible Oils & Ghee">Edible Oils & Ghee</option>
                 <option value="Dairy & Chilled">Dairy & Chilled</option>
@@ -348,49 +392,103 @@ export const ProductsPage: React.FC = () => {
               </select>
             </div>
 
-            {/* Brand Filter */}
+            {/* 2. Brand */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Brand</label>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">2. Brand</label>
               <select
                 value={brandFilter}
                 onChange={(e) => setBrandFilter(e.target.value)}
-                className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold"
+                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold"
               >
-                <option value="All">All Brands</option>
+                <option value="All">All</option>
                 <option value="Aashirvaad">Aashirvaad</option>
                 <option value="Fortune">Fortune</option>
                 <option value="Amul">Amul</option>
-                <option value="Tata Consumer">Tata Consumer</option>
+                <option value="Tata Consumer">Tata</option>
               </select>
             </div>
 
-            {/* Supplier Filter */}
+            {/* 3. Supplier */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Supplier</label>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">3. Supplier</label>
               <select
                 value={supplierFilter}
                 onChange={(e) => setSupplierFilter(e.target.value)}
-                className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold"
+                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold"
               >
-                <option value="All">All Suppliers</option>
-                <option value="ITC Grocery Wholesalers Ltd">ITC Grocery Wholesalers Ltd</option>
-                <option value="Adani Wilmar Edible Oils Supply">Adani Wilmar Edible Oils Supply</option>
-                <option value="Amul Anand Dairy Union Co">Amul Anand Dairy Union Co</option>
+                <option value="All">All</option>
+                <option value="ITC Grocery Wholesalers Ltd">ITC</option>
+                <option value="Adani Wilmar Edible Oils Supply">Adani</option>
+                <option value="Amul Anand Dairy Union Co">Amul</option>
               </select>
             </div>
 
-            {/* Status Filter */}
+            {/* 4. Min Price */}
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Status</label>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">4. Min Price (₹)</label>
+              <input
+                type="number"
+                placeholder="₹0"
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+                className="w-full px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+              />
+            </div>
+
+            {/* 5. Max Price */}
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">5. Max Price (₹)</label>
+              <input
+                type="number"
+                placeholder="₹1000"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                className="w-full px-2 py-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl"
+              />
+            </div>
+
+            {/* 6. Stock Level */}
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">6. Stock Level</label>
+              <select
+                value={stockStatusFilter}
+                onChange={(e) => setStockStatusFilter(e.target.value)}
+                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold"
+              >
+                <option value="All">All Stock</option>
+                <option value="in_stock">In Stock (&gt;10)</option>
+                <option value="low_stock">Low Stock (1-10)</option>
+                <option value="out_of_stock">Out of Stock</option>
+              </select>
+            </div>
+
+            {/* 7. Status */}
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">7. Status</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold"
+                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold"
               >
-                <option value="All">All Statuses</option>
+                <option value="All">All</option>
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
-                <option value="Out of Stock">Out of Stock</option>
+              </select>
+            </div>
+
+            {/* 8. GST Rate */}
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">8. GST Tax</label>
+              <select
+                value={gstFilter}
+                onChange={(e) => setGstFilter(e.target.value)}
+                className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold"
+              >
+                <option value="All">All GST</option>
+                <option value="0">0% GST</option>
+                <option value="5">5% GST</option>
+                <option value="12">12% GST</option>
+                <option value="18">18% GST</option>
               </select>
             </div>
           </div>
@@ -406,7 +504,6 @@ export const ProductsPage: React.FC = () => {
                 whileHover={{ scale: 1.02, y: -2 }}
                 className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-lg overflow-hidden flex flex-col justify-between group"
               >
-                {/* Image Banner */}
                 <div className="relative h-44 overflow-hidden bg-slate-100 dark:bg-slate-800">
                   <img
                     src={product.images[0]}
@@ -425,11 +522,10 @@ export const ProductsPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Content */}
                 <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
                   <div>
                     <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-                      {product.category} • {product.brand}
+                      {product.category} • {product.brand} • {product.gst}% GST
                     </span>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 line-clamp-2 mt-0.5">
                       {product.name}
@@ -448,7 +544,6 @@ export const ProductsPage: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Stock Level */}
                   <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
                     <span className="font-semibold text-slate-600 dark:text-slate-300">
                       Stock: <strong className="text-slate-900 dark:text-slate-100">{product.stock} {product.unit}</strong>
@@ -471,7 +566,7 @@ export const ProductsPage: React.FC = () => {
                     <th className="py-4 px-6">Product Name</th>
                     <th className="py-4 px-6">SKU & EAN Barcode</th>
                     <th className="py-4 px-6">Category / Brand / Supplier</th>
-                    <th className="py-4 px-6">Selling Price / MRP</th>
+                    <th className="py-4 px-6">Selling Price / GST</th>
                     <th className="py-4 px-6">Stock Level</th>
                     <th className="py-4 px-6 text-right">Actions</th>
                   </tr>
@@ -495,7 +590,7 @@ export const ProductsPage: React.FC = () => {
                         <span className="text-[10px] text-emerald-600 font-bold">{p.brand}</span>
                       </td>
                       <td className="py-4 px-6 font-bold text-xs text-slate-900 dark:text-slate-100">
-                        ₹{p.sellingPrice} <span className="text-slate-400 line-through text-[10px]">₹{p.mrp}</span>
+                        ₹{p.sellingPrice} <span className="text-emerald-600 text-[10px]">({p.gst}% GST)</span>
                       </td>
                       <td className="py-4 px-6">
                         <span className="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold">
@@ -514,210 +609,6 @@ export const ProductsPage: React.FC = () => {
             </div>
           </div>
         )}
-
-        {/* Expanded Barcode Modal */}
-        <AnimatePresence>
-          {selectedBarcodeProduct && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="bg-white dark:bg-slate-900 rounded-3xl p-6 w-full max-w-md shadow-2xl border border-slate-100 dark:border-slate-800 text-center space-y-4"
-              >
-                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <Barcode className="w-4 h-4 text-emerald-600" />
-                    Product Barcode Label ({selectedBarcodeProduct.barcodeFormat})
-                  </h3>
-                  <button
-                    onClick={() => setSelectedBarcodeProduct(null)}
-                    className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col items-center space-y-3">
-                  <h4 className="font-bold text-xs text-slate-900 dark:text-slate-100 max-w-xs">{selectedBarcodeProduct.name}</h4>
-                  <p className="font-mono text-xs text-emerald-600 font-bold">SKU: {selectedBarcodeProduct.sku}</p>
-
-                  {/* Rendered Large Barcode */}
-                  <BarcodeRenderer
-                    value={selectedBarcodeProduct.barcode}
-                    format={selectedBarcodeProduct.barcodeFormat}
-                    height={70}
-                    width={2}
-                  />
-
-                  <p className="text-[11px] text-slate-400 font-mono">EAN / UPC Tag: {selectedBarcodeProduct.barcode}</p>
-                </div>
-
-                <Button
-                  onClick={() => setSelectedBarcodeProduct(null)}
-                  className="w-full py-2 bg-slate-900 text-white rounded-xl font-semibold text-xs"
-                >
-                  Close Barcode Preview
-                </Button>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
-
-        {/* Multi-step Form Wizard Modal */}
-        <AnimatePresence>
-          {isModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white dark:bg-slate-900 rounded-3xl p-6 w-full max-w-2xl shadow-2xl border border-slate-100 dark:border-slate-800 space-y-6 max-h-[90vh] overflow-y-auto"
-              >
-                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
-                  <div>
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                      <Package className="w-5 h-5 text-emerald-600" />
-                      Add Product Wizard
-                    </h3>
-                    <p className="text-xs text-slate-500">Step {currentStep + 1} of {FORM_STEPS.length}: {FORM_STEPS[currentStep]}</p>
-                  </div>
-                  <button
-                    onClick={() => setIsModalOpen(false)}
-                    className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <form onSubmit={handleSubmitProduct} className="space-y-4">
-                  {currentStep === 0 && (
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                          Product Name *
-                        </label>
-                        <input
-                          type="text"
-                          name="name"
-                          required
-                          placeholder="e.g. Aashirvaad Shudh Chakki Atta 5kg"
-                          value={formData.name}
-                          onChange={handleChange}
-                          className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-3">
-                        <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                            SKU Code *
-                          </label>
-                          <input
-                            type="text"
-                            name="sku"
-                            required
-                            placeholder="ATT-AASH-5KG"
-                            value={formData.sku}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                            Barcode Format
-                          </label>
-                          <select
-                            name="barcodeFormat"
-                            value={formData.barcodeFormat}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold"
-                          >
-                            <option value="EAN13">EAN-13 (Standard Retail)</option>
-                            <option value="CODE128">Code 128 (Alphanumeric)</option>
-                            <option value="UPC">UPC (Universal Product)</option>
-                            <option value="QR">QR Code (Matrix)</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                            Barcode Digits
-                          </label>
-                          <input
-                            type="text"
-                            name="barcode"
-                            placeholder="8901058000123"
-                            value={formData.barcode}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Live Barcode Preview in Form */}
-                      {formData.barcode && (
-                        <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col items-center">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase mb-1">Live Barcode Preview</span>
-                          <BarcodeRenderer value={formData.barcode} format={formData.barcodeFormat} height={40} />
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {currentStep > 0 && currentStep < 5 && (
-                    <div className="text-xs text-slate-500 text-center py-6">
-                      Step {currentStep + 1} parameters configured. Click Next to proceed to final review.
-                    </div>
-                  )}
-
-                  {currentStep === 5 && (
-                    <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
-                      <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Product & Barcode Summary Review</h4>
-                      <p><strong>Name:</strong> {formData.name || "N/A"}</p>
-                      <p><strong>Barcode Format:</strong> {formData.barcodeFormat} ({formData.barcode || "N/A"})</p>
-                      {formData.barcode && (
-                        <div className="pt-2 flex flex-col items-center">
-                          <BarcodeRenderer value={formData.barcode} format={formData.barcodeFormat} height={45} />
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Actions Bar */}
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <Button
-                      type="button"
-                      onClick={handlePrevStep}
-                      disabled={currentStep === 0}
-                      className="px-4 py-2 text-sm text-slate-600 bg-slate-100 rounded-xl font-semibold disabled:opacity-50"
-                    >
-                      Previous
-                    </Button>
-
-                    {currentStep < FORM_STEPS.length - 1 ? (
-                      <Button
-                        type="button"
-                        onClick={handleNextStep}
-                        className="px-5 py-2 text-sm text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold shadow-lg shadow-emerald-500/20"
-                      >
-                        Next <ChevronRight className="w-4 h-4 inline ml-1" />
-                      </Button>
-                    ) : (
-                      <Button
-                        type="submit"
-                        className="px-6 py-2 text-sm text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold shadow-lg shadow-emerald-500/20"
-                      >
-                        <Check className="w-4 h-4 inline mr-1" /> Submit Product
-                      </Button>
-                    )}
-                  </div>
-                </form>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
       </div>
     </DashboardLayout>
   );
