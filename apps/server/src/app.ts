@@ -25,14 +25,14 @@ import { purchaseRouter } from "./modules/purchases";
 import { barcodeRouter } from "./modules/barcode";
 import { uploadRouter } from "./modules/upload";
 import billingRouter from "./modules/billing/billing.router";
+import posRouter from "./modules/pos/pos.router";
+import { getInvoices, getInvoiceById } from "./modules/pos/pos.controller";
 
 export const createApp = (): Application => {
   const app: Application = express();
 
-  // 1. Request ID Tracking Middleware
   app.use(requestIdMiddleware);
 
-  // 2. Helmet Security Headers
   app.use(
     helmet({
       contentSecurityPolicy: {
@@ -49,7 +49,6 @@ export const createApp = (): Application => {
     })
   );
 
-  // 3. CORS Configuration
   app.use(
     cors({
       origin: env.CORS_ORIGIN || "*",
@@ -59,26 +58,15 @@ export const createApp = (): Application => {
     })
   );
 
-  // 4. Rate Limiting Middleware
   app.use(API_PREFIX, globalRateLimiter);
-
-  // 5. Gzip Response Compression
   app.use(compression());
-
-  // 6. JSON & URL-Encoded Parsers
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-
-  // 7. Cookie Parser Middleware
   app.use(cookieParser());
-
-  // 8. Morgan / Winston HTTP Request Logger Stream
   app.use(requestLogger);
 
-  // 9. Interactive Swagger OpenAPI UI Documentation Endpoint
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-  // Health Check Endpoint
   app.get(`${API_PREFIX}/health`, (req: Request, res: Response) => {
     return sendSuccess({
       res,
@@ -88,8 +76,6 @@ export const createApp = (): Application => {
         service: "Rishabh Provision Store Server API",
         timestamp: new Date().toISOString(),
         version: "1.0.0",
-        environment: env.NODE_ENV,
-        swaggerDocs: "http://localhost:5001/api-docs",
       },
     });
   });
@@ -107,8 +93,12 @@ export const createApp = (): Application => {
   app.use(`${API_PREFIX}/barcode`, barcodeRouter);
   app.use(`${API_PREFIX}/upload`, uploadRouter);
   app.use(`${API_PREFIX}/billing`, billingRouter);
+  app.use(`${API_PREFIX}/pos`, posRouter);
 
-  // Fallbacks
+  // Invoices routes
+  app.get(`${API_PREFIX}/invoices`, getInvoices);
+  app.get(`${API_PREFIX}/invoices/:id`, getInvoiceById);
+
   app.use(notFoundHandler);
   app.use(errorHandler);
 
