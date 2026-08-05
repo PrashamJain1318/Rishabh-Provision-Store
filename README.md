@@ -44,38 +44,68 @@ To digitize and automate grocery store operations through a unified platform tha
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Tech Stack & Architecture
 
-### Frontend
-- **Framework**: React 19 + Vite
-- **Language**: TypeScript
+### Frontend (Feature-Driven Architecture)
+- **Framework**: React 19 + Vite (TypeScript)
 - **Styling**: Tailwind CSS v4 + shadcn/ui
 - **State & Query**: Zustand + TanStack Query
-- **Icons & Animation**: Lucide React + Framer Motion
+- **Structure**: Encapsulated features (`features/[module]/{components, pages, hooks, services, types, schemas}`)
 
-### Backend
-- **Runtime**: Node.js 22 LTS
-- **Framework**: Express.js (TypeScript)
+### Backend (3-Tier Layered Architecture)
+- **Runtime**: Node.js 22 LTS + Express.js (TypeScript)
 - **Database & ODM**: MongoDB Atlas + Mongoose
-- **Auth & Security**: JWT + Refresh Tokens, bcrypt, Helmet, CORS, Rate Limiting
-- **File & Media**: Cloudinary + Multer
-
-### Real-Time & Utilities
-- **WebSockets**: Socket.IO
-- **PDF & Excel**: `pdf-lib` + `ExcelJS`
-- **Barcode & QR**: `JsBarcode` + `qrcode`
-- **AI**: Gemini Pro API
+- **Layering**: `Controller ➔ Service ➔ Repository ➔ MongoDB`
+- **Auth & Media**: JWT + Refresh Tokens, bcrypt, Helmet, Cloudinary, Multer
 
 ---
 
-## 📂 Project Structure
+## 📂 Project Architecture Layout
 
 ```text
 Rishabh-Provision-Store/
 │
 ├── apps/
 │      ├── web/
+│      │     └── src/
+│      │          ├── assets/
+│      │          ├── components/
+│      │          ├── features/       # Feature-driven modules (products, orders, etc.)
+│      │          │     └── [feature]/
+│      │          │          ├── components/
+│      │          │          ├── pages/
+│      │          │          ├── hooks/
+│      │          │          ├── services/
+│      │          │          ├── types/
+│      │          │          └── schemas/
+│      │          ├── hooks/
+│      │          ├── layouts/
+│      │          ├── lib/
+│      │          ├── pages/
+│      │          ├── routes/
+│      │          ├── services/
+│      │          ├── store/
+│      │          ├── types/
+│      │          ├── utils/
+│      │          └── App.tsx
+│      │
 │      └── server/
+│            └── src/
+│                 ├── config/
+│                 ├── controllers/
+│                 ├── middlewares/
+│                 ├── models/
+│                 ├── routes/
+│                 ├── services/       # Business Domain Logic
+│                 ├── repositories/   # Data Access Queries
+│                 ├── validators/
+│                 ├── utils/
+│                 ├── constants/
+│                 ├── types/
+│                 ├── jobs/
+│                 ├── socket/
+│                 ├── app.ts
+│                 └── server.ts
 │
 ├── packages/
 │      ├── ui/
@@ -85,9 +115,7 @@ Rishabh-Provision-Store/
 │      └── utils/
 │
 ├── prompts/
-│
 ├── docs/
-│
 └── assets/
 ```
 
@@ -135,8 +163,8 @@ Detailed documentation is available in the [`docs/`](docs/) directory:
 - [`02-Features.md`](docs/02-Features.md) - Detailed PRD, 6 User Roles & Sub-Modules
 - [`03-Roadmap.md`](docs/03-Roadmap.md) - 5-phase development roadmap
 - [`04-Database.md`](docs/04-Database.md) - MongoDB collections summary
-- [`05-API.md`](docs/05-API.md) - REST API endpoint specifications
-- [`06-UIUX.md`](docs/06-UIUX.md) - Layout wireframes for 12 key screens
+- [`05-API.md`](docs/05-API.md) - Layered Backend Architecture & REST API endpoints
+- [`06-UIUX.md`](docs/06-UIUX.md) - Feature-Driven Frontend Layouts & Wireframes
 - [`07-Deployment.md`](docs/07-Deployment.md) - Deployment checklist & CI/CD
 - [`08-Todo.md`](docs/08-Todo.md) - Active task tracking
 - [`09-Environment.md`](docs/09-Environment.md) - Tech stack & env configs
