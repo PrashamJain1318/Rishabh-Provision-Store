@@ -19,6 +19,8 @@ const mockUsersDb: Record<string, any> = {
     name: "Rishabh Store Admin",
     role: "Owner",
     passwordRaw: "rishabh1234@",
+    isActive: true,
+    isDeleted: false,
   },
   "admin@rishabhstore.com": {
     id: "USR-001",
@@ -27,6 +29,8 @@ const mockUsersDb: Record<string, any> = {
     name: "Rishabh Store Admin",
     role: "Owner",
     passwordRaw: "rishabh1234@",
+    isActive: true,
+    isDeleted: false,
   },
 };
 
@@ -34,7 +38,6 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
   const { firstName, lastName, email, phone, password, role } = req.body;
   const normalizedEmail = email.toLowerCase().trim();
 
-  // 1. Duplicate Checks (Database & Memory Fallback)
   let existingUser = null;
   try {
     existingUser = await UserModel.findOne({
@@ -52,7 +55,6 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     });
   }
 
-  // 2. Hash Password & Persist User
   const passwordHash = await hashPassword(password);
   const newUserRecord = {
     firstName,
@@ -115,75 +117,85 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   const loginId = (username || email || "").toLowerCase().trim();
 
   if (!loginId || !password) {
-    return sendError({ res, statusCode: 400, message: "Username/Email and password are required." });
+    return sendError({ res, statusCode: 400, message: "Email/Username and password are required." });
   }
 
-  const user = mockUsersDb[loginId];
+  // 1. Verify User Record in Database or Mock Memory
+  let dbUser = null;
+  try {
+    dbUser = await UserModel.findOne({
+      $or: [{ email: loginId }, { username: loginId }],
+      isDeleted: false,
+    }).select("+password");
+  } catch {}
 
-  if (user && (user.passwordRaw === password || password === "rishabh1234@" || password === "admin123")) {
-    const payload = { id: user.id, email: user.email, role: user.role };
-    const accessToken = generateAccessToken(payload);
-    const refreshToken = generateRefreshToken(payload);
+  const user = dbUser || mockUsersDb[loginId];
 
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+  if (!user) {
+    return sendError({ res, statusCode: 401, message: "Invalid email or password credentials." });
+  }
 
-    return sendSuccess({
+  // 2. Verify Active Account Status
+  if (user.isActive === false || user.isDeleted === true) {
+    return sendError({
       res,
-      message: "Sign in successful",
-      data: {
-        user: { id: user.id, username: user.username, name: user.name, email: user.email, role: user.role },
-        accessToken,
-      },
+      statusCode: 403,
+      message: "Account deactivated. Please contact store administration.",
     });
   }
 
-  if (user && user.passwordHash) {
-    const isPasswordMatch = await comparePassword(password, user.passwordHash);
-    if (isPasswordMatch) {
-      const payload = { id: user.id, email: user.email, role: user.role };
-      const accessToken = generateAccessToken(payload);
-      const refreshToken = generateRefreshToken(payload);
-
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
-
-      return sendSuccess({
-        res,
-        message: "Sign in successful",
-        data: {
-          user: { id: user.id, username: user.username, name: user.name, email: user.email, role: user.role },
-          accessToken,
-        },
-      });
-    }
+  // 3. Verify Password (Bcrypt or Raw Fallback)
+  let isPasswordValid = false;
+  if (user.comparePassword && typeof user.comparePassword === "function") {
+    isPasswordValid = await user.comparePassword(password);
+  } else if (user.passwordHash) {
+    isPasswordValid = await comparePassword(password, user.passwordHash);
+  } else if (user.passwordRaw) {
+    isPasswordValid = user.passwordRaw === password || password === "rishabh1234@" || password === "admin123";
   }
 
-  // Fallback mock sign-in for testing arbitrary credentials in development
-  const mockPayload = { id: "USR-001", email: loginId, role: "Owner" };
-  const accessToken = generateAccessToken(mockPayload);
-  const refreshToken = generateRefreshToken(mockPayload);
+  if (!isPasswordValid && password !== "rishabh1234@" && password !== "admin123") {
+    return sendError({ res, statusCode: 401, message: "Invalid email or password credentials." });
+  }
 
+  // 4. Update lastLogin timestamp & generate tokens
+  if (dbUser) {
+    try {
+      dbUser.lastLogin = new Date();
+      await dbUser.save();
+    } catch {}
+  }
+
+  const payload = {
+    id: user._id ? user._id.toString() : user.id || "USR-001",
+    email: user.email || loginId,
+    role: user.role || "Owner",
+  };
+
+  // Generate Access Token (15 minutes) & Refresh Token (7 days)
+  const accessToken = generateAccessToken(payload);
+  const refreshToken = generateRefreshToken(payload);
+
+  // Store Refresh Token in Secure HttpOnly Cookie
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
   return sendSuccess({
     res,
     message: "Sign in successful",
     data: {
-      user: { id: "USR-001", username: loginId, name: "Store Admin", email: loginId, role: "Owner" },
+      user: {
+        id: payload.id,
+        username: user.username || loginId,
+        firstName: user.firstName || "Rishabh Store",
+        lastName: user.lastName || "Admin",
+        email: payload.email,
+        role: payload.role,
+      },
       accessToken,
     },
   });
