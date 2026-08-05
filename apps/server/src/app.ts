@@ -18,6 +18,7 @@ import { productRouter } from "./modules/products";
 import { userRouter } from "./modules/users";
 import { brandRouter } from "./modules/brands";
 import { unitRouter } from "./modules/units";
+import { categoryRouter } from "./modules/categories";
 import billingRouter from "./modules/billing/billing.router";
 
 export const createApp = (): Application => {
@@ -93,6 +94,7 @@ export const createApp = (): Application => {
   app.use(`${API_PREFIX}/users`, userRouter);
   app.use(`${API_PREFIX}/brands`, brandRouter);
   app.use(`${API_PREFIX}/units`, unitRouter);
+  app.use(`${API_PREFIX}/categories`, categoryRouter);
   app.use(`${API_PREFIX}/products`, productRouter);
   app.use(`${API_PREFIX}/billing`, billingRouter);
 

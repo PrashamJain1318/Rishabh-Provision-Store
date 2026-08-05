@@ -7,6 +7,7 @@ import DashboardPage from "./pages/Dashboard";
 import ProductsPage from "./pages/Products";
 import BrandsPage from "./pages/Brands";
 import UnitsPage from "./pages/Units";
+import CategoriesPage from "./pages/Categories";
 import InventoryPage from "./pages/Inventory";
 import OrdersPage from "./pages/Orders";
 import POSPage from "./pages/POS";
@@ -36,6 +37,7 @@ function App() {
           <Route path="/dashboard/products" element={<ProductsPage />} />
           <Route path="/dashboard/brands" element={<BrandsPage />} />
           <Route path="/dashboard/units" element={<UnitsPage />} />
+          <Route path="/dashboard/categories" element={<CategoriesPage />} />
           <Route path="/dashboard/orders" element={<OrdersPage />} />
           <Route path="/dashboard/customers" element={<CustomersPage />} />
           <Route path="/dashboard/inventory" element={<InventoryPage />} />
@@ -49,6 +51,7 @@ function App() {
           <Route path="/products" element={<Navigate to="/dashboard/products" replace />} />
           <Route path="/brands" element={<Navigate to="/dashboard/brands" replace />} />
           <Route path="/units" element={<Navigate to="/dashboard/units" replace />} />
+          <Route path="/categories" element={<Navigate to="/dashboard/categories" replace />} />
           <Route path="/orders" element={<Navigate to="/dashboard/orders" replace />} />
           <Route path="/customers" element={<Navigate to="/dashboard/customers" replace />} />
           <Route path="/inventory" element={<Navigate to="/dashboard/inventory" replace />} />
