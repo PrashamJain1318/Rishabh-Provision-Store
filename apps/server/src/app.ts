@@ -3,8 +3,10 @@ import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
 import cookieParser from "cookie-parser";
+import swaggerUi from "swagger-ui-express";
 import env from "./config/env";
 import { API_PREFIX } from "./config/constants";
+import { swaggerSpec } from "./config/swagger";
 import { requestIdMiddleware } from "./middlewares/requestId.middleware";
 import { requestLogger } from "./middlewares/logger.middleware";
 import { globalRateLimiter, authRateLimiter } from "./middlewares/rateLimiter.middleware";
@@ -20,7 +22,7 @@ export const createApp = (): Application => {
   // 1. Request ID Tracking Middleware
   app.use(requestIdMiddleware);
 
-  // 2. Helmet Security Headers (HSTS, CSP, XSS Filter, Frameguard, NoSniff, ReferrerPolicy)
+  // 2. Helmet Security Headers
   app.use(
     helmet({
       contentSecurityPolicy: {
@@ -47,13 +49,13 @@ export const createApp = (): Application => {
     })
   );
 
-  // 4. Rate Limiting Middleware (Applied to all API routes)
+  // 4. Rate Limiting Middleware
   app.use(API_PREFIX, globalRateLimiter);
 
   // 5. Gzip Response Compression
   app.use(compression());
 
-  // 6. JSON & URL-Encoded Parsers (Strict Request Size Limits: 10MB)
+  // 6. JSON & URL-Encoded Parsers
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
@@ -63,6 +65,9 @@ export const createApp = (): Application => {
   // 8. Morgan / Winston HTTP Request Logger Stream
   app.use(requestLogger);
 
+  // 9. Interactive Swagger OpenAPI UI Documentation Endpoint
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
   // Health Check Endpoint
   app.get(`${API_PREFIX}/health`, (req: Request, res: Response) => {
     res.json({
@@ -71,10 +76,11 @@ export const createApp = (): Application => {
       timestamp: new Date().toISOString(),
       version: "1.0.0",
       environment: env.NODE_ENV,
+      swaggerDocs: "http://localhost:5001/api-docs",
     });
   });
 
-  // REST API Routes (With Sensitive Auth Rate Limiter)
+  // REST API Routes
   app.use(`${API_PREFIX}/auth`, authRateLimiter, authRouter);
   app.use(`${API_PREFIX}/products`, productRouter);
   app.use(`${API_PREFIX}/billing`, billingRouter);
