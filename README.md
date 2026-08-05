@@ -9,19 +9,6 @@ To digitize and automate grocery store operations through a unified platform tha
 
 ---
 
-## ✨ Key Features
-
-- **⚡ Express POS Billing**: Keyboard-first billing terminal with USB/Bluetooth barcode scanner support & 2"/3" thermal receipt printing.
-- **🏬 Stock & Expiry Control**: Real-time inventory tracking, batch management, low-stock alerts, and expiry date notifications.
-- **📒 Digital Khata Ledger**: Customer credit ledger tracking, outstanding balance management, and WhatsApp/SMS payment reminders.
-- **🛒 Omnichannel Orders**: Consolidated processing for store POS sales and online customer orders.
-- **🚚 Suppliers & Purchases**: Supplier management, purchase orders, and stock inward logging.
-- **💸 Expense & Profit Analytics**: Operational cost tracking, daily/monthly P&L summaries, and GSTR tax exports.
-- **🤖 Gemini AI Assistant**: Conversational stock search, sales trend predictions, and intelligent reordering insights.
-- **👥 6-Role Access Control**: Specialized portals for Owner, Manager, Cashier, Employee, Delivery Partner, and Customer.
-
----
-
 ## 👥 User Roles Matrix
 
 | Role | Description | Key Responsibilities |
@@ -32,6 +19,28 @@ To digitize and automate grocery store operations through a unified platform tha
 | **Employee** | Store & floor operations | Assigned daily tasks, stock shelf replenishment, and product tagging. |
 | **Delivery Partner** | Logistics & fulfillment | Order pickup, route navigation, status updates (`Dispatched` ➔ `Delivered`), and COD collection. |
 | **Customer** | End consumers | Browse store catalog, place online orders, track delivery, view digital Khata ledger & redeem coupons. |
+
+---
+
+## 🧩 Core Modules & Sub-Modules
+
+### 1. 🔑 Authentication
+- Login | Register | OTP Verification | Forgot Password | Profile Management
+
+### 2. 🏬 Inventory Management
+- Categories | Brands | Products | Variants | Stock Control | Purchase Orders | Suppliers
+
+### 3. ⚡ POS Billing
+- Express Cart Grid | Barcode Scanning | Invoice Generation | GST Breakdown | Multi-Payment | Print Thermal Bill
+
+### 4. 🛒 Online Store (Customer Frontend)
+- Homepage | Product Listing | Search & Auto-complete | Filters | Cart | Checkout | Real-time Order Tracking
+
+### 5. 📊 Admin Dashboard & Reports
+- Executive Analytics | Sales Velocity | Revenue Graphs | Inventory Audit | Employee Management | Customers & Khata | GSTR Reports
+
+### 6. 🤖 AI Capabilities (Gemini Pro)
+- AI Chat Assistant | Product Recommendations | Smart Stock Prediction | Auto Purchase Order Suggestions
 
 ---
 
@@ -122,7 +131,7 @@ Rishabh-Provision-Store/
 
 Detailed documentation is available in the [`docs/`](docs/) directory:
 - [`01-Project-Vision.md`](docs/01-Project-Vision.md) - Executive vision, Tagline & Mission
-- [`02-Features.md`](docs/02-Features.md) - Detailed PRD, 6 User Roles & 15 Modules
+- [`02-Features.md`](docs/02-Features.md) - Detailed PRD, 6 User Roles & Sub-Modules
 - [`03-Roadmap.md`](docs/03-Roadmap.md) - 5-phase development roadmap
 - [`04-Database.md`](docs/04-Database.md) - MongoDB collections summary
 - [`05-API.md`](docs/05-API.md) - REST API endpoint specifications

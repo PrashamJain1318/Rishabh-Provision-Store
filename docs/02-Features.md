@@ -21,80 +21,52 @@
 
 ---
 
-## 🧩 Comprehensive Module Breakdown
+## 🧩 Core Modules & Sub-Modules Architecture
 
-### 1. 🔑 Authentication Module
-- Multi-role login (Email + Password for Owner/Manager/Cashier; Phone OTP for Customers & Delivery Partners).
-- Role-Based Access Control (RBAC) middleware for API security.
-- Session management with JWT & Refresh Token rotation.
+### 1. 🔑 Authentication
+- **Login**: Multi-role login supporting Email/Password and Mobile OTP.
+- **Register**: Store owner account onboarding & customer registration.
+- **OTP Verification**: Phone OTP authentication for Customers and Delivery Partners.
+- **Forgot Password**: Secure password reset via SMS/Email link.
+- **Profile Management**: Profile updates, address management, and password change.
 
-### 2. 📊 Executive Dashboard Module
-- **Live Metrics**: Total daily sales, gross profit estimate, order count, and active customer credit (Udhar).
-- **Alert Widgets**: Low-stock warnings, upcoming item expiries, and pending delivery orders.
-- **Visual Analytics**: Interactive daily/weekly sales charts and top-selling product widgets.
+### 2. 🏬 Inventory Management
+- **Categories**: Multi-level product categories and sub-categories.
+- **Brands**: Brand directory and brand-wise product grouping.
+- **Products**: Complete catalog with SKUs, HSN codes, images, and tax slabs.
+- **Variants**: Product variants (e.g. 500g, 1kg, 5kg, 1L, Packet, Box).
+- **Stock Control**: Real-time stock counts, stock inward/outward logs, and low-stock alerts.
+- **Purchase Orders**: Purchase order generation and stock receipt reconciliation.
+- **Suppliers**: Vendor database, purchase history, and accounts payable tracking.
 
-### 3. 📦 Products Module
-- **Catalog Management**: SKU, Product Name, Category, Brand, Unit (kg, g, L, ml, pcs, pack), HSN Code & GST Rate.
-- **Pricing Configuration**: Cost Price (CP), Selling Price (SP), and Maximum Retail Price (MRP).
-- **Barcode & QR Integration**: Auto-generated or custom barcode/QR code assignment per product.
+### 3. ⚡ POS (Point of Sale) Billing
+- **Express Cart**: Keyboard-optimized cart grid for fast cashier billing.
+- **Barcode Scan**: Instant item lookup via USB/Bluetooth barcode scanners.
+- **Invoice Generation**: Instant bill generation with unique invoice numbers.
+- **GST Breakdown**: Automated CGST, SGST, IGST calculation per item line.
+- **Multi-Payment Modes**: Cash, UPI/QR, Credit Card, Split Payment, and Khata Udhar Credit.
+- **Print Bill**: 2-inch and 3-inch thermal printer layout with instant print dispatch.
 
-### 4. 🏬 Inventory Module
-- **Stock Tracking**: Real-time quantity updates on sales, purchases, and manual adjustments.
-- **Batch & Expiry Management**: Batch number tracking with automated alert tags for expiring provision items.
-- **Automated Reordering**: Threshold-based reorder alerts with one-click purchase order generation.
+### 4. 🛒 Online Store (Customer Frontend)
+- **Homepage**: Banners, featured categories, quick deals, and reorder prompts.
+- **Product Listing**: Responsive catalog grid with quick-add cart controls.
+- **Search**: Instant predictive search bar for items, brands, and categories.
+- **Filters**: Price range, brand, category, in-stock status, and sorting.
+- **Cart Management**: Real-time cart calculation, quantity adjustments, and savings summary.
+- **Checkout**: Delivery address selector, payment mode choice, and coupon apply.
+- **Order Tracking**: Real-time timeline tracking (`Confirmed` ➔ `Packing` ➔ `Out for Delivery` ➔ `Delivered`).
 
-### 5. ⚡ POS Billing Module
-- **High-Speed Billing**: Optimized for keyboard-only operation & barcode scanner input.
-- **Multi-Payment Modes**: Cash, UPI/QR, Card, Split Payment, and Customer Khata Credit.
-- **Thermal Receipt Printing**: Instant print layout for 2-inch / 3-inch thermal printers with store logo & GST breakdown.
-- **Shift Reconciliation**: Cashier end-of-day register balancing (expected cash vs collected cash).
+### 5. 📊 Admin Dashboard & Business Intelligence
+- **Analytics Overview**: Live gross sales, net profit, order velocity, and customer metrics.
+- **Sales Monitoring**: POS sales vs Online sales performance breakdown.
+- **Revenue Insights**: Daily, weekly, monthly, and yearly revenue graphs.
+- **Inventory Audit**: Fast-moving vs slow-moving stock analysis and expiry risk reports.
+- **Employee Management**: Staff profiles, role assignments, shift attendance, and audit logs.
+- **Customer Directory**: Customer profiles, order history, credit limits, and Khata ledgers.
+- **Reports & Tax Exports**: Downloadable GSTR-1, GSTR-3B tax reports and Excel/PDF business summaries.
 
-### 6. 🛒 Orders Module
-- **Omnichannel Order Stream**: Consolidated view of POS bills, online web orders, and phone orders.
-- **Order Lifecycle**: `Pending` ➔ `Confirmed` ➔ `Packing` ➔ `Dispatched` ➔ `Delivered` / `Cancelled`.
-- **Delivery Assignment**: Auto or manual assignment of orders to active Delivery Partners.
-
-### 7. 📒 Customers & Khata Credit Ledger Module
-- **Customer Profiles**: Name, mobile number, delivery address, purchase history, and credit limit.
-- **Digital Khata Ledger**: Debit (purchase on credit) and Credit (payment received) transaction records.
-- **Automated Reminders**: WhatsApp/SMS notifications for pending balance collection with payment link.
-
-### 8. 🚚 Suppliers & Purchases Module
-- **Supplier Directory**: Contact details, GSTIN, address, and payment terms.
-- **Purchase Stock Inward**: Add supplier invoices to automatically increase product inventory counts.
-- **Accounts Payable**: Track outstanding dues to suppliers and payment history.
-
-### 9. 💸 Expenses Module
-- **Expense Logging**: Record operational costs (Rent, Electricity, Staff Wages, Maintenance, Transportation).
-- **Category Classification**: Fixed vs Variable expense tracking.
-- **P&L Impact**: Direct subtraction of expenses from sales revenue for Net Profit calculation.
-
-### 10. 📈 Reports & Business Intelligence Module
-- **Sales Reports**: Daily, weekly, monthly, and yearly revenue & profit breakdown.
-- **Inventory Audit Reports**: Fast-moving vs slow-moving stock analysis.
-- **GST & Tax Reports**: GSTR-1 and GSTR-3B ready sales and tax summary data exports (CSV/Excel).
-
-### 11. 🧑‍💼 Employees Module
-- **Staff Profiles**: Contact details, assigned role (`Owner`, `Manager`, `Cashier`, `Employee`), shift timings.
-- **Activity Audit Logs**: Track who created bills, adjusted stock, or logged expenses.
-- **Attendance & Wages**: Basic attendance tracking and payout logs.
-
-### 12. 🏷️ Coupons & Loyalty Module
-- **Promotional Discounts**: Percentage-based or fixed-amount discount codes.
-- **Rule Engines**: Minimum cart value requirements, expiry dates, and usage limits per customer.
-- **Loyalty Points**: Customer points accumulation on POS purchases for future bill redemptions.
-
-### 13. 🔔 Notifications Module
-- **Multi-Channel Delivery**: In-app notifications, Web Push, SMS, and WhatsApp alerts.
-- **Trigger Events**: Low-stock alerts to Owner/Manager, Order status updates to Customer, New order assigned to Delivery Partner.
-
-### 14. 🤖 AI Assistant Module (Gemini Pro)
-- **Conversational Queries**: "What were our top 5 selling items this week?" or "Which products are expiring soon?"
-- **Smart Inventory Forecast**: Predictive stock reorder recommendations based on historical sales velocity.
-- **Natural Language Search**: Semantic search across product descriptions and customer notes.
-
-### 15. ⚙️ Settings Module
-- **Store Profile**: Store name, logo, address, phone, GSTIN, thermal printer header/footer text.
-- **Tax Configurations**: CGST, SGST, IGST toggle rules.
-- **API Keys & Integrations**: Config management for Cloudinary, Razorpay, Resend, and Gemini.
-- **Backup & Export**: One-click database export and system restore capabilities.
+### 6. 🤖 AI Capabilities (Gemini Pro)
+- **AI Chat Assistant**: Conversational assistant for natural language business queries (e.g., "What was our highest selling item yesterday?").
+- **Product Recommendation**: Personalized product recommendations for customer online carts.
+- **Smart Stock Prediction**: Predictive stock velocity analysis forecasting future reorder dates.
+- **Auto Purchase Suggestion**: Automated purchase order draft generation based on sales trends and supplier lead times.
