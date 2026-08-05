@@ -16,6 +16,7 @@ import { errorHandler } from "./middlewares/error.middleware";
 import authRouter from "./modules/auth/auth.router";
 import { productRouter } from "./modules/products";
 import { userRouter } from "./modules/users";
+import { brandRouter } from "./modules/brands";
 import billingRouter from "./modules/billing/billing.router";
 
 export const createApp = (): Application => {
@@ -89,6 +90,7 @@ export const createApp = (): Application => {
   // REST API Routes
   app.use(`${API_PREFIX}/auth`, authRateLimiter, authRouter);
   app.use(`${API_PREFIX}/users`, userRouter);
+  app.use(`${API_PREFIX}/brands`, brandRouter);
   app.use(`${API_PREFIX}/products`, productRouter);
   app.use(`${API_PREFIX}/billing`, billingRouter);
 

@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   Zap,
   Package,
+  Building2,
   Layers,
   Warehouse,
   ShoppingCart,
@@ -42,6 +43,7 @@ const getLucideIcon = (iconName: string) => {
     case "dashboard": return <LayoutDashboard className="w-5 h-5" />;
     case "pos": return <Zap className="w-5 h-5 text-amber-400" />;
     case "products": return <Package className="w-5 h-5" />;
+    case "brands": return <Building2 className="w-5 h-5" />;
     case "categories": return <Layers className="w-5 h-5" />;
     case "inventory": return <Warehouse className="w-5 h-5" />;
     case "orders": return <ShoppingCart className="w-5 h-5" />;
