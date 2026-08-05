@@ -9,7 +9,6 @@ export interface DashboardLayoutProps {
   onNavSelect?: (id: string) => void;
 }
 
-// 14 Core Sidebar Navigation Items
 const allNavItems: SidebarItem[] = [
   { id: "dashboard", label: "Dashboard", icon: "📊", path: "/dashboard", roles: ["Owner", "Manager"] },
   { id: "pos", label: "POS Billing", icon: "⚡", path: "/pos", roles: ["Owner", "Manager", "Cashier"] },
@@ -34,6 +33,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   onNavSelect,
 }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const sidebarItems = allNavItems.map((item) => ({
     ...item,
@@ -42,18 +42,46 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
-      {/* 1. Sticky Navbar with Store Logo, Global Search, Notifications & ThemeToggle */}
+      {/* Sticky Navbar with Mobile Menu Drawer Trigger */}
       <div className="sticky top-0 z-40">
         <Navbar
           storeName="Rishabh Provision Store"
           userName="Prasham Jain"
           userRole={userRole}
+          onMobileMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)}
           rightAction={<ThemeToggle />}
         />
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* 2. Collapsible & Role-Aware Sidebar */}
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Mobile Slide-Over Navigation Drawer */}
+        {mobileMenuOpen && (
+          <div className="fixed inset-0 z-50 flex md:hidden">
+            <div
+              className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <div className="relative w-72 max-w-[80vw] bg-slate-900 h-full p-4 flex flex-col justify-between shadow-soft-lg z-10 border-r border-slate-800 overflow-y-auto">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                  <span className="font-bold text-white text-base">Store Navigation</span>
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-1 text-slate-400 hover:text-white text-sm"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <Sidebar items={sidebarItems} userRole={userRole} onSelect={onNavSelect} />
+              </div>
+              <div className="pt-4 border-t border-slate-800 text-xs text-slate-500 text-center">
+                Rishabh Provision Store App v1.0
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Desktop Collapsible Sidebar */}
         <div
           className={`transition-all duration-300 ${
             isSidebarCollapsed ? "w-16" : "w-64"
@@ -90,11 +118,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           )}
         </div>
 
-        {/* 3. Main Content Region */}
+        {/* Main Content Region */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 flex flex-col justify-between">
           <div className="flex-1">{children}</div>
 
-          {/* 4. Page Footer */}
           <footer className="mt-8 border-t border-slate-200 dark:border-slate-800 pt-4 pb-2 text-center text-xs text-slate-500">
             © 2026 Rishabh Provision Store. Smart Grocery. Smarter Business.
           </footer>
