@@ -3,6 +3,7 @@ import { createApp } from "./app";
 import { env } from "./config/env";
 import { logger } from "./config/logger";
 import { connectDatabase, disconnectDatabase } from "./config/database";
+import { seedOwnerAccount } from "./jobs/seedOwner";
 
 let server: Server;
 
@@ -27,6 +28,9 @@ process.on("unhandledRejection", (reason: any) => {
 const startServer = async (): Promise<void> => {
   // Load environment & connect database
   await connectDatabase();
+
+  // Auto-seed primary Owner account if missing
+  await seedOwnerAccount();
 
   const app = createApp();
 
