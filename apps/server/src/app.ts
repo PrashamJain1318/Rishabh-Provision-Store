@@ -1,4 +1,17 @@
-// Server Application Entry Setup
-// Layered Architecture: Controller -> Service -> Repository -> MongoDB
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
 
-export const appName = "Rishabh Provision Store API";
+export const app = express();
+
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
+
+app.get("/api/v1/health", (_req, res) => {
+  res.json({
+    success: true,
+    message: "Rishabh Provision Store API is healthy",
+    timestamp: new Date().toISOString(),
+  });
+});
