@@ -1,0 +1,35 @@
+/* Rishabh Provision Store Design Tokens & Global CSS */
+/* Style Inspiration: Modern Enterprise + Apple + Stripe + Linear */
+
+@layer base {
+  :root {
+    --radius-card: 1rem;       /* 2xl rounded cards */
+    --radius-btn: 0.75rem;     /* 2xl rounded buttons */
+    --radius-input: 0.75rem;   /* 2xl rounded inputs */
+
+    /* Curated Soft Shadow Tokens (No harsh black shadows) */
+    --shadow-soft-sm: 0 2px 8px -2px rgba(15, 23, 42, 0.06), 0 1px 4px -1px rgba(15, 23, 42, 0.04);
+    --shadow-soft-md: 0 8px 24px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.05);
+    --shadow-soft-lg: 0 16px 32px -8px rgba(15, 23, 42, 0.10), 0 8px 16px -4px rgba(15, 23, 42, 0.06);
+
+    /* Glassmorphism utility variables (Restricted to Hero, Analytics Cards, AI Assistant, Promo) */
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --glass-backdrop: blur(16px);
+  }
+
+  .dark {
+    --glass-bg: rgba(15, 23, 42, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --shadow-soft-sm: 0 2px 8px -2px rgba(0, 0, 0, 0.25);
+    --shadow-soft-md: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
+  }
+}
+
+/* Glassmorphism Utility (Use ONLY on Hero, Analytics Cards, AI Assistant, and Promo sections) */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+}

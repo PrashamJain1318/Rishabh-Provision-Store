@@ -1,9 +1,31 @@
-# 06. UI/UX Planning & Wireframe Layouts (Phase 0.6)
+# 06. UI/UX Planning & Design System Specifications (Phase 0.6)
 
-## 📐 Layout Wireframes Overview
-This document outlines low-fidelity wireframe structures for the 12 core screens of **Rishabh Provision Store**. The focus is strictly on spatial grid layout, content hierarchy, and UX element placement.
+## 🎨 Design System Aesthetic Guidelines
+
+### Aesthetic DNA
+- **Design Fusion**: **Modern Enterprise + Apple + Stripe + Linear**
+- **Tone**: Clean, professional, minimal, ultra-fast, and distraction-free. Avoid overly flashy or noisy decorative elements.
+
+### 🔳 Border Radius
+- **Card Radius**: `rounded-2xl` (`1rem` / `16px`)
+- **Button Radius**: `rounded-2xl` (`0.75rem` - `1rem`)
+- **Input Radius**: `rounded-2xl` (`0.75rem` - `1rem`)
+
+### 🌫️ Soft Shadows
+- **Rule**: Use soft ambient shadows only (`rgba(15, 23, 42, 0.06 - 0.10)`).
+- **Prohibited**: No harsh black shadows or heavy opacity drops.
+
+### ✨ Glassmorphism Boundaries
+- **Strict Scope Rule**: Glassmorphism (`backdrop-blur` with translucent borders) is restricted **EXCLUSIVELY** to:
+  1. **Hero Banner**
+  2. **Analytics Cards**
+  3. **AI Assistant Modal & Drawer**
+  4. **Promotional Banner Sections**
+- **Do NOT use glassmorphism everywhere** (e.g. keep standard tables, forms, POS grids, and navigation sidebars clean solid surfaces for maximum performance and readability).
 
 ---
+
+## 📐 Layout Wireframes
 
 ### 1. 🏠 Landing Page Wireframe
 ```text
@@ -11,7 +33,7 @@ This document outlines low-fidelity wireframe structures for the 12 core screens
 |  [Logo] Rishabh Store      [Features] [Pricing] [About]    [ Login ] [ Register ] |
 +-----------------------------------------------------------------------------------+
 |                                                                                   |
-|    [ HERO HEADER: Modern Provision Store Management & Express POS Billing ]      |
+|    [ HERO BANNER (Glassmorphism): Modern Provision Store Management & POS ]      |
 |    [ Subtext: Speed up sales, track stock, and manage customer credit easily. ]   |
 |                                                                                   |
 |           [ Launch Live POS Demo ]         [ Register Store ]                     |
@@ -74,15 +96,15 @@ This document outlines low-fidelity wireframe structures for the 12 core screens
 +-----------------------------------------------------------------------------------+
 | [Sidebar]    | Header: Store Name | [Search] | [Branch Dropdown] | [Profile Menu] |
 |--------------+--------------------------------------------------------------------|
-| - Dashboard  | [ Stat Card 1 ]  | [ Stat Card 2 ]  | [ Stat Card 3 ]  | [ Stat 4 ] |
-| - Products   | Today's Sales    | Total Bills      | Low Stock Count  | Khata Dues |
-| - Inventory  | ₹ 24,500         | 142 Bills        | 8 Items          | ₹ 12,400   |
-| - Orders     +--------------------------------------------------------------------+
-| - POS        | [ Sales Analytics Chart (Weekly) ]      | [ Recent POS Bills ]     |
-| - Customers  |                                         | Bill #1042 - ₹ 450 (Cash) |
-| - Suppliers  |                                         | Bill #1041 - ₹ 890 (UPI)  |
-| - Reports    +--------------------------------------------------------------------+
-| - Settings   | [ Low Stock Alert Table ]               | [ Quick POS Action ]     |
+| - Dashboard  | [ Analytics Card 1 (Glass) ] | [ Analytics Card 2 (Glass) ]        |
+| - Products   | Today's Revenue: ₹ 24,500    | Total Bills: 142 Bills              |
+| - Inventory  +--------------------------------------------------------------------+
+| - Orders     | [ Sales Analytics Chart (Weekly) ]      | [ Recent POS Bills ]     |
+| - POS        |                                         | Bill #1042 - ₹ 450 (Cash) |
+| - Customers  |                                         | Bill #1041 - ₹ 890 (UPI)  |
+| - Suppliers  +--------------------------------------------------------------------+
+| - Reports    | [ Low Stock Alert Table ]               | [ Quick POS Action ]     |
+| - Settings   |                                         |                          |
 +--------------+-----------------------------------------+--------------------------+
 ```
 
