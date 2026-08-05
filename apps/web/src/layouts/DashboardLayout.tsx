@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Navbar, Sidebar, SidebarItem } from "@rishabh-store/ui";
+import { ThemeToggle } from "../components/ThemeToggle";
 
 export interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -33,9 +34,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
-      {/* 1. Sticky Navbar */}
-      <div className="sticky top-0 z-40">
-        <Navbar storeName="Rishabh Provision Store" userName="Prasham Jain" userRole="Owner" />
+      {/* 1. Sticky Navbar with ThemeToggle */}
+      <div className="sticky top-0 z-40 flex items-center justify-between bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 pr-4">
+        <div className="flex-1">
+          <Navbar storeName="Rishabh Provision Store" userName="Prasham Jain" userRole="Owner" />
+        </div>
+        <ThemeToggle />
       </div>
 
       <div className="flex flex-1 overflow-hidden">
@@ -59,16 +63,16 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           ) : (
             <div className="flex flex-col items-center gap-3 py-4">
               {sidebarItems.map((item) => (
-                <button
+                <a
                   key={item.id}
-                  onClick={() => onNavSelect?.(item.id)}
+                  href={`/${item.id}`}
                   title={item.label}
                   className={`p-2.5 rounded-xl text-lg ${
                     item.active ? "bg-emerald-600 text-white" : "text-slate-400 hover:bg-slate-800"
                   }`}
                 >
                   {item.icon}
-                </button>
+                </a>
               ))}
             </div>
           )}
