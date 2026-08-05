@@ -17,3 +17,6 @@ export * from "./components/EmptyState";
 export * from "./components/LoadingSkeleton";
 export * from "./components/Toast";
 export * from "./components/Breadcrumb";
+export * from "./components/Avatar";
+export * from "./components/Badge";
+export * from "./components/ErrorState";
