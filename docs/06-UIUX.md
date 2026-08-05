@@ -1,5 +1,18 @@
 # 06. UI/UX Planning & Design System Specifications (Phase 0.6)
 
+## 📱 Responsive Multi-Device Directives
+
+Every page across **Rishabh Provision Store** must be fully responsive and optimized for seamless operation across all device viewports from the beginning:
+
+| Device Category | Screen Breakpoint | Layout Behavior |
+| :--- | :--- | :--- |
+| **Desktop** | `1280px` and above (`xl`, `2xl`) | Full multi-column grid layouts, persistent expanded sidebar, dual-pane POS terminal with cart & checkout side-by-side. |
+| **Laptop** | `1024px – 1279px` (`lg`) | Optimized 2-column or 3-column dashboard grids, collapsible sidebar navigation, compact POS cart view. |
+| **Tablet** | `768px – 1023px` (`md`) | Single/Double column grid, icon-only or drawer collapsible sidebar, touch-friendly POS buttons. |
+| **Mobile** | Under `768px` (`sm`) | Single-column fluid stack, bottom navigation bar / slide-out hamburger drawer, touch-first inputs & full-width buttons. |
+
+---
+
 ## 🎨 Design System & Visual Identity
 
 ### Aesthetic DNA
