@@ -1,23 +1,53 @@
-# 04. Database Collections List
+# 04. Database Architecture & MongoDB Atlas Setup Guide
 
-## 🗄️ MongoDB Collections Summary
+## 🍃 MongoDB Atlas Setup Instructions (Free M0 Cluster)
 
-Below is the list of core database collections for **Rishabh Provision Store** (Database: `MongoDB Atlas` / `Mongoose`):
+Follow these steps to create your free MongoDB Atlas database cluster:
 
-1. **Users** - System user accounts and authentication credentials.
-2. **Products** - Provision store items, barcodes, prices, stock levels, and expiry dates.
-3. **Categories** - Product classification and grouping categories.
-4. **Orders** - POS sales bills and online customer orders.
-5. **Customers** - Customer profiles, credit limits, and Khata ledger balances.
-6. **Suppliers** - Vendor profiles and purchase accounts payable.
-7. **Employees** - Store staff profiles, roles, and employment details.
-8. **Attendance** - Employee shift logs and daily attendance records.
-9. **Payments** - Transaction payment records (Cash, UPI, Card, Udhar Credit).
-10. **Expenses** - Store operational costs and bill logs.
-11. **Notifications** - In-app, SMS, and Push notification queue.
-12. **Reviews** - Customer product and service feedback ratings.
-13. **Coupons** - Discount promo codes and promotional offer rules.
-14. **Delivery** - Delivery order assignments, partner dispatch, and status updates.
-15. **Settings** - Store profile, tax rates, printer options, and system configurations.
+### Step 1: Create MongoDB Atlas Account
+1. Visit [https://www.mongodb.com/cloud/atlas/register](https://www.mongodb.com/cloud/atlas/register).
+2. Sign up or log in with your Google account.
 
-*Note: Detailed schemas for each collection will be defined in subsequent development phases.*
+### Step 2: Create a Free Shared Cluster (M0)
+1. Select **Deploy a Database** ➔ Choose **M0 Free Tier**.
+2. **Provider**: AWS or GCP.
+3. **Region**: `ap-south-1` (Mumbai, India) — recommended for lowest latency in South Asia.
+4. **Cluster Name**: `RishabhStoreCluster`.
+
+### Step 3: Configure Database User & Access Control
+1. **Database Access**: Create a database user (e.g. Username: `rishabh_admin`, Password: `<your_secure_password>`).
+2. **Network Access**: Add IP Address ➔ Select **Allow Access from Anywhere** (`0.0.0.0/0`) for local development.
+
+### Step 4: Copy Connection URI
+1. Click **Connect** on your cluster card.
+2. Choose **Drivers** (Node.js).
+3. Copy the Connection String:
+   ```text
+   mongodb+srv://rishabh_admin:<password>@rishabhstorecluster.mongodb.net/rishabh_provision_store?retryWrites=true&w=majority
+   ```
+
+### Step 5: Update Environment Variables
+Paste your connection URI into `.env` and `apps/server/.env`:
+```env
+MONGODB_URI=mongodb+srv://rishabh_admin:<password>@rishabhstorecluster.mongodb.net/rishabh_provision_store?retryWrites=true&w=majority
+```
+
+---
+
+## 📚 15 MongoDB Schema Collections Map
+
+1. `users` — Store staff & registered customers (`Owner`, `Manager`, `Cashier`, `Employee`, `Delivery Partner`, `Customer`).
+2. `products` — Grocery items, 12-digit barcode SKUs, selling prices, MRPs, stock quantities.
+3. `categories` — Product categories (`Atta & Flours`, `Edible Oils`, `Dairy`, etc.).
+4. `orders` — Omnichannel orders, line items, channels (`POS Bill`, `Online App`, `WhatsApp Delivery`).
+5. `customers` — Customer profiles, phone numbers, digital Khata credit limits, due balances.
+6. `suppliers` — Wholesale vendor profiles & purchase order tracking.
+7. `employees` — Staff payroll & attendance records.
+8. `attendances` — Daily clock-in / clock-out shifts.
+9. `payments` — Transaction logs (`Cash`, `UPI / QR`, `Khata Udhar Credit`).
+10. `expenses` — Store utility & operational expenses.
+11. `notifications` — Low stock & perishable expiry alert feeds.
+12. `reviews` — Product ratings & customer feedback.
+13. `coupons` — Promo codes & discount parameters.
+14. `deliveries` — Live order delivery dispatches & driver assignments.
+15. `settings` — Store branding, GSTIN registration & thermal printer configurations.
