@@ -1,8 +1,14 @@
-/* Rishabh Provision Store Design System & Color Tokens */
-/* Aesthetics: Modern Enterprise + Apple + Stripe + Linear */
+/* Rishabh Provision Store Design System & Typography */
+/* Font Family: Geist Sans & Geist Mono */
+
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
+    /* Typography Font Family */
+    --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'Geist Mono', monospace;
+
     /* Color Palette - Light Theme */
     --color-bg-primary: #ffffff;             /* Pure white background */
     --color-bg-secondary: #f8fafc;           /* Light gray section background (slate-50) */
@@ -45,6 +51,14 @@
     --glass-backdrop: blur(16px);
   }
 
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   .dark {
     /* Color Palette - Dark Theme (Almost Black, Not Pure Black) */
     --color-bg-primary: #0b0f17;             /* Almost black slate-950 */
@@ -71,6 +85,40 @@
     --shadow-soft-sm: 0 2px 8px -2px rgba(0, 0, 0, 0.30);
     --shadow-soft-md: 0 8px 24px -4px rgba(0, 0, 0, 0.40);
   }
+}
+
+/* Typography Hierarchy Utilities */
+.text-display-hero {
+  font-size: clamp(3rem, 5vw, 3.75rem); /* 48px - 60px */
+  line-height: 1.1;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.text-section-title {
+  font-size: 2.25rem; /* 36px */
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.text-card-title {
+  font-size: clamp(1.25rem, 2vw, 1.5rem); /* 20px - 24px */
+  line-height: 1.35;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.text-body {
+  font-size: 1rem; /* 16px */
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.text-caption {
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.4;
+  font-weight: 400;
 }
 
 /* Glassmorphism Utility (Restricted ONLY to Hero Banner, Analytics Cards, AI Assistant, and Promo) */

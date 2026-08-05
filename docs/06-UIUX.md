@@ -1,10 +1,27 @@
 # 06. UI/UX Planning & Design System Specifications (Phase 0.6)
 
-## 🎨 Design System & Color Palette
+## 🎨 Design System & Visual Identity
 
 ### Aesthetic DNA
 - **Design Fusion**: **Modern Enterprise + Apple + Stripe + Linear**
 - **Tone**: Clean, professional, minimal, ultra-fast, and distraction-free.
+
+---
+
+## 🔤 Typography System (Geist Font)
+
+- **Primary Font**: **Geist** (`Geist Sans` & `Geist Mono`)
+- **Characteristics**: Clean, modern, highly legible font engineered specifically for dashboard interfaces, datagrids, and enterprise applications.
+
+### Typography Hierarchy Matrix
+
+| Level | Size Range | CSS / Utility Class | Font Weight | Usage Context |
+| :--- | :--- | :--- | :--- | :--- |
+| **Hero Display** | `48px – 60px` | `.text-display-hero` (`text-5xl` to `text-6xl`) | `700` (Bold) | Landing page main headline & hero banners. |
+| **Section Title** | `36px` | `.text-section-title` (`text-4xl`) | `700` (Bold) | Main page titles, dashboard module headers. |
+| **Card Title** | `20px – 24px` | `.text-card-title` (`text-xl` to `text-2xl`) | `600` (SemiBold) | Dashboard cards, product catalog titles, modal headers. |
+| **Body Text** | `16px` | `.text-body` (`text-base`) | `400` (Regular) | Primary content, datagrid rows, input text, description text. |
+| **Small / Caption**| `14px` | `.text-caption` (`text-sm`) | `400` / `500` | Subtitles, table headers, badge labels, helper text. |
 
 ---
 
