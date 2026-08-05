@@ -11,6 +11,12 @@ const mockCategories: ICategory[] = [
     description: "Chakki fresh wheat atta, maida, besan, and grain flours",
     status: "Active",
     itemsCount: 42,
+    subcategories: [
+      { id: "SUB-101", name: "Chakki Fresh Whole Wheat Atta", slug: "chakki-atta", itemsCount: 18 },
+      { id: "SUB-102", name: "Multigrain Atta", slug: "multigrain-atta", itemsCount: 10 },
+      { id: "SUB-103", name: "Maida & Fine Wheat Flour", slug: "maida", itemsCount: 8 },
+      { id: "SUB-104", name: "Besan & Gram Flour", slug: "besan", itemsCount: 6 },
+    ],
   },
   {
     id: "CAT-002",
@@ -21,6 +27,12 @@ const mockCategories: ICategory[] = [
     description: "Basmati rice, boiled rice, poha, and organic grains",
     status: "Active",
     itemsCount: 38,
+    subcategories: [
+      { id: "SUB-201", name: "Basmati Premium Rice", slug: "basmati-rice", itemsCount: 15 },
+      { id: "SUB-202", name: "Sona Masoori & Daily Rice", slug: "daily-rice", itemsCount: 12 },
+      { id: "SUB-203", name: "Poha & Thick Flakes", slug: "poha", itemsCount: 6 },
+      { id: "SUB-204", name: "Organic Brown Rice", slug: "brown-rice", itemsCount: 5 },
+    ],
   },
   {
     id: "CAT-003",
@@ -31,6 +43,12 @@ const mockCategories: ICategory[] = [
     description: "Sunflower oil, mustard oil, cow ghee, and vanaspati",
     status: "Active",
     itemsCount: 29,
+    subcategories: [
+      { id: "SUB-301", name: "Mustard Oil (Kachi Ghani)", slug: "mustard-oil", itemsCount: 8 },
+      { id: "SUB-302", name: "Sunflower Oil (Refined)", slug: "sunflower-oil", itemsCount: 9 },
+      { id: "SUB-303", name: "Olive Oil (Extra Virgin)", slug: "olive-oil", itemsCount: 5 },
+      { id: "SUB-304", name: "Groundnut & Sesame Oil", slug: "groundnut-oil", itemsCount: 7 },
+    ],
   },
   {
     id: "CAT-004",
@@ -41,6 +59,11 @@ const mockCategories: ICategory[] = [
     description: "Turmeric, chili powder, coriander, and blended spices",
     status: "Active",
     itemsCount: 75,
+    subcategories: [
+      { id: "SUB-401", name: "Whole Spices (Khada Masala)", slug: "whole-spices", itemsCount: 25 },
+      { id: "SUB-402", name: "Powdered Ground Spices", slug: "powdered-spices", itemsCount: 30 },
+      { id: "SUB-403", name: "Blended Garam & Biryani Masala", slug: "blended-masala", itemsCount: 20 },
+    ],
   },
   {
     id: "CAT-005",
@@ -51,6 +74,11 @@ const mockCategories: ICategory[] = [
     description: "Assam tea bags, instant coffee, juices, and health drinks",
     status: "Active",
     itemsCount: 54,
+    subcategories: [
+      { id: "SUB-501", name: "Assam & Darjeeling Leaf Tea", slug: "tea-leaf", itemsCount: 20 },
+      { id: "SUB-502", name: "Instant Filter Coffee", slug: "instant-coffee", itemsCount: 14 },
+      { id: "SUB-503", name: "Fruit Juices & Drinks", slug: "juices", itemsCount: 20 },
+    ],
   },
   {
     id: "CAT-006",
@@ -61,6 +89,11 @@ const mockCategories: ICategory[] = [
     description: "Namkeen, potato chips, cream biscuits, and dry fruits",
     status: "Active",
     itemsCount: 88,
+    subcategories: [
+      { id: "SUB-601", name: "Namkeen & Bhujia Mixtures", slug: "namkeen", itemsCount: 35 },
+      { id: "SUB-602", name: "Biscuits & Cookies", slug: "biscuits", itemsCount: 30 },
+      { id: "SUB-603", name: "Potato Chips & Wafers", slug: "chips", itemsCount: 23 },
+    ],
   },
   {
     id: "CAT-007",
@@ -71,26 +104,11 @@ const mockCategories: ICategory[] = [
     description: "Fresh pouch milk, butter, paneer, and curd",
     status: "Active",
     itemsCount: 22,
-  },
-  {
-    id: "CAT-008",
-    name: "Personal Care",
-    slug: "personal-care",
-    image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=150",
-    icon: "smile",
-    description: "Bathing soaps, shampoos, toothpaste, and skin creams",
-    status: "Active",
-    itemsCount: 63,
-  },
-  {
-    id: "CAT-009",
-    name: "Cleaning & Household",
-    slug: "cleaning",
-    image: "https://images.unsplash.com/photo-1585421514738-01798e348b17?w=150",
-    icon: "sparkles",
-    description: "Detergent powders, floor cleaners, and dishwash bars",
-    status: "Active",
-    itemsCount: 47,
+    subcategories: [
+      { id: "SUB-701", name: "Fresh Pouch Milk", slug: "fresh-milk", itemsCount: 6 },
+      { id: "SUB-702", name: "Butter & Cheese Blocks", slug: "butter-cheese", itemsCount: 8 },
+      { id: "SUB-703", name: "Fresh Paneer & Curd", slug: "paneer-curd", itemsCount: 8 },
+    ],
   },
 ];
 
@@ -139,6 +157,7 @@ export class CategoryRepository {
         image: data.image || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=150",
         icon: data.icon || "layers",
         description: data.description,
+        subcategories: data.subcategories || [],
         status: data.status || "Active",
         itemsCount: 0,
         createdAt: new Date(),

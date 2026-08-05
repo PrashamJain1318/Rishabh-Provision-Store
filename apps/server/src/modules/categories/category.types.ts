@@ -1,5 +1,12 @@
 export type CategoryStatus = "Active" | "Inactive";
 
+export interface ISubcategory {
+  id?: string;
+  name: string;
+  slug: string;
+  itemsCount?: number;
+}
+
 export interface ICategory {
   id?: string;
   name: string;
@@ -7,6 +14,8 @@ export interface ICategory {
   image?: string;
   icon?: string;
   description?: string;
+  parentCategoryId?: string;
+  subcategories?: ISubcategory[];
   status: CategoryStatus;
   itemsCount?: number;
   createdAt?: Date;
