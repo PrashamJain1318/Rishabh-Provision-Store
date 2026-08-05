@@ -149,33 +149,34 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <DashboardLayout activeNavId="dashboard">
-      <div className="flex flex-col gap-6">
-        {/* Top Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-section-title text-slate-900 dark:text-slate-100 font-bold">
+      {/* Main Executive Workspace with Apple Spacing & Breathable Gaps */}
+      <div className="flex flex-col gap-8 pb-8">
+        {/* 1. Header Bar with Pixel-Perfect Typography & Quick Actions */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-2 border-b border-slate-200/80 dark:border-slate-800/80">
+          <div className="space-y-1">
+            <h1 className="text-display font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
               Executive Dashboard
             </h1>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500 font-medium">
               Real-time revenue metrics, POS sales velocity, and inventory alerts.
             </p>
           </div>
           <div className="flex items-center gap-3">
             <a href="/dashboard/reports">
-              <button className="px-4 py-2 rounded-2xl border border-slate-300 dark:border-slate-700 font-semibold text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+              <Button size="sm" variant="outline" className="text-xs px-4 rounded-xl shadow-soft-sm">
                 📈 View Reports
-              </button>
+              </Button>
             </a>
             <a href="/pos">
-              <button className="px-4 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-soft-sm transition-all">
+              <Button size="sm" variant="primary" className="text-xs px-4 rounded-xl shadow-soft-md">
                 ⚡ Express POS Terminal
-              </button>
+              </Button>
             </a>
           </div>
         </div>
 
-        {/* 5 Glassmorphism Metric Stat Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {/* 2. 5 Glassmorphism Metric KPI Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
           <DashboardCard
             title="Monthly Revenue"
             value="₹ 4,85,200"
@@ -212,7 +213,7 @@ export const DashboardPage: React.FC = () => {
           />
         </div>
 
-        {/* ChatGPT / Gemini Inspired AI Insights Widget (Purple Accent, Glass Card, Recommendation Cards & Action Triggers) */}
+        {/* 3. Gemini AI Retail Insights (Purple Accent Glass Card) */}
         <motion.div
           whileHover={{ y: -3, transition: { duration: 0.2 } }}
           className="glass-panel bg-white/70 dark:bg-slate-900/70 backdrop-blur-md rounded-3xl border border-purple-200/80 dark:border-purple-900/40 p-6 shadow-soft-sm hover:shadow-soft-md transition-all flex flex-col justify-between"
@@ -237,11 +238,10 @@ export const DashboardPage: React.FC = () => {
             </a>
           </div>
 
-          {/* 3 AI Recommendation Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <motion.div
               whileHover={{ scale: 1.02 }}
-              className="p-4 rounded-2xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/40 space-y-2"
+              className="p-5 rounded-2xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/40 space-y-2.5"
             >
               <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300 font-bold text-xs">
                 <TrendingUp className="w-4 h-4" /> Demand Surge Warning
@@ -252,7 +252,7 @@ export const DashboardPage: React.FC = () => {
               <div className="pt-1">
                 <button
                   onClick={() => alert("AI Recommendation Applied: Reordering Atta & Oil stock...")}
-                  className="px-3 py-1 rounded-xl bg-purple-600 text-white font-bold text-[10px] hover:bg-purple-700 transition-all"
+                  className="px-3 py-1.5 rounded-xl bg-purple-600 text-white font-bold text-[10px] hover:bg-purple-700 transition-all shadow-soft-sm"
                 >
                   Auto-Reorder Stock ➔
                 </button>
@@ -261,7 +261,7 @@ export const DashboardPage: React.FC = () => {
 
             <motion.div
               whileHover={{ scale: 1.02 }}
-              className="p-4 rounded-2xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/40 space-y-2"
+              className="p-5 rounded-2xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/40 space-y-2.5"
             >
               <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300 font-bold text-xs">
                 <Zap className="w-4 h-4" /> Perishable Expiry Audit
@@ -272,7 +272,7 @@ export const DashboardPage: React.FC = () => {
               <div className="pt-1">
                 <button
                   onClick={() => alert("AI Recommendation Applied: 15% Discount applied to Dairy Milk Batch!")}
-                  className="px-3 py-1 rounded-xl bg-purple-600 text-white font-bold text-[10px] hover:bg-purple-700 transition-all"
+                  className="px-3 py-1.5 rounded-xl bg-purple-600 text-white font-bold text-[10px] hover:bg-purple-700 transition-all shadow-soft-sm"
                 >
                   Apply 15% Clearance 🏷️
                 </button>
@@ -281,7 +281,7 @@ export const DashboardPage: React.FC = () => {
 
             <motion.div
               whileHover={{ scale: 1.02 }}
-              className="p-4 rounded-2xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/40 space-y-2"
+              className="p-5 rounded-2xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/40 space-y-2.5"
             >
               <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300 font-bold text-xs">
                 <Bot className="w-4 h-4" /> Khata Risk Score
@@ -292,7 +292,7 @@ export const DashboardPage: React.FC = () => {
               <div className="pt-1">
                 <button
                   onClick={() => alert("WhatsApp Payment Reminder Statement dispatched to Vikram Singh!")}
-                  className="px-3 py-1 rounded-xl bg-purple-600 text-white font-bold text-[10px] hover:bg-purple-700 transition-all"
+                  className="px-3 py-1.5 rounded-xl bg-purple-600 text-white font-bold text-[10px] hover:bg-purple-700 transition-all shadow-soft-sm"
                 >
                   Send WhatsApp Reminder 📲
                 </button>
@@ -301,18 +301,18 @@ export const DashboardPage: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Sales Overview ChartCard */}
+        {/* 4. Sales Overview Recharts ChartCard */}
         <ChartCard data={salesGraphData} />
 
-        {/* Bottom Grid Split */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Recent Orders Card Component (7 Cols) */}
+        {/* 5. Bottom Grid Split (Recent Orders Datagrid vs Low Stock & Top Products Widgets) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Recent Orders Datagrid (7 Cols) */}
           <motion.div
             whileHover={{ y: -2, transition: { duration: 0.2 } }}
             className="lg:col-span-7 glass-panel bg-white/70 dark:bg-slate-900/70 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-soft-sm hover:shadow-soft-md transition-all flex flex-col justify-between"
           >
             <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                   <ShoppingCart className="w-4 h-4" />
                 </div>
@@ -325,7 +325,7 @@ export const DashboardPage: React.FC = () => {
               </div>
 
               <a href="/dashboard/orders">
-                <button className="px-3 py-1.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold flex items-center gap-1 hover:bg-emerald-100 transition-all">
+                <button className="px-3.5 py-1.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold flex items-center gap-1 hover:bg-emerald-100 transition-all">
                   View All Orders <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </a>
@@ -394,7 +394,7 @@ export const DashboardPage: React.FC = () => {
 
                       <button
                         onClick={() => alert(`Generated Purchase Order for ${item.name}`)}
-                        className="p-1.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-xs transition-all"
+                        className="p-1.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-xs transition-all shadow-soft-sm"
                         title="Reorder Stock"
                       >
                         <RefreshCw className="w-3.5 h-3.5" />
