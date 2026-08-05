@@ -1,7 +1,10 @@
 # 02. Product Requirements & Feature Specifications (PRD)
 
-## 📌 Executive Product Summary
-**Rishabh Provision Store** is an end-to-end retail ecosystem comprising a high-speed Point of Sale (POS) terminal, an executive store management backend, a customer ordering storefront, and a delivery partner portal.
+## 📌 Product Identity & Mission
+
+- **Product Name**: Rishabh Provision Store
+- **Tagline**: *Smart Grocery. Smarter Business.*
+- **Mission**: To digitize and automate grocery store operations through a unified platform that enables inventory management, billing, online ordering, analytics, and AI-powered assistance.
 
 ---
 
@@ -9,17 +12,19 @@
 
 | User Role | Description | Key Access & Capabilities |
 | :--- | :--- | :--- |
-| **Owner (Admin)** | Store owner & business administrator | Full system control, financial reports, employee management, settings, inventory adjustments, and AI insights. |
-| **Employee** | Store cashiers, inventory managers & floor staff | Access to POS Billing, product stock lookup, customer registration, and basic order processing. No access to financial margins or employee management. |
-| **Customer** | End consumers ordering online or tracking credit | Access to digital store catalog, order placement, order status tracking, digital Khata ledger view, and coupons. |
-| **Delivery Boy** | Store delivery personnel | Mobile-first access to assigned delivery orders, customer address navigation, status updates (Picked Up, Out for Delivery, Delivered), and Cash on Delivery (COD) collection. |
+| **Owner** | Complete control over the business | Full system control, financial P&L reports, employee management, system settings, inventory overrides, database backup, and AI insights. |
+| **Manager** | Manage inventory, employees, and reports | Stock inward, batch & expiry management, employee shift scheduling, and business performance reports. |
+| **Cashier** | Billing, POS, customer management | Express POS Billing, barcode scanning, customer registration, thermal receipt printing, and cash register shift balancing. |
+| **Employee** | Assigned daily tasks | Access to assigned floor tasks, shelf stock replenishment, and product price check lookup. |
+| **Delivery Partner** | Order delivery management | Mobile view for assigned delivery orders, customer address navigation, delivery status updates (`Dispatched` ➔ `Delivered`), and Cash on Delivery (COD) collection. |
+| **Customer** | Browse, order, and track purchases | Digital store catalog, order placement, order status tracking, digital Khata ledger balance view, and coupon redemptions. |
 
 ---
 
 ## 🧩 Comprehensive Module Breakdown
 
 ### 1. 🔑 Authentication Module
-- Multi-role login (Email + Password for Admin/Staff; Phone OTP for Customers & Delivery Boys).
+- Multi-role login (Email + Password for Owner/Manager/Cashier; Phone OTP for Customers & Delivery Partners).
 - Role-Based Access Control (RBAC) middleware for API security.
 - Session management with JWT & Refresh Token rotation.
 
@@ -47,7 +52,7 @@
 ### 6. 🛒 Orders Module
 - **Omnichannel Order Stream**: Consolidated view of POS bills, online web orders, and phone orders.
 - **Order Lifecycle**: `Pending` ➔ `Confirmed` ➔ `Packing` ➔ `Dispatched` ➔ `Delivered` / `Cancelled`.
-- **Delivery Assignment**: Auto or manual assignment of orders to active Delivery Boys.
+- **Delivery Assignment**: Auto or manual assignment of orders to active Delivery Partners.
 
 ### 7. 📒 Customers & Khata Credit Ledger Module
 - **Customer Profiles**: Name, mobile number, delivery address, purchase history, and credit limit.
@@ -70,7 +75,7 @@
 - **GST & Tax Reports**: GSTR-1 and GSTR-3B ready sales and tax summary data exports (CSV/Excel).
 
 ### 11. 🧑‍💼 Employees Module
-- **Staff Profiles**: Contact details, assigned role (`Admin`, `Cashier`, `Manager`), shift timings.
+- **Staff Profiles**: Contact details, assigned role (`Owner`, `Manager`, `Cashier`, `Employee`), shift timings.
 - **Activity Audit Logs**: Track who created bills, adjusted stock, or logged expenses.
 - **Attendance & Wages**: Basic attendance tracking and payout logs.
 
@@ -81,7 +86,7 @@
 
 ### 13. 🔔 Notifications Module
 - **Multi-Channel Delivery**: In-app notifications, Web Push, SMS, and WhatsApp alerts.
-- **Trigger Events**: Low-stock alerts to Admin, Order status updates to Customer, New order assigned to Delivery Boy.
+- **Trigger Events**: Low-stock alerts to Owner/Manager, Order status updates to Customer, New order assigned to Delivery Partner.
 
 ### 14. 🤖 AI Assistant Module (Gemini Pro)
 - **Conversational Queries**: "What were our top 5 selling items this week?" or "Which products are expiring soon?"

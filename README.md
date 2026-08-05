@@ -1,6 +1,11 @@
 # Rishabh Provision Store 🛒
 
-A modern, high-performance retail management ecosystem designed specifically for provision and grocery stores. It unifies an express Point of Sale (POS) billing terminal, inventory & expiry tracking, customer Khata credit ledger, supplier purchases, and AI-driven business intelligence.
+> **Tagline**: *Smart Grocery. Smarter Business.*
+
+---
+
+## 🎯 Mission Statement
+To digitize and automate grocery store operations through a unified platform that enables inventory management, billing, online ordering, analytics, and AI-powered assistance.
 
 ---
 
@@ -13,7 +18,20 @@ A modern, high-performance retail management ecosystem designed specifically for
 - **🚚 Suppliers & Purchases**: Supplier management, purchase orders, and stock inward logging.
 - **💸 Expense & Profit Analytics**: Operational cost tracking, daily/monthly P&L summaries, and GSTR tax exports.
 - **🤖 Gemini AI Assistant**: Conversational stock search, sales trend predictions, and intelligent reordering insights.
-- **👥 Multi-Role Access Control**: Tailored workflows for Owner (Admin), Employees (Cashiers), Customers, and Delivery Boys.
+- **👥 6-Role Access Control**: Specialized portals for Owner, Manager, Cashier, Employee, Delivery Partner, and Customer.
+
+---
+
+## 👥 User Roles Matrix
+
+| Role | Description | Key Responsibilities |
+| :--- | :--- | :--- |
+| **Owner** | Complete business control | Full P&L access, employee management, system settings, database backup, and AI insights. |
+| **Manager** | Store management | Inventory control, stock inward, employee shift scheduling, and business reports. |
+| **Cashier** | Billing & POS operations | Express POS checkout, customer lookup, thermal receipt printing, and daily register balancing. |
+| **Employee** | Store & floor operations | Assigned daily tasks, stock shelf replenishment, and product tagging. |
+| **Delivery Partner** | Logistics & fulfillment | Order pickup, route navigation, status updates (`Dispatched` ➔ `Delivered`), and COD collection. |
+| **Customer** | End consumers | Browse store catalog, place online orders, track delivery, view digital Khata ledger & redeem coupons. |
 
 ---
 
@@ -103,8 +121,8 @@ Rishabh-Provision-Store/
 ## 📚 Documentation
 
 Detailed documentation is available in the [`docs/`](docs/) directory:
-- [`01-Project-Vision.md`](docs/01-Project-Vision.md) - Executive vision & architecture
-- [`02-Features.md`](docs/02-Features.md) - Detailed PRD, User Roles & 15 Modules
+- [`01-Project-Vision.md`](docs/01-Project-Vision.md) - Executive vision, Tagline & Mission
+- [`02-Features.md`](docs/02-Features.md) - Detailed PRD, 6 User Roles & 15 Modules
 - [`03-Roadmap.md`](docs/03-Roadmap.md) - 5-phase development roadmap
 - [`04-Database.md`](docs/04-Database.md) - MongoDB collections summary
 - [`05-API.md`](docs/05-API.md) - REST API endpoint specifications

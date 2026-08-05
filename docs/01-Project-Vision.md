@@ -1,16 +1,31 @@
-# 01. Project Vision & Architecture
+# 01. Project Vision & Mission
 
-## Overview
-**Rishabh Provision Store** is a modern, high-performance retail management ecosystem designed specifically for provision and grocery stores. It unifies high-speed POS billing, multi-role user workflows, digital Khata credit ledgers, inventory automation, AI-driven business intelligence, and online ordering.
+## Product Name
+**Rishabh Provision Store**
 
-## 🎯 Target User Roles
-1. **Owner (Admin)**: Full control over business operations, P&L, stock, employees, and settings.
-2. **Employee (Cashier/Staff)**: Express POS billing, stock lookup, and in-store customer service.
-3. **Customer**: Web/mobile catalog browsing, online ordering, loyalty, and digital Khata ledger view.
-4. **Delivery Boy**: Mobile order delivery updates, navigation, and COD payment collection.
+## 🏷️ Tagline
+*Smart Grocery. Smarter Business.*
+
+## 🚀 Mission Statement
+To digitize and automate grocery store operations through a unified platform that enables inventory management, billing, online ordering, analytics, and AI-powered assistance.
+
+---
+
+## 👥 User Roles & Permissions Overview
+
+| Role | Description | Core Responsibilities |
+| :--- | :--- | :--- |
+| **Owner** | Complete control over the business | Full P&L access, employee management, system settings, database backup, and AI insights. |
+| **Manager** | Manage inventory, employees, and reports | Stock inward, expiry tracking, shift schedules, and operational reports. |
+| **Cashier** | Billing, POS, customer management | Express POS checkout, customer lookup, thermal receipts, and register balancing. |
+| **Employee** | Assigned daily tasks | Floor tasks, stock shelf replenishment, item tagging, and basic inventory checks. |
+| **Delivery Partner** | Order delivery management | Order pickup, route navigation, delivery status updates, and COD cash collection. |
+| **Customer** | Browse, order, and track purchases | Digital store catalog, order placement, order tracking, Khata credit ledger view, and promo redemption. |
+
+---
 
 ## 📦 Core Product Modules
-1. **Authentication**: JWT & OTP login, RBAC security.
+1. **Authentication**: Multi-role login (JWT & OTP), RBAC security.
 2. **Dashboard**: Executive metrics, live sales graphs, and real-time alerts.
 3. **Products**: Catalog management, SKUs, pricing, GST, and barcodes.
 4. **Inventory**: Real-time stock counts, batching, expiry dates, and reordering.
@@ -26,5 +41,9 @@
 14. **AI Assistant (Gemini)**: Conversational insights, smart stock forecasts, and natural search.
 15. **Settings**: Store profile, tax parameters, printer configurations, and API keys.
 
-## 🏗️ Architecture Blueprint
-- **Monorepo Layout**: `apps/web` (Frontend Dashboard/POS/Customer App), `apps/server` (Express.js API Backend), shared `packages/` (`ui`, `database`, `config`, `types`, `utils`).
+---
+
+## 🏗️ Monorepo Architecture Blueprint
+- **Apps**: `apps/web` (React 19 + Vite), `apps/server` (Express.js + TypeScript).
+- **Packages**: `packages/ui`, `packages/database`, `packages/config`, `packages/types`, `packages/utils`.
+- **Prompts**: `prompts/gemini`, `prompts/antigravity`, `prompts/shared`.
