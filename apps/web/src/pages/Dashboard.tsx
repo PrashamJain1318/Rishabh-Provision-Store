@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { DashboardLayout } from "../layouts/DashboardLayout";
-import { DashboardCard, Table, Column, ChartCard, Avatar, Badge, LoadingSkeleton, EmptyState } from "@rishabh-store/ui";
+import { DashboardCard, Table, Column, ChartCard, Avatar, Badge, LoadingSkeleton, EmptyState, Button } from "@rishabh-store/ui";
 import { motion } from "framer-motion";
-import { ShoppingCart, ArrowRight, Flame, AlertTriangle } from "lucide-react";
+import { ShoppingCart, ArrowRight, Flame, AlertTriangle, RefreshCw } from "lucide-react";
 
 const salesGraphData = [
   { time: "08:00 AM", sales: 1200, orders: 4 },
@@ -253,40 +253,71 @@ export const DashboardPage: React.FC = () => {
 
           {/* Low Stock & Top Products Sidebar Widgets (5 Cols) */}
           <div className="lg:col-span-5 flex flex-col gap-6">
-            {/* Low Stock Products */}
-            <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-soft-sm">
-              <div className="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-800 pb-2">
+            {/* Low Stock Alert Widget (Red Accent, Warning Icon, Animated Pulse Badge & Reorder Trigger) */}
+            <motion.div
+              whileHover={{ y: -3, transition: { duration: 0.2 } }}
+              className="glass-panel bg-white/70 dark:bg-slate-900/70 backdrop-blur-md rounded-3xl border border-red-200/80 dark:border-red-900/40 p-6 shadow-soft-sm hover:shadow-soft-md transition-all flex flex-col justify-between"
+            >
+              <div className="flex items-center justify-between mb-4 border-b border-red-100 dark:border-red-950/60 pb-3">
                 <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 text-amber-500" />
-                  <h4 className="font-bold text-base text-slate-900 dark:text-slate-100">
-                    Low Stock Products
-                  </h4>
+                  <div className="w-8 h-8 rounded-xl bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400 flex items-center justify-center">
+                    <AlertTriangle className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-base text-slate-900 dark:text-slate-100">
+                      Low Stock Alerts
+                    </h4>
+                    <p className="text-[10px] text-red-500 font-semibold">Immediate reorder required</p>
+                  </div>
                 </div>
-                <a href="/dashboard/inventory" className="text-xs font-semibold text-amber-600 hover:underline">
-                  Reorder Stock ➔
+
+                <a href="/dashboard/inventory">
+                  <Button size="sm" variant="outline" className="text-xs px-3 rounded-xl border-red-200 text-red-600 hover:bg-red-50">
+                    Inventory ➔
+                  </Button>
                 </a>
               </div>
+
               <div className="flex flex-col gap-3">
                 {lowStockItems.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60"
+                    className="flex items-center justify-between p-3 rounded-2xl bg-red-50/50 dark:bg-red-950/20 border border-red-100/80 dark:border-red-900/40"
                   >
                     <div>
                       <h5 className="text-xs font-bold text-slate-900 dark:text-slate-100">
                         {item.name}
                       </h5>
-                      <span className="text-[10px] text-slate-400">{item.category}</span>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[10px] text-slate-400 font-mono">{item.id}</span>
+                        <span className="text-[10px] text-slate-400">• {item.category}</span>
+                      </div>
                     </div>
-                    <span className="px-2.5 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300 font-mono font-bold text-xs">
-                      {item.currentStock} Left
-                    </span>
+
+                    <div className="flex items-center gap-2">
+                      {/* Animated Red Pulse Badge */}
+                      <motion.span
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ repeat: Infinity, duration: 2 }}
+                        className="px-2.5 py-1 rounded-full bg-red-600 text-white font-mono font-bold text-xs shadow-soft-sm"
+                      >
+                        {item.currentStock} Left
+                      </motion.span>
+
+                      <button
+                        onClick={() => alert(`Generated Purchase Order for ${item.name}`)}
+                        className="p-1.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-xs transition-all"
+                        title="Reorder Stock"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
-            {/* Top Selling Products Widget (With Images, Revenue, Progress Bars & Hover Animations) */}
+            {/* Top Selling Products Widget */}
             <motion.div
               whileHover={{ y: -3, transition: { duration: 0.2 } }}
               className="glass-panel bg-white/70 dark:bg-slate-900/70 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-soft-sm hover:shadow-soft-md transition-all flex flex-col justify-between"
@@ -334,7 +365,6 @@ export const DashboardPage: React.FC = () => {
                       </span>
                     </div>
 
-                    {/* Sales Volume Ratio Progress Bar */}
                     <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
