@@ -1,9 +1,8 @@
 import { Server } from "http";
-import mongoose from "mongoose";
 import { createApp } from "./app";
 import { env } from "./config/env";
 import { logger } from "./config/logger";
-import { connectDatabase } from "./config/database";
+import { connectDatabase, disconnectDatabase } from "./config/database";
 
 let server: Server;
 
@@ -48,10 +47,7 @@ const gracefulShutdown = (signal: string) => {
     server.close(async () => {
       logger.info("HTTP Server closed successfully.");
       try {
-        if (mongoose.connection.readyState !== 0) {
-          await mongoose.connection.close();
-          logger.info("MongoDB Connection closed successfully.");
-        }
+        await disconnectDatabase();
       } catch (err) {
         logger.error("Error closing MongoDB connection:", err);
       } finally {
