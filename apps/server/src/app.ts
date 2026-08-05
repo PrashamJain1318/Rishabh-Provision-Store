@@ -2,8 +2,8 @@ import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
-import morgan from "morgan";
 import { API_PREFIX } from "./config/constants";
+import { requestLogger } from "./middlewares/logger.middleware";
 import { notFoundHandler } from "./middlewares/notFound.middleware";
 import { errorHandler } from "./middlewares/error.middleware";
 import productRouter from "./modules/products/product.router";
@@ -18,7 +18,7 @@ export const createApp = (): Application => {
   app.use(compression());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  app.use(morgan("dev"));
+  app.use(requestLogger);
 
   // Health Check Endpoint
   app.get(`${API_PREFIX}/health`, (req: Request, res: Response) => {
