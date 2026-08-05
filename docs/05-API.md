@@ -20,7 +20,33 @@ HTTP Request
 [ MongoDB Database ]  ──► Persistent Data Store
 ```
 
-### Directory Breakdown (`apps/server/src/`)
+---
+
+## 📐 Standardized API Response Format
+
+All API endpoints strictly follow a uniform response envelope structure across success and error scenarios:
+
+### 1. Success Response Structure (`HTTP 2xx`)
+```json
+{
+  "success": true,
+  "message": "Product created successfully",
+  "data": {}
+}
+```
+
+### 2. Error Response Structure (`HTTP 4xx / 5xx`)
+```json
+{
+  "success": false,
+  "message": "Product not found",
+  "error": {}
+}
+```
+
+---
+
+## 📂 Directory Breakdown (`apps/server/src/`)
 - `config/` - Database, Redis, Cloudinary & environment configs.
 - `controllers/` - Route handlers processing request params and sending responses.
 - `middlewares/` - Auth JWT verification, RBAC permissions, error handling, rate limiting.
@@ -29,9 +55,9 @@ HTTP Request
 - `services/` - Core business logic, pricing math, stock rules, transaction flows.
 - `repositories/` - Direct database queries, abstractions, and aggregation pipelines.
 - `validators/` - Zod schema validation rules for incoming requests.
-- `utils/` - Formatter helpers, calculation functions, response builders.
+- `utils/` - Formatter helpers, response helpers (`response.util.ts`).
 - `constants/` - Status codes, error messages, system defaults.
-- `types/` - Express request extensions, internal interfaces.
+- `types/` - Express request extensions, internal interfaces (`response.types.ts`).
 - `jobs/` - Cron jobs, background workers, automated tasks.
 - `socket/` - Real-time Socket.IO event handlers and rooms.
 - `app.ts` - Express app setup and middleware registration.
