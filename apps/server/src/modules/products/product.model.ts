@@ -9,10 +9,10 @@ const productSchema = new Schema<IProductDocument>(
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
     sku: { type: String, required: true, unique: true, uppercase: true, trim: true, index: true },
     barcode: { type: String, trim: true, index: true },
-    brand: { type: Schema.Types.ObjectId, ref: "Brand" },
+    brand: { type: Schema.Types.ObjectId, ref: "Brand", index: true },
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true, index: true },
-    subcategory: { type: String, trim: true },
-    supplier: { type: Schema.Types.ObjectId, ref: "Supplier" },
+    subcategory: { type: String, trim: true, index: true },
+    supplier: { type: Schema.Types.ObjectId, ref: "Supplier", index: true },
     unit: { type: String, required: true, trim: true },
     description: { type: String, trim: true },
     purchasePrice: { type: Number, required: true, min: 0 },
@@ -32,6 +32,23 @@ const productSchema = new Schema<IProductDocument>(
   { timestamps: true }
 );
 
+// -------------------------------------------------------------------------
+// HIGH-PERFORMANCE INDEXES FOR SEARCH ENGINE
+// -------------------------------------------------------------------------
+
+// 1. MongoDB Text Index for fast text search across Name, SKU, & Barcode
+productSchema.index(
+  { name: "text", sku: "text", barcode: "text" },
+  { weights: { name: 10, sku: 5, barcode: 5 }, name: "product_text_search_index" }
+);
+
+// 2. Compound Indexes for multi-facet filtering (Category + Brand + Status)
+productSchema.index({ category: 1, brand: 1, status: 1 });
+
+// 3. Compound Index for Supplier filtering
+productSchema.index({ supplier: 1, status: 1 });
+
+// 4. Pre-save hook
 productSchema.pre<IProductDocument>("save", function (next) {
   if (this.isModified("name") && !this.slug) {
     this.slug = this.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");

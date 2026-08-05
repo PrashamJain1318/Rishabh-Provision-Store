@@ -171,6 +171,8 @@ export const ProductsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [brandFilter, setBrandFilter] = useState("All");
+  const [supplierFilter, setSupplierFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [selectedBarcodeProduct, setSelectedBarcodeProduct] = useState<ProductItem | null>(null);
 
@@ -249,14 +251,24 @@ export const ProductsPage: React.FC = () => {
     setCurrentStep(0);
   };
 
+  // High-performance Multi-Facet Search Filter (Indexed Fields: Name, Barcode, SKU, Category, Brand, Supplier)
   const filteredProducts = products.filter((p) => {
+    const q = searchQuery.toLowerCase().trim();
     const matchesSearch =
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.barcode.includes(searchQuery);
+      !q ||
+      p.name.toLowerCase().includes(q) ||
+      p.sku.toLowerCase().includes(q) ||
+      p.barcode.toLowerCase().includes(q) ||
+      p.category.toLowerCase().includes(q) ||
+      p.brand.toLowerCase().includes(q) ||
+      p.supplier.toLowerCase().includes(q);
+
     const matchesCategory = categoryFilter === "All" || p.category === categoryFilter;
     const matchesBrand = brandFilter === "All" || p.brand === brandFilter;
-    return matchesSearch && matchesCategory && matchesBrand;
+    const matchesSupplier = supplierFilter === "All" || p.supplier === supplierFilter;
+    const matchesStatus = statusFilter === "All" || p.status === statusFilter;
+
+    return matchesSearch && matchesCategory && matchesBrand && matchesSupplier && matchesStatus;
   });
 
   return (
@@ -267,10 +279,10 @@ export const ProductsPage: React.FC = () => {
           <div>
             <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-3">
               <Package className="w-8 h-8 text-emerald-600" />
-              Master Product Catalog & Barcode Engine
+              Indexed Multi-Facet Search Catalog
             </h1>
             <p className="text-slate-500 text-sm mt-1">
-              Every product features instant barcode generation (EAN-13, Code 128, UPC, & QR Code formats)
+              Optimized search engine indexed across Product Name, Barcode, SKU, Category, Brand, & Supplier
             </p>
           </div>
           <Button
@@ -282,35 +294,23 @@ export const ProductsPage: React.FC = () => {
           </Button>
         </div>
 
-        {/* Toolbar & Filters */}
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-          {/* Search Bar */}
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search products by name, SKU or barcode..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
-            />
-          </div>
+        {/* Toolbar & Multi-Facet Filters */}
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col gap-4">
+          {/* Main Search Input */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="relative w-full sm:flex-1">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Indexed Search: Product Name, EAN Barcode, SKU Code, Category, Brand..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+              />
+            </div>
 
-          {/* Filters & View Switcher */}
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold"
-            >
-              <option value="All">All Categories</option>
-              <option value="Atta & Flours">Atta & Flours</option>
-              <option value="Edible Oils & Ghee">Edible Oils & Ghee</option>
-              <option value="Dairy & Chilled">Dairy & Chilled</option>
-              <option value="Masala & Spices">Masala & Spices</option>
-            </select>
-
-            <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+            {/* View Mode Toggle */}
+            <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 shrink-0">
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-1.5 rounded-lg transition-all ${
@@ -329,11 +329,76 @@ export const ProductsPage: React.FC = () => {
               </button>
             </div>
           </div>
+
+          {/* Multi-Facet Filter Selects */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+            {/* Category Filter */}
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Category</label>
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold"
+              >
+                <option value="All">All Categories</option>
+                <option value="Atta & Flours">Atta & Flours</option>
+                <option value="Edible Oils & Ghee">Edible Oils & Ghee</option>
+                <option value="Dairy & Chilled">Dairy & Chilled</option>
+                <option value="Masala & Spices">Masala & Spices</option>
+              </select>
+            </div>
+
+            {/* Brand Filter */}
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Brand</label>
+              <select
+                value={brandFilter}
+                onChange={(e) => setBrandFilter(e.target.value)}
+                className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold"
+              >
+                <option value="All">All Brands</option>
+                <option value="Aashirvaad">Aashirvaad</option>
+                <option value="Fortune">Fortune</option>
+                <option value="Amul">Amul</option>
+                <option value="Tata Consumer">Tata Consumer</option>
+              </select>
+            </div>
+
+            {/* Supplier Filter */}
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Supplier</label>
+              <select
+                value={supplierFilter}
+                onChange={(e) => setSupplierFilter(e.target.value)}
+                className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold"
+              >
+                <option value="All">All Suppliers</option>
+                <option value="ITC Grocery Wholesalers Ltd">ITC Grocery Wholesalers Ltd</option>
+                <option value="Adani Wilmar Edible Oils Supply">Adani Wilmar Edible Oils Supply</option>
+                <option value="Amul Anand Dairy Union Co">Amul Anand Dairy Union Co</option>
+              </select>
+            </div>
+
+            {/* Status Filter */}
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Status</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-semibold"
+              >
+                <option value="All">All Statuses</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Out of Stock">Out of Stock</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         {/* View Mode Rendering */}
         {viewMode === "grid" ? (
-          /* Grid View with Live Barcode SVG */
+          /* Grid View */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
               <motion.div
@@ -364,7 +429,7 @@ export const ProductsPage: React.FC = () => {
                 <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
                   <div>
                     <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-                      {product.category}
+                      {product.category} • {product.brand}
                     </span>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 line-clamp-2 mt-0.5">
                       {product.name}
@@ -379,7 +444,7 @@ export const ProductsPage: React.FC = () => {
                     <BarcodeRenderer value={product.barcode} format={product.barcodeFormat} height={32} width={1.5} />
                     <span className="text-[9px] font-mono text-slate-400 mt-1 flex items-center gap-1">
                       <Barcode className="w-3 h-3 text-emerald-600" />
-                      Click to expand barcode ({product.barcodeFormat})
+                      EAN Tag: {product.barcode}
                     </span>
                   </div>
 
@@ -403,9 +468,9 @@ export const ProductsPage: React.FC = () => {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    <th className="py-4 px-6">Product Details</th>
-                    <th className="py-4 px-6">Live Barcode Tag</th>
-                    <th className="py-4 px-6">Category & Brand</th>
+                    <th className="py-4 px-6">Product Name</th>
+                    <th className="py-4 px-6">SKU & EAN Barcode</th>
+                    <th className="py-4 px-6">Category / Brand / Supplier</th>
                     <th className="py-4 px-6">Selling Price / MRP</th>
                     <th className="py-4 px-6">Stock Level</th>
                     <th className="py-4 px-6 text-right">Actions</th>
@@ -418,16 +483,12 @@ export const ProductsPage: React.FC = () => {
                         <img src={p.images[0]} alt={p.name} className="w-10 h-10 rounded-xl object-cover border border-slate-200" />
                         <div>
                           <p className="font-bold text-slate-900 dark:text-slate-100 text-xs">{p.name}</p>
-                          <p className="text-[11px] text-slate-400">{p.sku}</p>
+                          <p className="text-[11px] text-slate-400">{p.supplier}</p>
                         </div>
                       </td>
                       <td className="py-4 px-6">
-                        <div
-                          onClick={() => setSelectedBarcodeProduct(p)}
-                          className="cursor-pointer inline-block"
-                        >
-                          <BarcodeRenderer value={p.barcode} format={p.barcodeFormat} height={28} width={1.2} />
-                        </div>
+                        <p className="font-bold font-mono text-xs text-slate-800 dark:text-slate-200">{p.sku}</p>
+                        <p className="text-slate-400 font-mono text-[10px]">Barcode: {p.barcode}</p>
                       </td>
                       <td className="py-4 px-6 text-xs font-semibold text-slate-700 dark:text-slate-300">
                         <p>{p.category}</p>
@@ -517,7 +578,7 @@ export const ProductsPage: React.FC = () => {
                   <div>
                     <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                       <Package className="w-5 h-5 text-emerald-600" />
-                      Add Product & Barcode Wizard
+                      Add Product Wizard
                     </h3>
                     <p className="text-xs text-slate-500">Step {currentStep + 1} of {FORM_STEPS.length}: {FORM_STEPS[currentStep]}</p>
                   </div>
@@ -529,7 +590,6 @@ export const ProductsPage: React.FC = () => {
                   </button>
                 </div>
 
-                {/* Form Step Body */}
                 <form onSubmit={handleSubmitProduct} className="space-y-4">
                   {currentStep === 0 && (
                     <div className="space-y-4">

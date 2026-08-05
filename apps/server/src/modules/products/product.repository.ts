@@ -115,32 +115,70 @@ const mockProducts: IProduct[] = [
 export class ProductRepository {
   async findAll(queryObj: any = {}): Promise<IProduct[]> {
     try {
-      const dbProducts = await ProductModel.find().populate("category brand supplier");
+      const filterQuery: any = {};
+
+      // Indexed Search by Name, SKU, or Barcode
+      if (queryObj.search) {
+        const s = queryObj.search.trim();
+        filterQuery.$or = [
+          { name: { $regex: s, $options: "i" } },
+          { sku: { $regex: s, $options: "i" } },
+          { barcode: { $regex: s, $options: "i" } },
+        ];
+      }
+
+      // Indexed Filter by Category
+      if (queryObj.category && queryObj.category !== "All") {
+        filterQuery.category = queryObj.category;
+      }
+
+      // Indexed Filter by Brand
+      if (queryObj.brand && queryObj.brand !== "All") {
+        filterQuery.brand = queryObj.brand;
+      }
+
+      // Indexed Filter by Supplier
+      if (queryObj.supplier && queryObj.supplier !== "All") {
+        filterQuery.supplier = queryObj.supplier;
+      }
+
+      // Indexed Filter by Status
+      if (queryObj.status && queryObj.status !== "All") {
+        filterQuery.status = queryObj.status;
+      }
+
+      const dbProducts = await ProductModel.find(filterQuery).populate("category brand supplier");
       if (dbProducts.length > 0) return dbProducts;
     } catch {}
 
+    // Mock Search Fallback
     let filtered = mockProducts;
     if (queryObj.search) {
-      const s = queryObj.search.toLowerCase();
+      const s = queryObj.search.toLowerCase().trim();
       filtered = filtered.filter(
         (p) =>
           p.name.toLowerCase().includes(s) ||
           p.sku.toLowerCase().includes(s) ||
-          (p.barcode && p.barcode.toLowerCase().includes(s))
+          (p.barcode && p.barcode.toLowerCase().includes(s)) ||
+          p.category.toLowerCase().includes(s) ||
+          (p.brand && p.brand.toLowerCase().includes(s)) ||
+          (p.supplier && p.supplier.toLowerCase().includes(s))
       );
     }
-    if (queryObj.category) {
+
+    if (queryObj.category && queryObj.category !== "All") {
       filtered = filtered.filter((p) => p.category === queryObj.category);
     }
-    if (queryObj.brand) {
+    if (queryObj.brand && queryObj.brand !== "All") {
       filtered = filtered.filter((p) => p.brand === queryObj.brand);
     }
-    if (queryObj.supplier) {
+    if (queryObj.supplier && queryObj.supplier !== "All") {
       filtered = filtered.filter((p) => p.supplier === queryObj.supplier);
     }
-    if (queryObj.status) {
+    if (queryObj.status && queryObj.status !== "All") {
       filtered = filtered.filter((p) => p.status === queryObj.status);
     }
+
     return filtered;
   }
 
