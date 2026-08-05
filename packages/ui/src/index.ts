@@ -20,3 +20,4 @@ export * from "./components/Breadcrumb";
 export * from "./components/Avatar";
 export * from "./components/Badge";
 export * from "./components/ErrorState";
+export * from "./components/BarcodeRenderer";

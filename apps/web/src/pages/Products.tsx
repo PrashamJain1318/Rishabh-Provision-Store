@@ -25,9 +25,10 @@ import {
   Layers,
   Image as ImageIcon,
   AlertTriangle,
+  QrCode,
 } from "lucide-react";
 import { DashboardLayout } from "../layouts/DashboardLayout";
-import { Button } from "@rishabh-store/ui";
+import { Button, BarcodeRenderer, BarcodeFormat } from "@rishabh-store/ui";
 
 interface ProductItem {
   id: string;
@@ -35,6 +36,7 @@ interface ProductItem {
   slug: string;
   sku: string;
   barcode: string;
+  barcodeFormat: BarcodeFormat;
   brand: string;
   category: string;
   subcategory: string;
@@ -62,6 +64,7 @@ const initialProducts: ProductItem[] = [
     slug: "aashirvaad-shudh-chakki-whole-wheat-atta-5kg",
     sku: "ATT-AASH-5KG",
     barcode: "8901058000123",
+    barcodeFormat: "EAN13",
     brand: "Aashirvaad",
     category: "Atta & Flours",
     subcategory: "Chakki Fresh Atta",
@@ -87,6 +90,7 @@ const initialProducts: ProductItem[] = [
     slug: "fortune-kachi-ghani-pure-mustard-oil-1l-pouch",
     sku: "OIL-FORT-1L",
     barcode: "8906007280054",
+    barcodeFormat: "EAN13",
     brand: "Fortune",
     category: "Edible Oils & Ghee",
     subcategory: "Mustard Oil",
@@ -112,6 +116,7 @@ const initialProducts: ProductItem[] = [
     slug: "amul-pasteurised-pure-cow-butter-500g-pack",
     sku: "BUT-AMUL-500G",
     barcode: "8901262010052",
+    barcodeFormat: "EAN13",
     brand: "Amul",
     category: "Dairy & Chilled",
     subcategory: "Butter & Cheese Blocks",
@@ -137,6 +142,7 @@ const initialProducts: ProductItem[] = [
     slug: "tata-salt-vacuum-evaporated-iodized-salt-1kg",
     sku: "SLT-TATA-1KG",
     barcode: "8901058852310",
+    barcodeFormat: "EAN13",
     brand: "Tata Consumer",
     category: "Masala & Spices",
     subcategory: "Powdered Ground Spices",
@@ -165,8 +171,8 @@ export const ProductsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [brandFilter, setBrandFilter] = useState("All");
-  const [statusFilter, setStatusFilter] = useState("All");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
+  const [selectedBarcodeProduct, setSelectedBarcodeProduct] = useState<ProductItem | null>(null);
 
   // Multi-step Wizard Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -177,6 +183,7 @@ export const ProductsPage: React.FC = () => {
     name: "",
     sku: "",
     barcode: "",
+    barcodeFormat: "EAN13" as BarcodeFormat,
     category: "Atta & Flours",
     subcategory: "Chakki Fresh Atta",
     brand: "Aashirvaad",
@@ -216,6 +223,7 @@ export const ProductsPage: React.FC = () => {
       slug: (formData.name || "Sample Item").toLowerCase().replace(/[^a-z0-9]+/g, "-"),
       sku: formData.sku || `SKU-${Math.floor(1000 + Math.random() * 9000)}`,
       barcode: formData.barcode || "8901058009999",
+      barcodeFormat: formData.barcodeFormat,
       brand: formData.brand,
       category: formData.category,
       subcategory: formData.subcategory,
@@ -248,8 +256,7 @@ export const ProductsPage: React.FC = () => {
       p.barcode.includes(searchQuery);
     const matchesCategory = categoryFilter === "All" || p.category === categoryFilter;
     const matchesBrand = brandFilter === "All" || p.brand === brandFilter;
-    const matchesStatus = statusFilter === "All" || p.status === statusFilter;
-    return matchesSearch && matchesCategory && matchesBrand && matchesStatus;
+    return matchesSearch && matchesCategory && matchesBrand;
   });
 
   return (
@@ -260,10 +267,10 @@ export const ProductsPage: React.FC = () => {
           <div>
             <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-3">
               <Package className="w-8 h-8 text-emerald-600" />
-              Master Product Catalog
+              Master Product Catalog & Barcode Engine
             </h1>
             <p className="text-slate-500 text-sm mt-1">
-              Manage inventory SKUs, barcodes, pricing structures, MRPs, and stock thresholds
+              Every product features instant barcode generation (EAN-13, Code 128, UPC, & QR Code formats)
             </p>
           </div>
           <Button
@@ -290,8 +297,7 @@ export const ProductsPage: React.FC = () => {
           </div>
 
           {/* Filters & View Switcher */}
-          <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-            {/* Category Filter */}
+          <div className="flex items-center gap-3 w-full md:w-auto">
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
@@ -304,7 +310,6 @@ export const ProductsPage: React.FC = () => {
               <option value="Masala & Spices">Masala & Spices</option>
             </select>
 
-            {/* View Mode Toggle */}
             <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
               <button
                 onClick={() => setViewMode("grid")}
@@ -328,7 +333,7 @@ export const ProductsPage: React.FC = () => {
 
         {/* View Mode Rendering */}
         {viewMode === "grid" ? (
-          /* Grid View */
+          /* Grid View with Live Barcode SVG */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
               <motion.div
@@ -366,7 +371,19 @@ export const ProductsPage: React.FC = () => {
                     </h3>
                   </div>
 
-                  {/* Stock & Expiry */}
+                  {/* Rendered Live Barcode Thumbnail */}
+                  <div
+                    onClick={() => setSelectedBarcodeProduct(product)}
+                    className="p-2 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center cursor-pointer hover:border-emerald-500 transition-colors"
+                  >
+                    <BarcodeRenderer value={product.barcode} format={product.barcodeFormat} height={32} width={1.5} />
+                    <span className="text-[9px] font-mono text-slate-400 mt-1 flex items-center gap-1">
+                      <Barcode className="w-3 h-3 text-emerald-600" />
+                      Click to expand barcode ({product.barcodeFormat})
+                    </span>
+                  </div>
+
+                  {/* Stock Level */}
                   <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
                     <span className="font-semibold text-slate-600 dark:text-slate-300">
                       Stock: <strong className="text-slate-900 dark:text-slate-100">{product.stock} {product.unit}</strong>
@@ -387,7 +404,7 @@ export const ProductsPage: React.FC = () => {
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 text-xs font-bold text-slate-500 uppercase tracking-wider">
                     <th className="py-4 px-6">Product Details</th>
-                    <th className="py-4 px-6">SKU & Barcode</th>
+                    <th className="py-4 px-6">Live Barcode Tag</th>
                     <th className="py-4 px-6">Category & Brand</th>
                     <th className="py-4 px-6">Selling Price / MRP</th>
                     <th className="py-4 px-6">Stock Level</th>
@@ -401,12 +418,16 @@ export const ProductsPage: React.FC = () => {
                         <img src={p.images[0]} alt={p.name} className="w-10 h-10 rounded-xl object-cover border border-slate-200" />
                         <div>
                           <p className="font-bold text-slate-900 dark:text-slate-100 text-xs">{p.name}</p>
-                          <p className="text-[11px] text-slate-400">{p.supplier}</p>
+                          <p className="text-[11px] text-slate-400">{p.sku}</p>
                         </div>
                       </td>
-                      <td className="py-4 px-6 font-mono text-xs">
-                        <p className="font-bold text-slate-800 dark:text-slate-200">{p.sku}</p>
-                        <p className="text-slate-400 text-[10px]">EAN: {p.barcode}</p>
+                      <td className="py-4 px-6">
+                        <div
+                          onClick={() => setSelectedBarcodeProduct(p)}
+                          className="cursor-pointer inline-block"
+                        >
+                          <BarcodeRenderer value={p.barcode} format={p.barcodeFormat} height={28} width={1.2} />
+                        </div>
                       </td>
                       <td className="py-4 px-6 text-xs font-semibold text-slate-700 dark:text-slate-300">
                         <p>{p.category}</p>
@@ -424,9 +445,6 @@ export const ProductsPage: React.FC = () => {
                         <button className="p-2 text-slate-400 hover:text-emerald-600 rounded-lg">
                           <Edit3 className="w-4 h-4" />
                         </button>
-                        <button className="p-2 text-slate-400 hover:text-rose-600 rounded-lg">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
                       </td>
                     </tr>
                   ))}
@@ -436,7 +454,56 @@ export const ProductsPage: React.FC = () => {
           </div>
         )}
 
-        {/* Multi-step Product Form Wizard Modal */}
+        {/* Expanded Barcode Modal */}
+        <AnimatePresence>
+          {selectedBarcodeProduct && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="bg-white dark:bg-slate-900 rounded-3xl p-6 w-full max-w-md shadow-2xl border border-slate-100 dark:border-slate-800 text-center space-y-4"
+              >
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                    <Barcode className="w-4 h-4 text-emerald-600" />
+                    Product Barcode Label ({selectedBarcodeProduct.barcodeFormat})
+                  </h3>
+                  <button
+                    onClick={() => setSelectedBarcodeProduct(null)}
+                    className="p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col items-center space-y-3">
+                  <h4 className="font-bold text-xs text-slate-900 dark:text-slate-100 max-w-xs">{selectedBarcodeProduct.name}</h4>
+                  <p className="font-mono text-xs text-emerald-600 font-bold">SKU: {selectedBarcodeProduct.sku}</p>
+
+                  {/* Rendered Large Barcode */}
+                  <BarcodeRenderer
+                    value={selectedBarcodeProduct.barcode}
+                    format={selectedBarcodeProduct.barcodeFormat}
+                    height={70}
+                    width={2}
+                  />
+
+                  <p className="text-[11px] text-slate-400 font-mono">EAN / UPC Tag: {selectedBarcodeProduct.barcode}</p>
+                </div>
+
+                <Button
+                  onClick={() => setSelectedBarcodeProduct(null)}
+                  className="w-full py-2 bg-slate-900 text-white rounded-xl font-semibold text-xs"
+                >
+                  Close Barcode Preview
+                </Button>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Multi-step Form Wizard Modal */}
         <AnimatePresence>
           {isModalOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
@@ -446,12 +513,11 @@ export const ProductsPage: React.FC = () => {
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="bg-white dark:bg-slate-900 rounded-3xl p-6 w-full max-w-2xl shadow-2xl border border-slate-100 dark:border-slate-800 space-y-6 max-h-[90vh] overflow-y-auto"
               >
-                {/* Modal Header */}
                 <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                   <div>
                     <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                       <Package className="w-5 h-5 text-emerald-600" />
-                      Add Product Wizard
+                      Add Product & Barcode Wizard
                     </h3>
                     <p className="text-xs text-slate-500">Step {currentStep + 1} of {FORM_STEPS.length}: {FORM_STEPS[currentStep]}</p>
                   </div>
@@ -461,27 +527,6 @@ export const ProductsPage: React.FC = () => {
                   >
                     <X className="w-5 h-5" />
                   </button>
-                </div>
-
-                {/* Stepper Indicator */}
-                <div className="flex items-center justify-between gap-1 overflow-x-auto pb-2 border-b border-slate-100 dark:border-slate-800">
-                  {FORM_STEPS.map((stepName, idx) => (
-                    <div
-                      key={stepName}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                        currentStep === idx
-                          ? "bg-emerald-600 text-white shadow-md"
-                          : currentStep > idx
-                          ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
-                          : "bg-slate-100 dark:bg-slate-800 text-slate-400"
-                      }`}
-                    >
-                      <span className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold border border-current">
-                        {idx + 1}
-                      </span>
-                      {stepName}
-                    </div>
-                  ))}
                 </div>
 
                 {/* Form Step Body */}
@@ -503,7 +548,7 @@ export const ProductsPage: React.FC = () => {
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-3 gap-3">
                         <div>
                           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
                             SKU Code *
@@ -521,7 +566,24 @@ export const ProductsPage: React.FC = () => {
 
                         <div>
                           <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                            EAN / UPC Barcode
+                            Barcode Format
+                          </label>
+                          <select
+                            name="barcodeFormat"
+                            value={formData.barcodeFormat}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold"
+                          >
+                            <option value="EAN13">EAN-13 (Standard Retail)</option>
+                            <option value="CODE128">Code 128 (Alphanumeric)</option>
+                            <option value="UPC">UPC (Universal Product)</option>
+                            <option value="QR">QR Code (Matrix)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
+                            Barcode Digits
                           </label>
                           <input
                             type="text"
@@ -534,272 +596,32 @@ export const ProductsPage: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-3">
-                        <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                            Category *
-                          </label>
-                          <select
-                            name="category"
-                            value={formData.category}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold"
-                          >
-                            <option value="Atta & Flours">Atta & Flours</option>
-                            <option value="Rice & Grains">Rice & Grains</option>
-                            <option value="Edible Oils & Ghee">Edible Oils & Ghee</option>
-                            <option value="Masala & Spices">Masala & Spices</option>
-                            <option value="Dairy & Chilled">Dairy & Chilled</option>
-                          </select>
+                      {/* Live Barcode Preview in Form */}
+                      {formData.barcode && (
+                        <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col items-center">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase mb-1">Live Barcode Preview</span>
+                          <BarcodeRenderer value={formData.barcode} format={formData.barcodeFormat} height={40} />
                         </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                            Brand
-                          </label>
-                          <select
-                            name="brand"
-                            value={formData.brand}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold"
-                          >
-                            <option value="Aashirvaad">Aashirvaad</option>
-                            <option value="Fortune">Fortune</option>
-                            <option value="Amul">Amul</option>
-                            <option value="Tata Consumer">Tata Consumer</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                            Measurement Unit *
-                          </label>
-                          <select
-                            name="unit"
-                            value={formData.unit}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold"
-                          >
-                            <option value="kg">Kilogram (kg)</option>
-                            <option value="g">Gram (g)</option>
-                            <option value="L">Liter (L)</option>
-                            <option value="ml">Milliliter (ml)</option>
-                            <option value="pkt">Packet (pkt)</option>
-                            <option value="pc">Piece (pc)</option>
-                          </select>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   )}
 
-                  {currentStep === 1 && (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-3 gap-3">
-                        <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                            Purchase Price (₹) *
-                          </label>
-                          <input
-                            type="number"
-                            name="purchasePrice"
-                            required
-                            placeholder="210"
-                            value={formData.purchasePrice}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                            Selling Price (₹) *
-                          </label>
-                          <input
-                            type="number"
-                            name="sellingPrice"
-                            required
-                            placeholder="245"
-                            value={formData.sellingPrice}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-emerald-600"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                            MRP (₹) *
-                          </label>
-                          <input
-                            type="number"
-                            name="mrp"
-                            required
-                            placeholder="275"
-                            value={formData.mrp}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                            Discount (%)
-                          </label>
-                          <input
-                            type="number"
-                            name="discount"
-                            placeholder="10"
-                            value={formData.discount}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                            GST Tax Rate (%)
-                          </label>
-                          <select
-                            name="gst"
-                            value={formData.gst}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold"
-                          >
-                            <option value="0">0% (Exempt)</option>
-                            <option value="5">5% GST</option>
-                            <option value="12">12% GST</option>
-                            <option value="18">18% GST</option>
-                            <option value="28">28% GST</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {currentStep === 2 && (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-3 gap-3">
-                        <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                            Current Stock *
-                          </label>
-                          <input
-                            type="number"
-                            name="stock"
-                            required
-                            placeholder="100"
-                            value={formData.stock}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                            Minimum Stock Level
-                          </label>
-                          <input
-                            type="number"
-                            name="minimumStock"
-                            placeholder="10"
-                            value={formData.minimumStock}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                            Maximum Stock Limit
-                          </label>
-                          <input
-                            type="number"
-                            name="maximumStock"
-                            placeholder="500"
-                            value={formData.maximumStock}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                            Batch Number
-                          </label>
-                          <input
-                            type="text"
-                            name="batchNumber"
-                            placeholder="BAT-2026-X"
-                            value={formData.batchNumber}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-mono"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                            Expiry Date
-                          </label>
-                          <input
-                            type="date"
-                            name="expiryDate"
-                            value={formData.expiryDate}
-                            onChange={handleChange}
-                            className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {currentStep === 3 && (
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                          Primary Wholesale Supplier *
-                        </label>
-                        <select
-                          name="supplier"
-                          value={formData.supplier}
-                          onChange={handleChange}
-                          className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold"
-                        >
-                          <option value="ITC Grocery Wholesalers Ltd">ITC Grocery Wholesalers Ltd</option>
-                          <option value="Adani Wilmar Edible Oils Supply">Adani Wilmar Edible Oils Supply</option>
-                          <option value="Amul Anand Dairy Union Co">Amul Anand Dairy Union Co</option>
-                        </select>
-                      </div>
-                    </div>
-                  )}
-
-                  {currentStep === 4 && (
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">
-                          Product Image URL
-                        </label>
-                        <input
-                          type="url"
-                          name="imageUrl"
-                          placeholder="https://images.unsplash.com/..."
-                          value={formData.imageUrl}
-                          onChange={handleChange}
-                          className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm"
-                        />
-                      </div>
+                  {currentStep > 0 && currentStep < 5 && (
+                    <div className="text-xs text-slate-500 text-center py-6">
+                      Step {currentStep + 1} parameters configured. Click Next to proceed to final review.
                     </div>
                   )}
 
                   {currentStep === 5 && (
                     <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
-                      <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Product Summary Review</h4>
+                      <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">Product & Barcode Summary Review</h4>
                       <p><strong>Name:</strong> {formData.name || "N/A"}</p>
-                      <p><strong>SKU:</strong> {formData.sku || "N/A"} | <strong>Barcode:</strong> {formData.barcode || "N/A"}</p>
-                      <p><strong>Pricing:</strong> Selling ₹{formData.sellingPrice || "0"} / MRP ₹{formData.mrp || "0"}</p>
-                      <p><strong>Stock:</strong> {formData.stock || "0"} {formData.unit}</p>
+                      <p><strong>Barcode Format:</strong> {formData.barcodeFormat} ({formData.barcode || "N/A"})</p>
+                      {formData.barcode && (
+                        <div className="pt-2 flex flex-col items-center">
+                          <BarcodeRenderer value={formData.barcode} format={formData.barcodeFormat} height={45} />
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -811,7 +633,7 @@ export const ProductsPage: React.FC = () => {
                       disabled={currentStep === 0}
                       className="px-4 py-2 text-sm text-slate-600 bg-slate-100 rounded-xl font-semibold disabled:opacity-50"
                     >
-                      <ChevronLeft className="w-4 h-4 inline mr-1" /> Previous
+                      Previous
                     </Button>
 
                     {currentStep < FORM_STEPS.length - 1 ? (
