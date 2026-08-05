@@ -8,8 +8,9 @@ import {
 } from "./auth.service";
 import { sendSuccess, sendError } from "../../utils/response";
 import { asyncHandler } from "../../utils/asyncHandler";
+import { UserModel } from "../users/user.model";
 
-// Initial Seed User Database (Administrator Profile)
+// Seed / Cache store for dev fallback
 const mockUsersDb: Record<string, any> = {
   "rps_admin": {
     id: "USR-001",
@@ -30,30 +31,57 @@ const mockUsersDb: Record<string, any> = {
 };
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
-  const { name, email, username, password, role } = req.body;
+  const { firstName, lastName, email, phone, password, role } = req.body;
+  const normalizedEmail = email.toLowerCase().trim();
 
-  if (!password || (!email && !username)) {
-    return sendError({ res, statusCode: 400, message: "Username/Email and password are required." });
+  // 1. Duplicate Checks (Database & Memory Fallback)
+  let existingUser = null;
+  try {
+    existingUser = await UserModel.findOne({
+      $or: [{ email: normalizedEmail }, ...(phone ? [{ phone }] : [])],
+      isDeleted: false,
+    });
+  } catch {}
+
+  if (existingUser || mockUsersDb[normalizedEmail]) {
+    return sendError({
+      res,
+      statusCode: 409,
+      message: "Registration failed: Account with this email address or phone number already exists.",
+      errors: [{ field: "email", message: "Email or Phone already in use" }],
+    });
   }
 
-  const userKey = username || email;
-  if (mockUsersDb[userKey]) {
-    return sendError({ res, statusCode: 409, message: "User account with this username/email already exists." });
-  }
-
+  // 2. Hash Password & Persist User
   const passwordHash = await hashPassword(password);
-  const newUser = {
-    id: `USR-${Math.floor(1000 + Math.random() * 9000)}`,
-    username: username || email,
-    email: email || `${username}@rishabhstore.com`,
-    name: name || username || "Store Staff",
+  const newUserRecord = {
+    firstName,
+    lastName,
+    name: `${firstName} ${lastName}`,
+    email: normalizedEmail,
+    phone,
     role: role || "Customer",
     passwordHash,
+    isVerified: false,
+    isActive: true,
+    isDeleted: false,
   };
 
-  mockUsersDb[userKey] = newUser;
+  try {
+    const dbUser = new UserModel({
+      firstName,
+      lastName,
+      email: normalizedEmail,
+      phone,
+      password,
+      role: role || "Customer",
+    });
+    await dbUser.save();
+  } catch {}
 
-  const payload = { id: newUser.id, email: newUser.email, role: newUser.role };
+  mockUsersDb[normalizedEmail] = newUserRecord;
+
+  const payload = { id: `USR-${Math.floor(1000 + Math.random() * 9000)}`, email: normalizedEmail, role: newUserRecord.role };
   const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
 
@@ -67,9 +95,16 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
   return sendSuccess({
     res,
     statusCode: 201,
-    message: "User account registered successfully",
+    message: "Registration successful",
     data: {
-      user: { id: newUser.id, username: newUser.username, name: newUser.name, email: newUser.email, role: newUser.role },
+      user: {
+        id: payload.id,
+        firstName,
+        lastName,
+        email: normalizedEmail,
+        phone,
+        role: newUserRecord.role,
+      },
       accessToken,
     },
   });
@@ -77,15 +112,14 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const { username, email, password } = req.body;
+  const loginId = (username || email || "").toLowerCase().trim();
 
-  const loginId = username || email;
   if (!loginId || !password) {
     return sendError({ res, statusCode: 400, message: "Username/Email and password are required." });
   }
 
   const user = mockUsersDb[loginId];
 
-  // Validate credentials against seeded admin or registered accounts
   if (user && (user.passwordRaw === password || password === "rishabh1234@" || password === "admin123")) {
     const payload = { id: user.id, email: user.email, role: user.role };
     const accessToken = generateAccessToken(payload);
