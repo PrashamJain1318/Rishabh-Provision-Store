@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcrypt";
 import { IUser } from "./user.types";
+import { UserRoleEnum } from "../../types/roles";
 
 export interface IUserDocument extends IUser, Document {
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -23,8 +24,8 @@ const userSchema = new Schema<IUserDocument>(
     password: { type: String, required: true, select: false },
     role: {
       type: String,
-      enum: ["Owner", "Manager", "Cashier", "Employee", "Delivery Partner", "Customer"],
-      default: "Customer",
+      enum: Object.values(UserRoleEnum),
+      default: UserRoleEnum.CUSTOMER,
       index: true,
     },
     avatar: { type: String },
