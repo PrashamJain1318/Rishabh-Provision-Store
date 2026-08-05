@@ -1,9 +1,9 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { ICategory } from "./category.types";
 
-export interface ICategoryDocument extends ICategory, Document {}
+export interface ICategoryDocument extends Omit<ICategory, "id">, Document {}
 
-const subcategoryMongoSchema = new Schema({
+const subcategorySchema = new Schema({
   name: { type: String, required: true, trim: true },
   slug: { type: String, required: true, lowercase: true, trim: true },
   itemsCount: { type: Number, default: 0 },
@@ -13,12 +13,14 @@ const categorySchema = new Schema<ICategoryDocument>(
   {
     name: { type: String, required: true, unique: true, trim: true, index: true },
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
-    image: { type: String, default: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=150" },
-    icon: { type: String, default: "layers" },
-    description: { type: String },
-    parentCategoryId: { type: Schema.Types.ObjectId, ref: "Category" },
-    subcategories: [subcategoryMongoSchema],
+    image: { type: String, trim: true },
+    icon: { type: String, trim: true },
+    description: { type: String, trim: true },
+    parentCategoryId: { type: Schema.Types.ObjectId as any, ref: "Category" },
+    subcategories: [subcategorySchema],
     status: { type: String, enum: ["Active", "Inactive"], default: "Active", index: true },
+    itemsCount: { type: Number, default: 0 },
+    createdBy: { type: Schema.Types.ObjectId as any, ref: "User" },
   },
   { timestamps: true }
 );

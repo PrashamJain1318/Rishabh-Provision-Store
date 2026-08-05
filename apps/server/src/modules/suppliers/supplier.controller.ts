@@ -4,26 +4,27 @@ import { sendSuccess, sendError } from "../../utils/response";
 import { asyncHandler } from "../../utils/asyncHandler";
 
 export const getSuppliers = asyncHandler(async (req: Request, res: Response) => {
-  const { search, status } = req.query as { search?: string; status?: string };
-  const suppliers = await supplierService.getAllSuppliers(search, status);
+  const { search, status } = req.query;
+  const suppliers = await supplierService.getAllSuppliers(search as string, status as string);
   return sendSuccess({
     res,
-    message: "Wholesale suppliers list retrieved successfully",
+    message: "Suppliers retrieved successfully",
     data: suppliers,
   });
 });
 
 export const getSupplierById = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const supplier = await supplierService.getSupplierById(id);
-  if (!supplier) {
-    return sendError({ res, statusCode: 404, message: "Supplier profile not found" });
-  }
-  return sendSuccess({ res, message: "Supplier profile retrieved successfully", data: supplier });
+  const supplier = await supplierService.getSupplierById(req.params.id as string);
+  if (!supplier) return sendError({ res, statusCode: 404, message: "Supplier not found" });
+  return sendSuccess({
+    res,
+    message: "Supplier retrieved successfully",
+    data: supplier,
+  });
 });
 
 export const createSupplier = asyncHandler(async (req: Request, res: Response) => {
-  const supplier = await supplierService.createSupplier(req.body);
+  const supplier = await supplierService.createSupplier(req.body, (req as any).user?.id);
   return sendSuccess({
     res,
     statusCode: 201,
@@ -33,16 +34,21 @@ export const createSupplier = asyncHandler(async (req: Request, res: Response) =
 });
 
 export const updateSupplier = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const updated = await supplierService.updateSupplier(id, req.body);
-  if (!updated) {
-    return sendError({ res, statusCode: 404, message: "Supplier not found for update" });
-  }
-  return sendSuccess({ res, message: "Supplier updated successfully", data: updated });
+  const supplier = await supplierService.updateSupplier(req.params.id as string, req.body);
+  if (!supplier) return sendError({ res, statusCode: 404, message: "Supplier not found" });
+  return sendSuccess({
+    res,
+    message: "Supplier updated successfully",
+    data: supplier,
+  });
 });
 
 export const deleteSupplier = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  await supplierService.deleteSupplier(id);
-  return sendSuccess({ res, message: "Supplier deleted successfully", data: {} });
+  const success = await supplierService.deleteSupplier(req.params.id as string);
+  if (!success) return sendError({ res, statusCode: 404, message: "Supplier not found" });
+  return sendSuccess({
+    res,
+    message: "Supplier deleted successfully",
+    data: null,
+  });
 });

@@ -1,10 +1,10 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { IPurchase } from "./purchase.types";
 
-export interface IPurchaseDocument extends IPurchase, Document {}
+export interface IPurchaseDocument extends Omit<IPurchase, "id">, Document {}
 
 const purchaseItemMongoSchema = new Schema({
-  product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
+  product: { type: Schema.Types.ObjectId as any, ref: "Product", required: true },
   quantity: { type: Number, required: true, min: 1 },
   purchasePrice: { type: Number, required: true, min: 0 },
   sellingPrice: { type: Number },
@@ -17,14 +17,14 @@ const purchaseItemMongoSchema = new Schema({
 const purchaseSchema = new Schema<IPurchaseDocument>(
   {
     invoiceNumber: { type: String, required: true, unique: true, uppercase: true, trim: true, index: true },
-    supplier: { type: Schema.Types.ObjectId, ref: "Supplier", required: true, index: true },
+    supplier: { type: Schema.Types.ObjectId as any, ref: "Supplier", required: true, index: true },
     items: [purchaseItemMongoSchema],
     subtotal: { type: Number, required: true },
     taxAmount: { type: Number, default: 0 },
     totalAmount: { type: Number, required: true },
     paymentStatus: { type: String, enum: ["Paid", "Pending", "Partial"], default: "Pending", index: true },
     notes: { type: String, trim: true },
-    createdBy: { type: Schema.Types.ObjectId, ref: "User" },
+    createdBy: { type: Schema.Types.ObjectId as any, ref: "User" },
   },
   { timestamps: true }
 );

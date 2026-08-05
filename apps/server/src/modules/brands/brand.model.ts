@@ -1,16 +1,17 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { IBrand } from "./brand.types";
 
-export interface IBrandDocument extends IBrand, Document {}
+export interface IBrandDocument extends Omit<IBrand, "id">, Document {}
 
 const brandSchema = new Schema<IBrandDocument>(
   {
     name: { type: String, required: true, unique: true, trim: true, index: true },
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
-    logo: { type: String, default: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=100" },
-    description: { type: String },
+    logo: { type: String, trim: true },
+    description: { type: String, trim: true },
     status: { type: String, enum: ["Active", "Inactive"], default: "Active", index: true },
-    createdBy: { type: Schema.Types.ObjectId, ref: "User" },
+    productsCount: { type: Number, default: 0 },
+    createdBy: { type: Schema.Types.ObjectId as any, ref: "User" },
   },
   { timestamps: true }
 );

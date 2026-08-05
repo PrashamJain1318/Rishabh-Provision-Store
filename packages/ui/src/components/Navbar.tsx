@@ -1,17 +1,19 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { SearchBar } from "./SearchBar";
-import { Avatar } from "./Avatar";
 import {
   Menu,
   Bell,
-  Calendar,
-  Download,
+  Search,
+  ChevronDown,
+  LogOut,
   User,
   Settings as SettingsIcon,
-  LogOut,
-  ChevronDown,
+  Download,
+  Calendar,
+  Sparkles,
 } from "lucide-react";
+import { Avatar } from "./Avatar";
+import { SearchBar } from "./SearchBar";
 
 export interface NavbarProps {
   storeName?: string;
@@ -34,16 +36,16 @@ export const Navbar: React.FC<NavbarProps> = ({
   onExportData,
   rightAction,
 }) => {
-  const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   return (
-    <header className="h-[72px] w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 px-4 sm:px-6 flex items-center justify-between gap-4 shadow-soft-sm">
-      {/* Mobile Drawer Trigger */}
+    <header className="w-full flex items-center justify-between gap-4">
+      {/* Mobile Hamburger Drawer Trigger (<640px) */}
       <button
         onClick={onMobileMenuToggle}
-        className="md:hidden p-2 rounded-2xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
-        title="Open Menu"
+        className="md:hidden p-2 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200"
+        title="Open Navigation"
       >
         <Menu className="w-5 h-5" />
       </button>
@@ -65,19 +67,17 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="flex-1 max-w-md hidden md:block">
         <SearchBar
           placeholder="Search products, orders, customers, or bills (Ctrl+K)..."
-          onChange={onSearchChange}
+          onChange={(e) => onSearchChange?.(e.target.value)}
         />
       </div>
 
-      {/* 3. Right Action Tools (Date Filter, Export, Notifications, ThemeToggle & Profile Dropdown) */}
+      {/* 3. Right Action Tools */}
       <div className="flex items-center gap-2 sm:gap-3">
-        {/* Date Filter Quick Badge */}
         <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300">
           <Calendar className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
           <span>05 Aug 2026</span>
         </div>
 
-        {/* Export Data Button */}
         <motion.button
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
@@ -88,7 +88,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           <span>Export</span>
         </motion.button>
 
-        {/* Live Notification Bell & Dropdown */}
         <div className="relative">
           <button
             onClick={() => {
@@ -102,7 +101,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-emerald-500 rounded-full ring-2 ring-white dark:ring-slate-900" />
           </button>
 
-          {/* Notification Popover Menu */}
           <AnimatePresence>
             {showNotifications && (
               <motion.div
@@ -133,10 +131,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           </AnimatePresence>
         </div>
 
-        {/* 3-Way ThemeToggle Slot */}
         {rightAction}
 
-        {/* User Profile Avatar & Dropdown Menu */}
         <div className="relative border-l border-slate-200 dark:border-slate-800 pl-2 sm:pl-3">
           <button
             onClick={() => {
@@ -153,7 +149,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
           </button>
 
-          {/* Profile Popover Menu */}
           <AnimatePresence>
             {showProfileMenu && (
               <motion.div

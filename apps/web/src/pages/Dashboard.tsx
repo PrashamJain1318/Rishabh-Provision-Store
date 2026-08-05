@@ -332,7 +332,7 @@ export const DashboardPage: React.FC = () => {
             </div>
 
             {isLoading ? (
-              <LoadingSkeleton count={5} />
+              <LoadingSkeleton rows={5} />
             ) : recentOrders.length === 0 ? (
               <EmptyState title="No Orders Found" description="New orders will appear here automatically." />
             ) : (

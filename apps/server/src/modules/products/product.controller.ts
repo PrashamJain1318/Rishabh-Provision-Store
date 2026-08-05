@@ -7,41 +7,47 @@ export const getProducts = asyncHandler(async (req: Request, res: Response) => {
   const products = await productService.getAllProducts(req.query);
   return sendSuccess({
     res,
-    message: "Product catalog list retrieved successfully",
+    message: "Products fetched successfully",
     data: products,
   });
 });
 
 export const getProductById = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const product = await productService.getProductById(id);
-  if (!product) {
-    return sendError({ res, statusCode: 404, message: "Product not found" });
-  }
-  return sendSuccess({ res, message: "Product details retrieved successfully", data: product });
+  const product = await productService.getProductById(req.params.id as string);
+  if (!product) return sendError({ res, statusCode: 404, message: "Product not found" });
+  return sendSuccess({
+    res,
+    message: "Product retrieved successfully",
+    data: product,
+  });
 });
 
 export const createProduct = asyncHandler(async (req: Request, res: Response) => {
-  const product = await productService.createProduct(req.body);
+  const product = await productService.createProduct(req.body, (req as any).user?.id);
   return sendSuccess({
     res,
     statusCode: 201,
-    message: "Product created successfully",
+    message: "Product created successfully with generated barcode",
     data: product,
   });
 });
 
 export const updateProduct = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const updated = await productService.updateProduct(id, req.body);
-  if (!updated) {
-    return sendError({ res, statusCode: 404, message: "Product not found for update" });
-  }
-  return sendSuccess({ res, message: "Product updated successfully", data: updated });
+  const product = await productService.updateProduct(req.params.id as string, req.body);
+  if (!product) return sendError({ res, statusCode: 404, message: "Product not found" });
+  return sendSuccess({
+    res,
+    message: "Product updated successfully",
+    data: product,
+  });
 });
 
 export const deleteProduct = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  await productService.deleteProduct(id);
-  return sendSuccess({ res, message: "Product deleted successfully", data: {} });
+  const success = await productService.deleteProduct(req.params.id as string);
+  if (!success) return sendError({ res, statusCode: 404, message: "Product not found" });
+  return sendSuccess({
+    res,
+    message: "Product deleted successfully",
+    data: null,
+  });
 });

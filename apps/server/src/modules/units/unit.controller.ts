@@ -7,18 +7,19 @@ export const getUnits = asyncHandler(async (req: Request, res: Response) => {
   const units = await unitService.getAllUnits();
   return sendSuccess({
     res,
-    message: "Units list retrieved successfully",
+    message: "Measurement units fetched successfully",
     data: units,
   });
 });
 
 export const getUnitById = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const unit = await unitService.getUnitById(id);
-  if (!unit) {
-    return sendError({ res, statusCode: 404, message: "Unit not found" });
-  }
-  return sendSuccess({ res, message: "Unit retrieved successfully", data: unit });
+  const unit = await unitService.getUnitById(req.params.id as string);
+  if (!unit) return sendError({ res, statusCode: 404, message: "Unit not found" });
+  return sendSuccess({
+    res,
+    message: "Unit retrieved successfully",
+    data: unit,
+  });
 });
 
 export const createUnit = asyncHandler(async (req: Request, res: Response) => {
@@ -26,22 +27,27 @@ export const createUnit = asyncHandler(async (req: Request, res: Response) => {
   return sendSuccess({
     res,
     statusCode: 201,
-    message: "Unit created successfully",
+    message: "Measurement unit created successfully",
     data: unit,
   });
 });
 
 export const updateUnit = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const updated = await unitService.updateUnit(id, req.body);
-  if (!updated) {
-    return sendError({ res, statusCode: 404, message: "Unit not found for update" });
-  }
-  return sendSuccess({ res, message: "Unit updated successfully", data: updated });
+  const unit = await unitService.updateUnit(req.params.id as string, req.body);
+  if (!unit) return sendError({ res, statusCode: 404, message: "Unit not found" });
+  return sendSuccess({
+    res,
+    message: "Unit updated successfully",
+    data: unit,
+  });
 });
 
 export const deleteUnit = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  await unitService.deleteUnit(id);
-  return sendSuccess({ res, message: "Unit deleted successfully", data: {} });
+  const success = await unitService.deleteUnit(req.params.id as string);
+  if (!success) return sendError({ res, statusCode: 404, message: "Unit not found" });
+  return sendSuccess({
+    res,
+    message: "Unit deleted successfully",
+    data: null,
+  });
 });
