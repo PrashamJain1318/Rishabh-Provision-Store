@@ -44,6 +44,14 @@ To digitize and automate grocery store operations through a unified platform tha
 
 ---
 
+## 🧠 State Management Architecture
+
+- **UI State** (Sidebar toggle, Dark/Light theme, Modals, Drawers) ➔ **Zustand**
+- **Server State** (Products catalog, Orders stream, Customers, Khata ledgers) ➔ **TanStack Query**
+- **Form State** (Product forms, Customer signup, POS checkout, Settings) ➔ **React Hook Form (+ Zod)**
+
+---
+
 ## 📏 Coding Standards & Conventions
 
 | Element | Convention | Example |
@@ -62,7 +70,7 @@ To digitize and automate grocery store operations through a unified platform tha
 ### Frontend (Feature-Driven Architecture)
 - **Framework**: React 19 + Vite (TypeScript)
 - **Styling**: Tailwind CSS v4 + shadcn/ui
-- **State & Query**: Zustand + TanStack Query
+- **State & Query**: Zustand + TanStack Query + React Hook Form
 - **Structure**: Encapsulated features (`features/[module]/{components, pages, hooks, services, types, schemas}`)
 
 ### Backend (3-Tier Layered Architecture)
@@ -97,7 +105,7 @@ Rishabh-Provision-Store/
 │      │          ├── pages/
 │      │          ├── routes/
 │      │          ├── services/
-│      │          ├── store/
+│      │          ├── store/          # Zustand UI state stores
 │      │          ├── types/
 │      │          ├── utils/
 │      │          └── App.tsx
@@ -182,7 +190,7 @@ Detailed documentation is available in the [`docs/`](docs/) directory:
 - [`08-Todo.md`](docs/08-Todo.md) - Active task tracking
 - [`09-Environment.md`](docs/09-Environment.md) - Tech stack & env configs
 - [`10-Changelog.md`](docs/10-Changelog.md) - Version release history
-- [`11-Code-Conventions.md`](docs/11-Code-Conventions.md) - Coding standards & naming rules
+- [`11-Code-Conventions.md`](docs/11-Code-Conventions.md) - Coding standards & state management strategy
 
 ---
 

@@ -1,4 +1,16 @@
-# 11. Code Conventions & Coding Standards
+# 11. Code Conventions & State Architecture
+
+## 🧠 State Management Architecture Strategy
+
+To maintain maximum rendering performance and eliminate state synchronization bugs, state is strictly separated into 3 dedicated layers:
+
+| State Layer | Responsibility | Technology | Examples |
+| :--- | :--- | :--- | :--- |
+| **UI State** | Client-only visual & navigation state | **Zustand** | Sidebar collapse toggle, theme mode (`light`/`dark`), active modal ID, active drawer visibility. |
+| **Server State** | Asynchronous API data & caching | **TanStack Query** | Product catalog, order streams, customer credit ledgers, inventory stock counts, re-fetching & caching. |
+| **Form State** | Interactive user form inputs & validations | **React Hook Form (+ Zod)** | Product creation modal, customer registration form, POS payment form, store settings inputs. |
+
+---
 
 ## 📏 Naming Conventions Matrix
 
