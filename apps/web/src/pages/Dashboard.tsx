@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { DashboardLayout } from "../layouts/DashboardLayout";
-import { DashboardCard, Table, Column, ChartCard } from "@rishabh-store/ui";
+import { DashboardCard, Table, Column, ChartCard, Avatar, Badge, LoadingSkeleton, EmptyState } from "@rishabh-store/ui";
+import { motion } from "framer-motion";
+import { ShoppingCart, ArrowRight } from "lucide-react";
 
 const salesGraphData = [
   { time: "08:00 AM", sales: 1200, orders: 4 },
@@ -14,18 +16,19 @@ const salesGraphData = [
 interface RecentOrder {
   orderNo: string;
   customer: string;
-  type: string;
+  customerAvatar?: string;
+  delivery: string;
   total: string;
-  status: "Completed" | "Pending" | "Dispatched";
+  status: "Completed" | "Pending" | "Dispatched" | "Cancelled";
   time: string;
 }
 
 const recentOrders: RecentOrder[] = [
-  { orderNo: "#BILL-1043", customer: "Walk-in Cashier", type: "POS Bill", total: "₹ 450.00", status: "Completed", time: "2 mins ago" },
-  { orderNo: "#ORD-9901", customer: "Aakash Mehta", type: "Online App", total: "₹ 820.00", status: "Pending", time: "10 mins ago" },
-  { orderNo: "#BILL-1042", customer: "Rahul Sharma", type: "POS Bill", total: "₹ 1,280.00", status: "Completed", time: "15 mins ago" },
-  { orderNo: "#ORD-9900", customer: "Sanjay Patel", type: "WhatsApp Delivery", total: "₹ 540.00", status: "Dispatched", time: "35 mins ago" },
-  { orderNo: "#BILL-1041", customer: "Ramesh Kumar", type: "Khata Udhar", total: "₹ 650.00", status: "Completed", time: "42 mins ago" },
+  { orderNo: "#BILL-1043", customer: "Walk-in Cashier", delivery: "POS Counter Bill", total: "₹ 450.00", status: "Completed", time: "2 mins ago" },
+  { orderNo: "#ORD-9901", customer: "Aakash Mehta", delivery: "30-Min Home Delivery", total: "₹ 820.00", status: "Pending", time: "10 mins ago" },
+  { orderNo: "#BILL-1042", customer: "Rahul Sharma", delivery: "POS Counter Bill", total: "₹ 1,280.00", status: "Completed", time: "15 mins ago" },
+  { orderNo: "#ORD-9900", customer: "Sanjay Patel", delivery: "WhatsApp Express Pickup", total: "₹ 540.00", status: "Dispatched", time: "35 mins ago" },
+  { orderNo: "#BILL-1041", customer: "Ramesh Kumar", delivery: "Khata Udhar Billing", total: "₹ 650.00", status: "Completed", time: "42 mins ago" },
 ];
 
 interface LowStockItem {
@@ -56,31 +59,67 @@ const topProducts: TopProduct[] = [
 ];
 
 const orderColumns: Column<RecentOrder>[] = [
-  { key: "orderNo", header: "Order / Bill No" },
-  { key: "customer", header: "Customer Name" },
-  { key: "type", header: "Channel" },
-  { key: "total", header: "Total Value" },
+  {
+    key: "orderNo",
+    header: "Order ID",
+    render: (row) => (
+      <span className="font-mono font-bold text-xs text-slate-900 dark:text-slate-100">
+        {row.orderNo}
+      </span>
+    ),
+  },
+  {
+    key: "customer",
+    header: "Customer",
+    render: (row) => (
+      <div className="flex items-center gap-2.5">
+        <Avatar name={row.customer} src={row.customerAvatar} size="sm" />
+        <span className="font-semibold text-xs text-slate-900 dark:text-slate-100">
+          {row.customer}
+        </span>
+      </div>
+    ),
+  },
+  {
+    key: "delivery",
+    header: "Delivery / Channel",
+    render: (row) => (
+      <span className="text-xs text-slate-500 font-medium">{row.delivery}</span>
+    ),
+  },
+  {
+    key: "total",
+    header: "Amount",
+    render: (row) => (
+      <span className="font-mono font-bold text-xs text-emerald-600 dark:text-emerald-400">
+        {row.total}
+      </span>
+    ),
+  },
   {
     key: "status",
     header: "Status",
     render: (row) => (
-      <span
-        className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+      <Badge
+        variant={
           row.status === "Completed"
-            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+            ? "success"
             : row.status === "Dispatched"
-            ? "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300"
-            : "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
-        }`}
+            ? "info"
+            : row.status === "Pending"
+            ? "warning"
+            : "error"
+        }
       >
         {row.status}
-      </span>
+      </Badge>
     ),
   },
-  { key: "time", header: "Time" },
 ];
 
 export const DashboardPage: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
   return (
     <DashboardLayout activeNavId="dashboard">
       <div className="flex flex-col gap-6">
@@ -146,28 +185,51 @@ export const DashboardPage: React.FC = () => {
           />
         </div>
 
-        {/* Recharts Modern Smooth Gradient Area Chart Overview */}
+        {/* Sales Overview ChartCard */}
         <ChartCard data={salesGraphData} />
 
-        {/* Bottom Grid Split (Recent Orders vs Low Stock & Top Products) */}
+        {/* Recent Orders Card & Sidebar Widgets */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Recent Orders Datagrid */}
-          <div className="lg:col-span-7 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-soft-sm">
+          {/* Recent Orders Card Component (7 Cols) */}
+          <motion.div
+            whileHover={{ y: -2, transition: { duration: 0.2 } }}
+            className="lg:col-span-7 glass-panel bg-white/70 dark:bg-slate-900/70 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-soft-sm hover:shadow-soft-md transition-all flex flex-col justify-between"
+          >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-card-title font-bold text-slate-900 dark:text-slate-100">
-                Recent Orders & POS Bills
-              </h3>
-              <a href="/dashboard/orders" className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">
-                View All Orders ➔
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                  <ShoppingCart className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-card-title font-bold text-slate-900 dark:text-slate-100">
+                    Recent Orders & POS Bills
+                  </h3>
+                  <p className="text-xs text-slate-500">Live cashier & online order stream</p>
+                </div>
+              </div>
+
+              {/* View All Button */}
+              <a href="/dashboard/orders">
+                <button className="px-3 py-1.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold flex items-center gap-1 hover:bg-emerald-100 transition-all">
+                  View All Orders <ArrowRight className="w-3.5 h-3.5" />
+                </button>
               </a>
             </div>
-            <Table columns={orderColumns} data={recentOrders} />
-          </div>
 
-          {/* Low Stock & Top Selling Sidebar Cards */}
+            {/* Datagrid / Loading Skeleton / Empty State */}
+            {isLoading ? (
+              <LoadingSkeleton count={5} />
+            ) : recentOrders.length === 0 ? (
+              <EmptyState title="No Orders Found" description="New orders will appear here automatically." />
+            ) : (
+              <Table columns={orderColumns} data={recentOrders} />
+            )}
+          </motion.div>
+
+          {/* Low Stock & Top Products Widgets (5 Cols) */}
           <div className="lg:col-span-5 flex flex-col gap-6">
             {/* Low Stock Products */}
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-soft-sm">
+            <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-soft-sm">
               <div className="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-800 pb-2">
                 <h4 className="font-bold text-base text-slate-900 dark:text-slate-100">
                   ⚠️ Low Stock Products
@@ -197,7 +259,7 @@ export const DashboardPage: React.FC = () => {
             </div>
 
             {/* Top Selling Products */}
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-soft-sm">
+            <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-soft-sm">
               <div className="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-800 pb-2">
                 <h4 className="font-bold text-base text-slate-900 dark:text-slate-100">
                   🔥 Top Selling Products
