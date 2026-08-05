@@ -27,6 +27,7 @@ import { uploadRouter } from "./modules/upload";
 import billingRouter from "./modules/billing/billing.router";
 import posRouter from "./modules/pos/pos.router";
 import { customerRouter } from "./modules/customers";
+import { cartRouter } from "./modules/cart";
 import { getInvoices, getInvoiceById } from "./modules/pos/pos.controller";
 
 export const createApp = (): Application => {
@@ -85,6 +86,7 @@ export const createApp = (): Application => {
   app.use(`${API_PREFIX}/auth`, authRateLimiter, authRouter);
   app.use(`${API_PREFIX}/users`, userRouter);
   app.use(`${API_PREFIX}/customers`, customerRouter);
+  app.use(`${API_PREFIX}/cart`, cartRouter);
   app.use(`${API_PREFIX}/brands`, brandRouter);
   app.use(`${API_PREFIX}/units`, unitRouter);
   app.use(`${API_PREFIX}/categories`, categoryRouter);
