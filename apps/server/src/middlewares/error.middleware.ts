@@ -1,12 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 import { logger } from "../config/logger";
+import { sendError } from "../utils/response";
 
 export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
   logger.error(`API Error: ${err.message}`, err);
   const statusCode = err.statusCode || 500;
-  res.status(statusCode).json({
-    success: false,
+  return sendError({
+    res,
+    statusCode,
     message: err.message || "Internal Server Error",
-    stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+    errors: err.errors || [],
   });
 };

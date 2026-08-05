@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { sendSuccess, sendError } from "../../utils/response";
 
 const mockCatalog = [
   { id: "PROD-001", code: "890103001001", name: "Aashirvaad Shuddh Chakki Atta (5kg)", category: "Atta & Flours", price: 245, mrp: 275, stock: 45 },
@@ -8,14 +9,27 @@ const mockCatalog = [
 ];
 
 export const getProducts = (req: Request, res: Response) => {
-  res.json({ success: true, count: mockCatalog.length, data: mockCatalog });
+  return sendSuccess({
+    res,
+    message: "Product catalog retrieved successfully",
+    data: mockCatalog,
+  });
 };
 
 export const getProductByCode = (req: Request, res: Response) => {
   const { code } = req.params;
   const item = mockCatalog.find((p) => p.code === code || p.id === code);
   if (!item) {
-    return res.status(404).json({ success: false, message: "Product not found." });
+    return sendError({
+      res,
+      statusCode: 404,
+      message: "Product not found",
+      errors: [],
+    });
   }
-  res.json({ success: true, data: item });
+  return sendSuccess({
+    res,
+    message: "Product retrieved successfully",
+    data: item,
+  });
 };
