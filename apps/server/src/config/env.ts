@@ -6,9 +6,12 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 export const env = {
   NODE_ENV: process.env.NODE_ENV || "development",
   PORT: parseInt(process.env.PORT || "5001", 10),
-  MONGO_URI: process.env.MONGO_URI || "mongodb://127.0.0.1:27017/rishabh_provision_store",
+  MONGO_URI:
+    process.env.MONGODB_URI ||
+    process.env.MONGO_URI ||
+    "mongodb://127.0.0.1:27017/rishabh-provision-store",
   JWT_SECRET: process.env.JWT_SECRET || "rishabh_store_super_secret_jwt_key_2026",
-  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "7d",
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || "rishabh_store_super_secret_refresh_key_2026",
   CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:5173",
 };
 
