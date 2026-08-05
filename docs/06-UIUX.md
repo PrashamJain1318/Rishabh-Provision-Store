@@ -25,6 +25,30 @@
 
 ---
 
+## 🧩 Reusable Component Library (`packages/ui`)
+
+The project features a shared UI package containing 17 enterprise components:
+
+1. **Button** (`Button.tsx`) - Primary, secondary, accent, danger, and ghost variants.
+2. **Input** (`Input.tsx`) - Labelled text inputs with error state handling.
+3. **SearchBar** (`SearchBar.tsx`) - Barcode scanner & catalog search input with icon.
+4. **ProductCard** (`ProductCard.tsx`) - Retail product card with image, unit, price, and add-to-cart button.
+5. **DashboardCard** (`DashboardCard.tsx`) - KPI metric card with optional glassmorphism and trend badge.
+6. **Sidebar** (`Sidebar.tsx`) - Enterprise navigation sidebar with active state highlights.
+7. **Navbar** (`Navbar.tsx`) - Workspace header with store brand, user name, role badge, and avatar.
+8. **Modal** (`Modal.tsx`) - Backdrop-blurred popup dialog for actions and confirmations.
+9. **Drawer** (`Drawer.tsx`) - Slide-out drawer with optional glassmorphism for AI Assistant.
+10. **Dropdown** (`Dropdown.tsx`) - Select dropdown with custom enterprise styling.
+11. **Table** (`Table.tsx`) - Generic typed datagrid with custom column renderers.
+12. **Pagination** (`Pagination.tsx`) - Page count indicator with previous/next controls.
+13. **ChartCard** (`ChartCard.tsx`) - Analytics container card with glassmorphism support.
+14. **EmptyState** (`EmptyState.tsx`) - Placeholder widget with icon, text, and action CTA.
+15. **LoadingSkeleton** (`LoadingSkeleton.tsx`) - Pulsing content placeholders for async data loading.
+16. **Toast** (`Toast.tsx`) - Floating notification banner (Success, Error, Info, Warning).
+17. **Breadcrumb** (`Breadcrumb.tsx`) - Navigation path hierarchy links.
+
+---
+
 ### 🎨 Color Palette Specifications
 
 | Role | Color Name | Hex Code / Tailwind Class | Purpose |
