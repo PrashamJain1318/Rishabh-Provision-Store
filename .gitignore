@@ -19,7 +19,9 @@ out
 coverage
 
 # IDE & Editor Configs
-.vscode
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 .idea
 
 # System files
