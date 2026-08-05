@@ -18,17 +18,20 @@ export const comparePassword = async (password: string, hash: string): Promise<b
 };
 
 export const generateAccessToken = (payload: UserTokenPayload): string => {
-  return jwt.sign(payload, env.JWT_SECRET, {
+  const cleanPayload = { id: payload.id, email: payload.email, role: payload.role };
+  return jwt.sign(cleanPayload, env.JWT_SECRET, {
     expiresIn: "15m",
   });
 };
 
 export const generateRefreshToken = (payload: UserTokenPayload): string => {
-  return jwt.sign(payload, env.JWT_REFRESH_SECRET || env.JWT_SECRET, {
+  const cleanPayload = { id: payload.id, email: payload.email, role: payload.role };
+  return jwt.sign(cleanPayload, env.JWT_REFRESH_SECRET || env.JWT_SECRET, {
     expiresIn: "7d",
   });
 };
 
 export const verifyRefreshToken = (token: string): UserTokenPayload => {
-  return jwt.verify(token, env.JWT_REFRESH_SECRET || env.JWT_SECRET) as UserTokenPayload;
+  const decoded = jwt.verify(token, env.JWT_REFRESH_SECRET || env.JWT_SECRET) as any;
+  return { id: decoded.id, email: decoded.email, role: decoded.role };
 };
