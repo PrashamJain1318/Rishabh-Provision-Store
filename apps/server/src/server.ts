@@ -1,19 +1,19 @@
-import { app } from "./app";
+import { createApp } from "./app";
+import { env } from "./config/env";
+import { logger } from "./config/logger";
+import { connectDatabase } from "./config/database";
 
-const PORT = Number(process.env.PORT) || 5001;
+const startServer = async () => {
+  await connectDatabase();
 
-const server = app.listen(PORT, () => {
-  console.log(`[Server] Rishabh Provision Store API listening on http://localhost:${PORT}`);
-});
+  const app = createApp();
 
-server.on("error", (err: any) => {
-  if (err.code === "EADDRINUSE") {
-    const ALT_PORT = PORT + 1;
-    console.log(`[Server] Port ${PORT} in use, trying ${ALT_PORT}...`);
-    app.listen(ALT_PORT, () => {
-      console.log(`[Server] Rishabh Provision Store API listening on http://localhost:${ALT_PORT}`);
-    });
-  } else {
-    console.error("[Server] Error:", err);
-  }
+  app.listen(env.PORT, () => {
+    logger.info(`Rishabh Provision Store Server API running on port ${env.PORT}`);
+    logger.info(`Health check endpoint: http://localhost:${env.PORT}/api/v1/health`);
+  });
+};
+
+startServer().catch((error) => {
+  logger.error("Failed to start server:", error);
 });
