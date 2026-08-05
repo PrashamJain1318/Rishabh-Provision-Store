@@ -7,6 +7,7 @@ import env from "./config/env";
 import { API_PREFIX } from "./config/constants";
 import { requestIdMiddleware } from "./middlewares/requestId.middleware";
 import { requestLogger } from "./middlewares/logger.middleware";
+import { globalRateLimiter, authRateLimiter } from "./middlewares/rateLimiter.middleware";
 import { notFoundHandler } from "./middlewares/notFound.middleware";
 import { errorHandler } from "./middlewares/error.middleware";
 import authRouter from "./modules/auth/auth.router";
@@ -19,8 +20,22 @@ export const createApp = (): Application => {
   // 1. Request ID Tracking Middleware
   app.use(requestIdMiddleware);
 
-  // 2. Helmet Security Headers
-  app.use(helmet());
+  // 2. Helmet Security Headers (HSTS, CSP, XSS Filter, Frameguard, NoSniff, ReferrerPolicy)
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'"],
+          styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+          fontSrc: ["'self'", "https://fonts.gstatic.com"],
+          imgSrc: ["'self'", "data:", "https://images.unsplash.com"],
+        },
+      },
+      crossOriginEmbedderPolicy: false,
+      referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    })
+  );
 
   // 3. CORS Configuration
   app.use(
@@ -32,17 +47,20 @@ export const createApp = (): Application => {
     })
   );
 
-  // 4. Gzip Response Compression
+  // 4. Rate Limiting Middleware (Applied to all API routes)
+  app.use(API_PREFIX, globalRateLimiter);
+
+  // 5. Gzip Response Compression
   app.use(compression());
 
-  // 5. JSON & URL-Encoded Parsers
+  // 6. JSON & URL-Encoded Parsers (Strict Request Size Limits: 10MB)
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-  // 6. Cookie Parser Middleware
+  // 7. Cookie Parser Middleware
   app.use(cookieParser());
 
-  // 7. Morgan / Winston HTTP Request Logger Stream
+  // 8. Morgan / Winston HTTP Request Logger Stream
   app.use(requestLogger);
 
   // Health Check Endpoint
@@ -56,8 +74,8 @@ export const createApp = (): Application => {
     });
   });
 
-  // REST API Routes
-  app.use(`${API_PREFIX}/auth`, authRouter);
+  // REST API Routes (With Sensitive Auth Rate Limiter)
+  app.use(`${API_PREFIX}/auth`, authRateLimiter, authRouter);
   app.use(`${API_PREFIX}/products`, productRouter);
   app.use(`${API_PREFIX}/billing`, billingRouter);
 
