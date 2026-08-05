@@ -68,26 +68,27 @@ To digitize and automate grocery store operations through a unified platform tha
 
 ---
 
-## 📂 Folder Structure
+## 📂 Project Structure
 
 ```text
 Rishabh-Provision-Store/
+│
 ├── apps/
-│   ├── web/          # React 19 + Vite Frontend Application
-│   └── server/       # Node.js + Express.js API Server
+│      ├── web/
+│      └── server/
+│
 ├── packages/
-│   ├── ui/           # Shared Design System & UI Components
-│   ├── database/     # Database Schemas & Connection Package
-│   ├── config/       # Shared TSConfig, ESLint & Environment Configs
-│   ├── types/        # Shared TypeScript Interfaces & DTOs
-│   └── utils/        # Shared Helper Utilities & Formatting Tools
+│      ├── ui/
+│      ├── types/
+│      ├── database/
+│      ├── config/
+│      └── utils/
+│
 ├── prompts/
-│   ├── gemini/       # Gemini AI System Prompts & Logic
-│   ├── antigravity/  # Antigravity Orchestration Prompts
-│   └── shared/       # Shared AI Contexts & Templates
-├── docs/             # Complete Project Documentation Suite (01-10)
-├── assets/           # Project Brand Assets & Screenshots
-└── .github/          # GitHub Actions CI/CD Workflows
+│
+├── docs/
+│
+└── assets/
 ```
 
 ---
