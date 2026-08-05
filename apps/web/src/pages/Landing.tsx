@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StoreLayout } from "../layouts/StoreLayout";
 import { Button, ProductCard } from "@rishabh-store/ui";
+import { GroceryHeroCanvas } from "../components/3d/GroceryHeroCanvas";
+import Lenis from "lenis";
 
 interface Product {
   id: string;
@@ -21,12 +23,12 @@ const mockFeaturedProducts: Product[] = [
 ];
 
 const mockCategories = [
-  { id: "C1", name: "Atta & Flours", icon: "🌾", count: "24 Items" },
-  { id: "C2", name: "Edible Oils & Ghee", icon: "🍾", count: "18 Items" },
-  { id: "C3", name: "Dairy, Milk & Butter", icon: "🥛", count: "32 Items" },
-  { id: "C4", name: "Pulses, Dals & Rice", icon: "🫘", count: "45 Items" },
-  { id: "C5", name: "Snacks & Biscuits", icon: "🍪", count: "60 Items" },
-  { id: "C6", name: "Personal Care & Soap", icon: "🧼", count: "38 Items" },
+  { id: "C1", name: "Atta & Flours", icon: "🌾", count: "126 Products" },
+  { id: "C2", name: "Edible Oils & Ghee", icon: "🍾", count: "84 Products" },
+  { id: "C3", name: "Dairy, Milk & Butter", icon: "🥛", count: "92 Products" },
+  { id: "C4", name: "Pulses, Dals & Rice", icon: "🫘", count: "145 Products" },
+  { id: "C5", name: "Snacks & Biscuits", icon: "🍪", count: "210 Products" },
+  { id: "C6", name: "Personal Care & Soap", icon: "🧼", count: "118 Products" },
 ];
 
 const mockFaqs = [
@@ -39,13 +41,30 @@ const mockFaqs = [
 export const LandingPage: React.FC = () => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
+  // Initialize Lenis Smooth Scroll
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    });
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    return () => lenis.destroy();
+  }, []);
+
   return (
     <StoreLayout>
-      {/* 1. Hero Section */}
-      <section className="glass-panel rounded-3xl p-8 sm:p-12 text-center my-6 relative overflow-hidden shadow-soft-lg border border-slate-200/80 dark:border-slate-800">
-        <div className="max-w-3xl mx-auto flex flex-col items-center gap-4">
-          <span className="px-3.5 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider">
-            Smart Grocery Store Platform
+      {/* 1. Immersive 3D Experience Hero Section */}
+      <section className="my-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        {/* Hero Left Content (5 Cols) */}
+        <div className="lg:col-span-5 flex flex-col gap-4">
+          <span className="self-start px-3.5 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold uppercase tracking-wider">
+            Smart Grocery Platform
           </span>
           <h1 className="text-display-hero text-slate-900 dark:text-slate-100 font-extrabold tracking-tight">
             Rishabh Provision Store
@@ -53,32 +72,38 @@ export const LandingPage: React.FC = () => {
           <p className="text-2xl text-slate-600 dark:text-slate-300 font-medium italic">
             Smart Grocery. Smarter Business.
           </p>
-          <p className="text-base text-slate-500 dark:text-slate-400 max-w-xl">
-            Streamlining grocery retail with lightning-fast POS billing, batch expiry tracking, digital Khata ledger, and instant home delivery.
+          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            Professional Grocery Management: Inventory • Express POS • Home Delivery • Business Analytics.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 mt-4">
+
+          <div className="flex flex-wrap items-center gap-3 mt-2">
             <a href="/pos">
               <Button size="lg" variant="primary" className="text-base px-6">
-                ⚡ Express POS Terminal
+                Shop Now 🛒
               </Button>
             </a>
             <a href="/dashboard">
-              <Button size="lg" variant="secondary" className="text-base px-6">
-                📊 Store Owner Dashboard
+              <Button size="lg" variant="outline" className="text-base px-6">
+                View Dashboard ➔
               </Button>
             </a>
           </div>
         </div>
+
+        {/* Hero Right 3D Interactive Three.js Scene (7 Cols) */}
+        <div className="lg:col-span-7">
+          <GroceryHeroCanvas />
+        </div>
       </section>
 
-      {/* 2. Featured Categories Section */}
-      <section className="my-12">
+      {/* 2. Featured Categories Section (Curved Glass Cards) */}
+      <section className="my-14">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-section-title font-bold text-slate-900 dark:text-slate-100">Featured Categories</h2>
-            <p className="text-sm text-slate-500">Explore everyday grocery staples and daily essentials.</p>
+            <p className="text-sm text-slate-500">Explore daily grocery staples with instant stock counts.</p>
           </div>
-          <a href="/products" className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">
+          <a href="/dashboard/products" className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">
             View All Categories ➔
           </a>
         </div>
@@ -87,26 +112,27 @@ export const LandingPage: React.FC = () => {
           {mockCategories.map((cat) => (
             <div
               key={cat.id}
-              className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 text-center flex flex-col items-center gap-2 hover:shadow-soft-md hover:border-emerald-500/50 transition-all cursor-pointer"
+              className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md p-5 text-center flex flex-col items-center gap-2 hover:-translate-y-1 hover:rotate-1 hover:border-emerald-500/50 hover:shadow-soft-md transition-all cursor-pointer group"
             >
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-2xl flex items-center justify-center">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                 {cat.icon}
               </div>
               <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100 mt-1">{cat.name}</h4>
-              <span className="text-xs text-slate-400">{cat.count}</span>
+              <span className="text-xs text-slate-400 font-mono">{cat.count}</span>
+              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity mt-1">Explore →</span>
             </div>
           ))}
         </div>
       </section>
 
       {/* 3. Featured Products Section */}
-      <section className="my-12">
+      <section className="my-14">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-section-title font-bold text-slate-900 dark:text-slate-100">Best Selling Products</h2>
-            <p className="text-sm text-slate-500">Top-rated items in stock with instant discount prices.</p>
+            <p className="text-sm text-slate-500">Fresh stock with MRP discounts and instant checkout.</p>
           </div>
-          <a href="/products" className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">
+          <a href="/dashboard/products" className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">
             Browse Full Catalog ➔
           </a>
         </div>
@@ -129,10 +155,10 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* 4. Store Features Section */}
-      <section className="my-12 py-10 px-8 rounded-3xl bg-slate-900 text-white shadow-soft-lg">
+      <section className="my-14 py-10 px-8 rounded-3xl bg-slate-900 text-white shadow-soft-lg border border-slate-800">
         <div className="text-center max-w-2xl mx-auto mb-10">
           <h2 className="text-3xl font-bold tracking-tight">Why Choose Rishabh Provision Store?</h2>
-          <p className="text-slate-400 text-sm mt-2">Empowering local neighborhood shopping with modern digital convenience.</p>
+          <p className="text-slate-400 text-sm mt-2">Empowering local neighborhood shopping with modern 3D convenience.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
@@ -159,15 +185,15 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 5. Customer Testimonials Section */}
-      <section className="my-12">
+      {/* 5. Customer Testimonials */}
+      <section className="my-14">
         <div className="text-center max-w-2xl mx-auto mb-8">
-          <h2 className="text-section-title font-bold text-slate-900 dark:text-slate-100">Customer Testimonials</h2>
+          <h2 className="text-section-title font-bold text-slate-900 dark:text-slate-100">Customer Reviews</h2>
           <p className="text-sm text-slate-500">Trusted by over 2,500+ neighborhood households and local businesses.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-soft-sm">
+          <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md p-6 shadow-soft-sm">
             <div className="flex items-center gap-1 text-amber-400 text-sm mb-3">★★★★★</div>
             <p className="text-sm text-slate-600 dark:text-slate-300 italic">"The digital Khata statement sent via WhatsApp makes monthly grocery bill management completely transparent and hassle-free."</p>
             <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center gap-3">
@@ -179,7 +205,7 @@ export const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-soft-sm">
+          <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md p-6 shadow-soft-sm">
             <div className="flex items-center gap-1 text-amber-400 text-sm mb-3">★★★★★</div>
             <p className="text-sm text-slate-600 dark:text-slate-300 italic">"Super fast cashier checkout! Their POS barcode scanner processes item billing in seconds even during evening rush hours."</p>
             <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center gap-3">
@@ -191,7 +217,7 @@ export const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-soft-sm">
+          <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md p-6 shadow-soft-sm">
             <div className="flex items-center gap-1 text-amber-400 text-sm mb-3">★★★★★</div>
             <p className="text-sm text-slate-600 dark:text-slate-300 italic">"Always 100% fresh stocks with zero expired items. Order home delivery online and receive items within 30 minutes!"</p>
             <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center gap-3">
@@ -206,7 +232,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* 6. FAQ Section */}
-      <section className="my-12 max-w-3xl mx-auto">
+      <section className="my-14 max-w-3xl mx-auto">
         <div className="text-center mb-8">
           <h2 className="text-section-title font-bold text-slate-900 dark:text-slate-100">Frequently Asked Questions</h2>
           <p className="text-sm text-slate-500">Everything you need to know about shopping & store billing.</p>
