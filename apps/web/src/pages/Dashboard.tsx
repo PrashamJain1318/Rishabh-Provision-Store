@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { DashboardLayout } from "../layouts/DashboardLayout";
 import { DashboardCard, Table, Column, ChartCard, Avatar, Badge, LoadingSkeleton, EmptyState } from "@rishabh-store/ui";
 import { motion } from "framer-motion";
-import { ShoppingCart, ArrowRight } from "lucide-react";
+import { ShoppingCart, ArrowRight, Flame, AlertTriangle } from "lucide-react";
 
 const salesGraphData = [
   { time: "08:00 AM", sales: 1200, orders: 4 },
@@ -45,17 +45,44 @@ const lowStockItems: LowStockItem[] = [
   { id: "PROD-012", name: "Mother Dairy Milk (500ml)", category: "Dairy", currentStock: 4, minThreshold: 20 },
 ];
 
-interface TopProduct {
+interface TopProductWidgetData {
+  id: string;
   name: string;
   category: string;
+  image: string;
   soldQty: string;
   revenue: string;
+  progressPct: number;
 }
 
-const topProducts: TopProduct[] = [
-  { name: "Aashirvaad Chakki Atta 5kg", category: "Atta & Flours", soldQty: "42 bags", revenue: "₹ 10,290" },
-  { name: "Amul Butter 500g", category: "Dairy", soldQty: "38 packs", revenue: "₹ 10,450" },
-  { name: "Tata Salt 1kg", category: "Salt & Sugar", soldQty: "85 pkts", revenue: "₹ 2,380" },
+const topProducts: TopProductWidgetData[] = [
+  {
+    id: "TP-1",
+    name: "Aashirvaad Chakki Atta 5kg",
+    category: "Atta & Flours",
+    image: "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=150&q=80",
+    soldQty: "42 bags sold",
+    revenue: "₹ 10,290",
+    progressPct: 92,
+  },
+  {
+    id: "TP-2",
+    name: "Amul Butter Pasteurized 500g",
+    category: "Dairy & Chilled",
+    image: "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=150&q=80",
+    soldQty: "38 packs sold",
+    revenue: "₹ 10,450",
+    progressPct: 85,
+  },
+  {
+    id: "TP-3",
+    name: "Tata Salt Vacuum Evaporated 1kg",
+    category: "Salt & Sugar",
+    image: "https://images.unsplash.com/photo-1518110168401-f2877ee2c088?auto=format&fit=crop&w=150&q=80",
+    soldQty: "85 pkts sold",
+    revenue: "₹ 2,380",
+    progressPct: 68,
+  },
 ];
 
 const orderColumns: Column<RecentOrder>[] = [
@@ -188,7 +215,7 @@ export const DashboardPage: React.FC = () => {
         {/* Sales Overview ChartCard */}
         <ChartCard data={salesGraphData} />
 
-        {/* Recent Orders Card & Sidebar Widgets */}
+        {/* Bottom Grid Split */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Recent Orders Card Component (7 Cols) */}
           <motion.div
@@ -208,7 +235,6 @@ export const DashboardPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* View All Button */}
               <a href="/dashboard/orders">
                 <button className="px-3 py-1.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold flex items-center gap-1 hover:bg-emerald-100 transition-all">
                   View All Orders <ArrowRight className="w-3.5 h-3.5" />
@@ -216,7 +242,6 @@ export const DashboardPage: React.FC = () => {
               </a>
             </div>
 
-            {/* Datagrid / Loading Skeleton / Empty State */}
             {isLoading ? (
               <LoadingSkeleton count={5} />
             ) : recentOrders.length === 0 ? (
@@ -226,14 +251,17 @@ export const DashboardPage: React.FC = () => {
             )}
           </motion.div>
 
-          {/* Low Stock & Top Products Widgets (5 Cols) */}
+          {/* Low Stock & Top Products Sidebar Widgets (5 Cols) */}
           <div className="lg:col-span-5 flex flex-col gap-6">
             {/* Low Stock Products */}
             <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-soft-sm">
               <div className="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-800 pb-2">
-                <h4 className="font-bold text-base text-slate-900 dark:text-slate-100">
-                  ⚠️ Low Stock Products
-                </h4>
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-500" />
+                  <h4 className="font-bold text-base text-slate-900 dark:text-slate-100">
+                    Low Stock Products
+                  </h4>
+                </div>
                 <a href="/dashboard/inventory" className="text-xs font-semibold text-amber-600 hover:underline">
                   Reorder Stock ➔
                 </a>
@@ -258,35 +286,67 @@ export const DashboardPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Top Selling Products */}
-            <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 shadow-soft-sm">
-              <div className="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-800 pb-2">
-                <h4 className="font-bold text-base text-slate-900 dark:text-slate-100">
-                  🔥 Top Selling Products
-                </h4>
-                <a href="/dashboard/products" className="text-xs font-semibold text-emerald-600 hover:underline">
+            {/* Top Selling Products Widget (With Images, Revenue, Progress Bars & Hover Animations) */}
+            <motion.div
+              whileHover={{ y: -3, transition: { duration: 0.2 } }}
+              className="glass-panel bg-white/70 dark:bg-slate-900/70 backdrop-blur-md rounded-3xl border border-slate-200/80 dark:border-slate-800/80 p-6 shadow-soft-sm hover:shadow-soft-md transition-all flex flex-col justify-between"
+            >
+              <div className="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-500 flex items-center justify-center">
+                    <Flame className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-base text-slate-900 dark:text-slate-100">
+                      Top Selling Products
+                    </h4>
+                    <p className="text-[10px] text-slate-400">By sales volume & gross revenue</p>
+                  </div>
+                </div>
+                <a href="/dashboard/products" className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">
                   Catalog ➔
                 </a>
               </div>
-              <div className="flex flex-col gap-3">
-                {topProducts.map((prod, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60"
+
+              <div className="flex flex-col gap-4">
+                {topProducts.map((prod) => (
+                  <motion.div
+                    key={prod.id}
+                    whileHover={{ scale: 1.01, x: 2 }}
+                    className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800/80 space-y-2 group transition-all"
                   >
-                    <div>
-                      <h5 className="text-xs font-bold text-slate-900 dark:text-slate-100">
-                        {prod.name}
-                      </h5>
-                      <span className="text-[10px] text-slate-400">{prod.soldQty}</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={prod.image}
+                          alt={prod.name}
+                          className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-700 group-hover:scale-105 transition-transform"
+                        />
+                        <div>
+                          <h5 className="text-xs font-bold text-slate-900 dark:text-slate-100 line-clamp-1 group-hover:text-emerald-600 transition-colors">
+                            {prod.name}
+                          </h5>
+                          <span className="text-[10px] text-slate-400 font-mono">{prod.soldQty}</span>
+                        </div>
+                      </div>
+                      <span className="font-mono font-extrabold text-xs text-emerald-600 dark:text-emerald-400">
+                        {prod.revenue}
+                      </span>
                     </div>
-                    <span className="font-mono font-bold text-xs text-emerald-600 dark:text-emerald-400">
-                      {prod.revenue}
-                    </span>
-                  </div>
+
+                    {/* Sales Volume Ratio Progress Bar */}
+                    <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${prod.progressPct}%` }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        className="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full"
+                      />
+                    </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
