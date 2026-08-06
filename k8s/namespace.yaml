@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rishabh-store-prod
+  labels:
+    environment: production
+    app: rishabh-provision-store

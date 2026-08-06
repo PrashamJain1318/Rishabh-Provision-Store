@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rishabh-store-config
+  namespace: rishabh-store-prod
+data:
+  PORT: "5001"
+  NODE_ENV: "production"
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"

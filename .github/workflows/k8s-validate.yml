@@ -1,0 +1,24 @@
+name: Kubernetes Manifest Schema Validation
+
+on:
+  push:
+    branches: [ main, development ]
+  pull_request:
+    branches: [ main, development ]
+
+jobs:
+  k8s-validate:
+    name: Validate Kubernetes YAML Manifests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v3
+
+      - name: Install kubeconform Manifest Validator
+        run: |
+          curl -sL https://github.com/yannh/kubeconform/releases/download/v0.6.4/kubeconform-linux-amd64.tar.gz | tar xz
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Validate k8s/ Manifest Schemas
+        run: kubeconform -strict -summary k8s/
