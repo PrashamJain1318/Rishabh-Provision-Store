@@ -16,6 +16,7 @@ import CustomersPage from "./pages/Customers";
 import CustomerPortalPage from "./pages/CustomerPortal";
 import SuppliersPage from "./pages/Suppliers";
 import ReportsPage from "./pages/Reports";
+import FinancialDashboardPage from "./pages/FinancialDashboard";
 import SettingsPage from "./pages/Settings";
 import ProfilePage from "./pages/Profile";
 import AIAssistantPage from "./pages/AIAssistant";
@@ -48,6 +49,7 @@ function App() {
           <Route path="/dashboard/purchases" element={<PurchasesPage />} />
           <Route path="/dashboard/suppliers" element={<SuppliersPage />} />
           <Route path="/dashboard/reports" element={<ReportsPage />} />
+          <Route path="/dashboard/financial-analytics" element={<FinancialDashboardPage />} />
           <Route path="/dashboard/settings" element={<SettingsPage />} />
           <Route path="/dashboard/profile" element={<ProfilePage />} />
           <Route path="/dashboard/ai-assistant" element={<AIAssistantPage />} />
@@ -60,6 +62,7 @@ function App() {
           <Route path="/orders" element={<Navigate to="/dashboard/orders" replace />} />
           <Route path="/customers" element={<Navigate to="/dashboard/customers" replace />} />
           <Route path="/customer-portal" element={<Navigate to="/dashboard/customer-portal" replace />} />
+          <Route path="/financial-analytics" element={<Navigate to="/dashboard/financial-analytics" replace />} />
           <Route path="/inventory" element={<Navigate to="/dashboard/inventory" replace />} />
           <Route path="/purchases" element={<Navigate to="/dashboard/purchases" replace />} />
           <Route path="/suppliers" element={<Navigate to="/dashboard/suppliers" replace />} />
