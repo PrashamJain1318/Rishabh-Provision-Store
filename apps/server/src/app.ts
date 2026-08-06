@@ -37,6 +37,7 @@ import wishlistRouter from "./modules/wishlist/wishlist.routes";
 import notificationRouter from "./modules/notifications/notification.routes";
 import backupRouter from "./modules/backup/backup.router";
 import aiRouter from "./modules/ai/ai.router";
+import { paymentRouter } from "./modules/payment";
 import { getInvoices, getInvoiceById } from "./modules/pos/pos.controller";
 
 export const createApp = (): Application => {
@@ -105,6 +106,7 @@ export const createApp = (): Application => {
   app.use(`${API_PREFIX}/notifications`, notificationRouter);
   app.use(`${API_PREFIX}/backup`, backupRouter);
   app.use(`${API_PREFIX}/ai`, aiRouter);
+  app.use(`${API_PREFIX}/payment`, paymentRouter);
   app.use(`${API_PREFIX}/brands`, brandRouter);
   app.use(`${API_PREFIX}/units`, unitRouter);
   app.use(`${API_PREFIX}/categories`, categoryRouter);

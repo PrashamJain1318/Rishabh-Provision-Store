@@ -1,25 +1,15 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { Button, Modal } from "@rishabh-store/ui";
 import {
   Search,
-  Plus,
-  Minus,
-  Trash2,
-  Tag,
-  UserCheck,
   Printer,
-  CheckCircle,
-  PauseCircle,
-  RotateCcw,
-  CreditCard,
-  QrCode,
-  DollarSign,
   Receipt,
-  Keyboard,
+  CreditCard,
+  CheckCircle,
   AlertCircle,
-  Barcode,
 } from "lucide-react";
 import { InvoicePrinter } from "../components/InvoicePrinter";
+import { paymentService } from "../services/payment.service";
 
 interface POSProduct {
   id: string;
@@ -53,16 +43,20 @@ const posCatalog: POSProduct[] = [
 ];
 
 export const POSPage: React.FC = () => {
-  const [catalog, setCatalog] = useState<POSProduct[]>(posCatalog);
+  const [catalog] = useState<POSProduct[]>(posCatalog);
   const [rawSearchQuery, setRawSearchQuery] = useState("");
   const [cart, setCart] = useState<CartItem[]>([
     { id: "P1", code: "8901058000123", sku: "ATT-AASH-5KG", name: "Aashirvaad Shudh Chakki Atta 5kg", price: 245, originalPrice: 245, gst: 0, qty: 1 },
     { id: "P2", code: "8906007280054", sku: "OIL-FORT-1L", name: "Fortune Kachi Ghani Mustard Oil 1L", price: 142, originalPrice: 142, gst: 5, qty: 1 },
   ]);
 
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("Cash");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("Razorpay");
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [completedBillNo, setCompletedBillNo] = useState("");
+  const [paymentStatusMessage, setPaymentStatusMessage] = useState<string | null>(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+  const totalAmount = cart.reduce((a, b) => a + b.price * b.qty, 0);
 
   const addToCart = (product: POSProduct) => {
     setCart((prev) => {
@@ -77,7 +71,33 @@ export const POSPage: React.FC = () => {
     });
   };
 
-  const handleCheckout = () => {
+  const handleRazorpayPayment = () => {
+    if (cart.length === 0) return;
+    setIsProcessingPayment(true);
+    setPaymentStatusMessage("Initializing Razorpay Secure Payment Gateway...");
+
+    const receiptId = `INV-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    paymentService.processRazorpayCheckout({
+      amount: totalAmount,
+      receipt: receiptId,
+      customerName: "Ramesh Kumar",
+      customerEmail: "ramesh@gmail.com",
+      customerPhone: "9876543210",
+      onSuccess: (response) => {
+        setIsProcessingPayment(false);
+        setCompletedBillNo(receiptId);
+        setPaymentStatusMessage(`✅ Razorpay Payment Captured! Signature verified: ${response.razorpay_payment_id}`);
+        setShowReceiptModal(true);
+      },
+      onFailure: (error) => {
+        setIsProcessingPayment(false);
+        setPaymentStatusMessage(`❌ Payment Status: ${error.message || "Payment cancelled or failed"}`);
+      },
+    });
+  };
+
+  const handleManualCheckout = () => {
     if (cart.length === 0) return;
     const newBillNo = `INV-2026-${Math.floor(1000 + Math.random() * 9000)}`;
     setCompletedBillNo(newBillNo);
@@ -94,7 +114,7 @@ export const POSPage: React.FC = () => {
           </div>
           <div>
             <h2 className="font-extrabold text-base text-white">Rishabh Express POS Terminal #1</h2>
-            <p className="text-xs text-slate-400">Official Tax Invoice Generator & ESC/POS Thermal Printing</p>
+            <p className="text-xs text-slate-400">Razorpay Payment Integration & ESC/POS Thermal Printing</p>
           </div>
         </div>
 
@@ -146,40 +166,63 @@ export const POSPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column: Checkout & Invoice Trigger (5 Cols) */}
+        {/* Right Column: Checkout & Razorpay Integration */}
         <div className="lg:col-span-5 p-6 bg-slate-900 flex flex-col justify-between overflow-y-auto">
           <div className="space-y-4">
             <h3 className="font-extrabold text-sm text-slate-200 uppercase tracking-wider flex items-center gap-2">
               <Receipt className="w-4 h-4 text-emerald-400" /> Cart Invoice Overview ({cart.length} items)
             </h3>
 
+            {paymentStatusMessage && (
+              <div className={`p-3 rounded-xl text-xs font-mono flex items-center gap-2 ${
+                paymentStatusMessage.includes("✅")
+                  ? "bg-emerald-950 border border-emerald-800 text-emerald-300"
+                  : paymentStatusMessage.includes("❌")
+                  ? "bg-rose-950 border border-rose-800 text-rose-300"
+                  : "bg-blue-950 border border-blue-800 text-blue-300"
+              }`}>
+                {paymentStatusMessage.includes("✅") ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                {paymentStatusMessage}
+              </div>
+            )}
+
             <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-2 text-xs font-mono text-slate-300">
-              <div className="flex justify-between"><span>Subtotal:</span><span>₹{cart.reduce((a, b) => a + b.price * b.qty, 0)}.00</span></div>
+              <div className="flex justify-between"><span>Subtotal:</span><span>₹{totalAmount}.00</span></div>
               <div className="bg-emerald-950 border border-emerald-800/60 rounded-xl p-3 text-center mt-3">
                 <span className="text-[10px] uppercase text-emerald-300 font-extrabold tracking-wider">Grand Total</span>
-                <div className="text-3xl font-extrabold text-white font-mono mt-0.5">₹{cart.reduce((a, b) => a + b.price * b.qty, 0)}.00</div>
+                <div className="text-3xl font-extrabold text-white font-mono mt-0.5">₹{totalAmount}.00</div>
               </div>
             </div>
           </div>
 
-          <Button
-            disabled={cart.length === 0}
-            onClick={handleCheckout}
-            className="w-full mt-4 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-emerald-500/20"
-          >
-            <Printer className="w-4 h-4 mr-2 inline" /> Generate Tax Invoice & ESC/POS Print
-          </Button>
+          <div className="space-y-2 mt-4">
+            <Button
+              disabled={cart.length === 0 || isProcessingPayment}
+              onClick={handleRazorpayPayment}
+              className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-indigo-500/20"
+            >
+              <CreditCard className="w-4 h-4 mr-2 inline" /> Pay ₹{totalAmount} via Razorpay (UPI/Card/Netbanking)
+            </Button>
+
+            <Button
+              disabled={cart.length === 0}
+              onClick={handleManualCheckout}
+              className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl"
+            >
+              <Printer className="w-4 h-4 mr-2 inline" /> Cash Checkout & ESC/POS Print
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Official Tax Invoice Print Modal */}
+      {/* Tax Invoice Print Modal */}
       <Modal isOpen={showReceiptModal} onClose={() => setShowReceiptModal(false)} title="Official Tax Invoice Document">
         <InvoicePrinter
           invoiceNumber={completedBillNo}
           date={new Date().toLocaleString("en-IN")}
           cashierName="Prasham Jain"
           customerName="Ramesh Kumar"
-          customerPhone="+91 98201 11223"
+          customerPhone="+91 98765 43210"
           customerGst="27AAACI1681G1ZM"
           items={cart}
           paymentMode={selectedPaymentMethod}

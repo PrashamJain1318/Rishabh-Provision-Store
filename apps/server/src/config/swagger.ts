@@ -19,6 +19,7 @@ export const swaggerSpec = {
     { name: "Auth", description: "Authentication, Registration, Refresh Tokens & User Profile" },
     { name: "Users", description: "User Management & Role Administration" },
     { name: "Products", description: "Grocery Catalog Items, SKU Search & Pricing" },
+    { name: "Payment", description: "Razorpay Payments, Signature Verification, Refunds & Webhooks" },
     { name: "Upload", description: "Cloudinary CDN Image Processing & Media Assets" },
     { name: "Inventory", description: "Stock Levels, Batch Expiry Alert Monitor & Reorders" },
     { name: "Customers", description: "Customer CRM, Addresses & Loyalty Accounts" },
@@ -48,6 +49,113 @@ export const swaggerSpec = {
         },
       },
     },
+    "/payment/create-order": {
+      post: {
+        summary: "Generate Razorpay Order",
+        tags: ["Payment"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["amount"],
+                properties: {
+                  amount: { type: "number", example: 500, description: "Amount in INR (₹)" },
+                  currency: { type: "string", example: "INR" },
+                  receipt: { type: "string", example: "INV00001" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Razorpay order generated",
+            content: {
+              "application/json": {
+                example: {
+                  success: true,
+                  message: "Razorpay order created successfully",
+                  data: {
+                    orderId: "order_K7x9Pz2mQ4n1",
+                    amount: 50000,
+                    currency: "INR",
+                    keyId: "rzp_test_TMUGIqr1crkycf",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/payment/verify": {
+      post: {
+        summary: "Verify Razorpay Payment Signature (HMAC SHA-256)",
+        tags: ["Payment"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["razorpay_order_id", "razorpay_payment_id", "razorpay_signature"],
+                properties: {
+                  razorpay_order_id: { type: "string", example: "order_K7x9Pz2mQ4n1" },
+                  razorpay_payment_id: { type: "string", example: "pay_M9k8L7j6H5g4" },
+                  razorpay_signature: { type: "string", example: "4d7c88b9a0f1e2d3c4b5a6789" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: "Payment verified successfully" },
+          400: { description: "Signature verification failed" },
+        },
+      },
+    },
+    "/payment/refund": {
+      post: {
+        summary: "Process Razorpay Payment Refund",
+        tags: ["Payment"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["paymentId"],
+                properties: {
+                  paymentId: { type: "string", example: "pay_M9k8L7j6H5g4" },
+                  amount: { type: "number", example: 500 },
+                  reason: { type: "string", example: "Item out of stock" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: "Refund processed successfully" },
+        },
+      },
+    },
+    "/payment/history": {
+      get: {
+        summary: "Retrieve Paginated Payment History Logs",
+        tags: ["Payment"],
+        parameters: [
+          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+          { name: "limit", in: "query", schema: { type: "integer", default: 20 } },
+          { name: "search", in: "query", schema: { type: "string" } },
+          { name: "status", in: "query", schema: { type: "string", enum: ["All", "PENDING", "CAPTURED", "FAILED", "REFUNDED"] } },
+        ],
+        responses: {
+          200: { description: "Payment history list" },
+        },
+      },
+    },
     "/upload/single": {
       post: {
         summary: "Upload Product Image to Cloudinary CDN",
@@ -71,25 +179,7 @@ export const swaggerSpec = {
           },
         },
         responses: {
-          200: {
-            description: "Image uploaded successfully",
-            content: {
-              "application/json": {
-                example: {
-                  success: true,
-                  message: "Image uploaded successfully",
-                  data: {
-                    url: "https://res.cloudinary.com/mycloudname/image/upload/v1786017000/rishabh-provision-store/products/sample.jpg",
-                    publicId: "rishabh-provision-store/products/sample",
-                    width: 800,
-                    height: 600,
-                  },
-                },
-              },
-            },
-          },
-          400: { description: "Invalid file format or file missing" },
-          500: { description: "Cloudinary configuration is missing" },
+          200: { description: "Image uploaded successfully" },
         },
       },
     },
@@ -97,29 +187,8 @@ export const swaggerSpec = {
       post: {
         summary: "Register Store Staff or Customer Account",
         tags: ["Auth"],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["firstName", "lastName", "email", "password"],
-                properties: {
-                  firstName: { type: "string", example: "Ramesh" },
-                  lastName: { type: "string", example: "Kumar" },
-                  email: { type: "string", example: "ramesh@gmail.com" },
-                  phone: { type: "string", example: "9812345678" },
-                  password: { type: "string", example: "RameshPass123@" },
-                  role: { type: "string", enum: ["Owner", "Manager", "Cashier", "Employee", "Delivery Partner", "Customer"], example: "Customer" },
-                },
-              },
-            },
-          },
-        },
         responses: {
           201: { description: "Registration successful" },
-          400: { description: "Validation failed" },
-          409: { description: "Email or phone already exists" },
         },
       },
     },
@@ -127,36 +196,8 @@ export const swaggerSpec = {
       post: {
         summary: "Sign In with Email/Username & Password",
         tags: ["Auth"],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  username: { type: "string", example: "rps_admin" },
-                  email: { type: "string", example: "admin@rishabhstore.com" },
-                  password: { type: "string", example: "rishabh1234@" },
-                },
-              },
-            },
-          },
-        },
         responses: {
           200: { description: "Sign in successful" },
-          401: { description: "Invalid credentials" },
-          403: { description: "Account deactivated" },
-        },
-      },
-    },
-    "/auth/profile": {
-      get: {
-        summary: "Retrieve Authenticated User Profile",
-        tags: ["Auth"],
-        security: [{ BearerAuth: [] }],
-        responses: {
-          200: { description: "User profile retrieved successfully" },
-          401: { description: "Unauthorized token missing or invalid" },
         },
       },
     },
@@ -166,82 +207,6 @@ export const swaggerSpec = {
         tags: ["Products"],
         responses: {
           200: { description: "Catalog items list" },
-        },
-      },
-    },
-    "/inventory": {
-      get: {
-        summary: "Retrieve Inventory Stock Valuation & Aging",
-        tags: ["Inventory"],
-        responses: {
-          200: { description: "Inventory items list" },
-        },
-      },
-    },
-    "/customers": {
-      get: {
-        summary: "Retrieve Customer CRM Profiles",
-        tags: ["Customers"],
-        responses: {
-          200: { description: "Customers list" },
-        },
-      },
-    },
-    "/orders": {
-      get: {
-        summary: "Retrieve Omnichannel Orders List",
-        tags: ["Orders"],
-        responses: {
-          200: { description: "Orders list" },
-        },
-      },
-    },
-    "/pos/checkout": {
-      post: {
-        summary: "Process Express POS 1-Click Transaction",
-        tags: ["POS"],
-        responses: {
-          200: { description: "POS transaction success" },
-        },
-      },
-    },
-    "/notifications": {
-      get: {
-        summary: "Retrieve Merchant In-App Alerts",
-        tags: ["Notifications"],
-        responses: {
-          200: { description: "Notifications list" },
-        },
-      },
-    },
-    "/ai/query": {
-      post: {
-        summary: "Query Gemini AI Business Assistant",
-        tags: ["AI Assistant"],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  prompt: { type: "string", example: "Summarize today's business" },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          200: { description: "AI query response" },
-        },
-      },
-    },
-    "/backup/create": {
-      post: {
-        summary: "Generate 1-Click MongoDB Full Database Snapshot",
-        tags: ["Backup"],
-        responses: {
-          201: { description: "Backup snapshot generated" },
         },
       },
     },
