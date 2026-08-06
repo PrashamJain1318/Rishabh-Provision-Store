@@ -16,6 +16,7 @@ export const env = {
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || "rishabh-provision-store",
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || "891234567890123",
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || "ab_cd_ef_gh_ij_kl_mn_op_qr_st_uv",
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY || "AIzaSy_demo_gemini_api_key_rishabh_store_2026",
 };
 
 export default env;
