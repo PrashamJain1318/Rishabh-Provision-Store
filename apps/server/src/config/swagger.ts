@@ -19,6 +19,7 @@ export const swaggerSpec = {
     { name: "Auth", description: "Authentication, Registration, Refresh Tokens & User Profile" },
     { name: "Users", description: "User Management & Role Administration" },
     { name: "Products", description: "Grocery Catalog Items, SKU Search & Pricing" },
+    { name: "Upload", description: "Cloudinary CDN Image Processing & Media Assets" },
     { name: "Inventory", description: "Stock Levels, Batch Expiry Alert Monitor & Reorders" },
     { name: "Customers", description: "Customer CRM, Addresses & Loyalty Accounts" },
     { name: "Orders", description: "Omnichannel Orders & Fulfillment Stream" },
@@ -44,6 +45,51 @@ export const swaggerSpec = {
         tags: ["System"],
         responses: {
           200: { description: "Server is online and healthy" },
+        },
+      },
+    },
+    "/upload/single": {
+      post: {
+        summary: "Upload Product Image to Cloudinary CDN",
+        tags: ["Upload"],
+        requestBody: {
+          required: true,
+          content: {
+            "multipart/form-data": {
+              schema: {
+                type: "object",
+                required: ["image"],
+                properties: {
+                  image: {
+                    type: "string",
+                    format: "binary",
+                    description: "Product image file (JPG, JPEG, PNG, WEBP max 5MB)",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Image uploaded successfully",
+            content: {
+              "application/json": {
+                example: {
+                  success: true,
+                  message: "Image uploaded successfully",
+                  data: {
+                    url: "https://res.cloudinary.com/mycloudname/image/upload/v1786017000/rishabh-provision-store/products/sample.jpg",
+                    publicId: "rishabh-provision-store/products/sample",
+                    width: 800,
+                    height: 600,
+                  },
+                },
+              },
+            },
+          },
+          400: { description: "Invalid file format or file missing" },
+          500: { description: "Cloudinary configuration is missing" },
         },
       },
     },

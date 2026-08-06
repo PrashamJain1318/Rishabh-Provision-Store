@@ -26,6 +26,7 @@ const productSchema = new Schema<IProductDocument>(
     expiryDate: { type: Date },
     batchNumber: { type: String, trim: true },
     images: [{ type: String }],
+    cloudinaryPublicId: { type: String, trim: true },
     status: { type: String, enum: ["Active", "Inactive", "Out of Stock"], default: "Active", index: true },
     createdBy: { type: Schema.Types.Mixed, ref: "User" },
   },

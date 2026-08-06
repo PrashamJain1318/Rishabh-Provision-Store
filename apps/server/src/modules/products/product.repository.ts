@@ -1,5 +1,6 @@
 import { ProductModel, IProductDocument } from "./product.model";
 import { IProduct } from "./product.types";
+import { uploadService } from "../upload/upload.service";
 
 export class ProductRepository {
   async findAll(queryObj: any = {}): Promise<IProduct[]> {
@@ -50,8 +51,15 @@ export class ProductRepository {
   }
 
   async delete(id: string): Promise<boolean> {
-    const result = await ProductModel.findByIdAndDelete(id);
-    return !!result;
+    const product = await ProductModel.findById(id);
+    if (product) {
+      if (product.cloudinaryPublicId) {
+        await uploadService.deleteImageFromCloudinary(product.cloudinaryPublicId);
+      }
+      await ProductModel.findByIdAndDelete(id);
+      return true;
+    }
+    return false;
   }
 }
 

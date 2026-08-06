@@ -1,20 +1,28 @@
 import { Request, Response } from "express";
 import { uploadService } from "./upload.service";
+import { isCloudinaryConfigured } from "../../config/cloudinary";
 import { sendSuccess, sendError } from "../../utils/response";
 import { asyncHandler } from "../../utils/asyncHandler";
-import env from "../../config/env";
 
 export const uploadSingleImage = asyncHandler(async (req: Request, res: Response) => {
-  if (!env.CLOUDINARY_CLOUD_NAME || !env.CLOUDINARY_API_KEY || !env.CLOUDINARY_API_SECRET) {
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+  if (!cloudName || !apiKey || !apiSecret || !isCloudinaryConfigured()) {
     return sendError({
       res,
-      statusCode: 400,
-      message: "Cloudinary is not configured yet. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in apps/server/.env before testing image uploads.",
+      statusCode: 500,
+      message: "Cloudinary configuration is missing.",
     });
   }
 
   if (!req.file) {
-    return sendError({ res, statusCode: 400, message: "No image file provided in request" });
+    return sendError({
+      res,
+      statusCode: 400,
+      message: "No image file provided. Field 'image' is required.",
+    });
   }
 
   const folder = (req.body.folder as string) || "rishabh-provision-store/products";
@@ -22,8 +30,13 @@ export const uploadSingleImage = asyncHandler(async (req: Request, res: Response
 
   return sendSuccess({
     res,
-    statusCode: 201,
-    message: "Image uploaded to Cloudinary successfully",
-    data: result,
+    statusCode: 200,
+    message: "Image uploaded successfully",
+    data: {
+      url: result.url,
+      publicId: result.publicId,
+      width: result.width,
+      height: result.height,
+    },
   });
 });

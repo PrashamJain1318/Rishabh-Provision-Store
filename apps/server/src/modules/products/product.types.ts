@@ -23,6 +23,7 @@ export interface IProduct {
   expiryDate?: Date;
   batchNumber?: string;
   images: string[];
+  cloudinaryPublicId?: string;
   status: ProductStatus;
   createdBy?: string;
   createdAt?: Date;
