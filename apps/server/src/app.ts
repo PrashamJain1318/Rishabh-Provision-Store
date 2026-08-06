@@ -38,6 +38,7 @@ import notificationRouter from "./modules/notifications/notification.routes";
 import backupRouter from "./modules/backup/backup.router";
 import aiRouter from "./modules/ai/ai.router";
 import { paymentRouter } from "./modules/payment";
+import { mapsRouter } from "./modules/maps";
 import { getInvoices, getInvoiceById } from "./modules/pos/pos.controller";
 
 export const createApp = (): Application => {
@@ -50,10 +51,10 @@ export const createApp = (): Application => {
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
-          scriptSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'", "'unsafe-inline'", "https://maps.googleapis.com"],
           styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
           fontSrc: ["'self'", "https://fonts.gstatic.com"],
-          imgSrc: ["'self'", "data:", "https://images.unsplash.com", "https://res.cloudinary.com"],
+          imgSrc: ["'self'", "data:", "https://images.unsplash.com", "https://res.cloudinary.com", "https://maps.googleapis.com", "https://*.gstatic.com"],
         },
       },
       crossOriginEmbedderPolicy: false,
@@ -107,6 +108,7 @@ export const createApp = (): Application => {
   app.use(`${API_PREFIX}/backup`, backupRouter);
   app.use(`${API_PREFIX}/ai`, aiRouter);
   app.use(`${API_PREFIX}/payment`, paymentRouter);
+  app.use(`${API_PREFIX}/maps`, mapsRouter);
   app.use(`${API_PREFIX}/brands`, brandRouter);
   app.use(`${API_PREFIX}/units`, unitRouter);
   app.use(`${API_PREFIX}/categories`, categoryRouter);

@@ -19,6 +19,7 @@ export const swaggerSpec = {
     { name: "Auth", description: "Authentication, Registration, Refresh Tokens & User Profile" },
     { name: "Users", description: "User Management & Role Administration" },
     { name: "Products", description: "Grocery Catalog Items, SKU Search & Pricing" },
+    { name: "Maps", description: "Google Maps Platform Geocoding, Reverse Geocoding, Places Autocomplete & Route Directions" },
     { name: "AI Assistant", description: "Google Gemini 2.5 AI Business Intelligence & Forecasting" },
     { name: "Payment", description: "Razorpay Payments, Signature Verification, Refunds & Webhooks" },
     { name: "Upload", description: "Cloudinary CDN Image Processing & Media Assets" },
@@ -49,60 +50,62 @@ export const swaggerSpec = {
         },
       },
     },
+    "/maps/geocode": {
+      get: {
+        summary: "Geocode Address to Latitude and Longitude",
+        tags: ["Maps"],
+        parameters: [
+          { name: "address", in: "query", required: true, schema: { type: "string", example: "Dadar West, Mumbai" } },
+        ],
+        responses: {
+          200: { description: "Coordinates and formatted address" },
+        },
+      },
+    },
+    "/maps/reverse-geocode": {
+      get: {
+        summary: "Reverse Geocode Latitude and Longitude to Formatted Address",
+        tags: ["Maps"],
+        parameters: [
+          { name: "lat", in: "query", required: true, schema: { type: "number", example: 19.0178 } },
+          { name: "lng", in: "query", required: true, schema: { type: "number", example: 72.8478 } },
+        ],
+        responses: {
+          200: { description: "Formatted street address" },
+        },
+      },
+    },
+    "/maps/place-autocomplete": {
+      get: {
+        summary: "Google Places Autocomplete Location Suggestions",
+        tags: ["Maps"],
+        parameters: [
+          { name: "input", in: "query", required: true, schema: { type: "string", example: "Dadar" } },
+        ],
+        responses: {
+          200: { description: "List of matching places and place IDs" },
+        },
+      },
+    },
+    "/maps/directions": {
+      get: {
+        summary: "Calculate Route Distance, ETA, and Directions",
+        tags: ["Maps"],
+        parameters: [
+          { name: "origin", in: "query", required: true, schema: { type: "string", example: "Rishabh Store Dadar" } },
+          { name: "destination", in: "query", required: true, schema: { type: "string", example: "BKC Mumbai" } },
+        ],
+        responses: {
+          200: { description: "Distance, ETA duration, and polyline points" },
+        },
+      },
+    },
     "/ai/query": {
       post: {
         summary: "Query Google Gemini AI Business Intelligence Engine",
         tags: ["AI Assistant"],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["prompt"],
-                properties: {
-                  prompt: { type: "string", example: "Summarize today's business." },
-                  context: { type: "string", example: "Gross revenue ₹18,450" },
-                },
-              },
-            },
-          },
-        },
         responses: {
-          200: {
-            description: "Gemini AI response generated",
-            content: {
-              "application/json": {
-                example: {
-                  success: true,
-                  message: "Gemini AI query processed successfully",
-                  data: {
-                    prompt: "Summarize today's business.",
-                    response: "✨ Today's Summary: Gross Revenue ₹18,450 (+14.2%)....",
-                    model: "gemini-2.5-flash",
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-    "/ai/inventory-advice": {
-      post: {
-        summary: "Retrieve Gemini AI Inventory Optimization Advice",
-        tags: ["AI Assistant"],
-        responses: {
-          200: { description: "Reorder lists, dead stock & stockout predictions" },
-        },
-      },
-    },
-    "/ai/sales-forecast": {
-      post: {
-        summary: "Retrieve Gemini AI 7-Day and 30-Day Sales Demand Forecast",
-        tags: ["AI Assistant"],
-        responses: {
-          200: { description: "Revenue projections and growth insights" },
+          200: { description: "Gemini AI response generated" },
         },
       },
     },
@@ -110,51 +113,8 @@ export const swaggerSpec = {
       post: {
         summary: "Generate Razorpay Order",
         tags: ["Payment"],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["amount"],
-                properties: {
-                  amount: { type: "number", example: 500, description: "Amount in INR (₹)" },
-                  currency: { type: "string", example: "INR" },
-                  receipt: { type: "string", example: "INV00001" },
-                },
-              },
-            },
-          },
-        },
         responses: {
           201: { description: "Razorpay order generated" },
-        },
-      },
-    },
-    "/payment/verify": {
-      post: {
-        summary: "Verify Razorpay Payment Signature (HMAC SHA-256)",
-        tags: ["Payment"],
-        responses: {
-          200: { description: "Payment verified successfully" },
-        },
-      },
-    },
-    "/payment/refund": {
-      post: {
-        summary: "Process Razorpay Payment Refund",
-        tags: ["Payment"],
-        responses: {
-          200: { description: "Refund processed successfully" },
-        },
-      },
-    },
-    "/payment/history": {
-      get: {
-        summary: "Retrieve Paginated Payment History Logs",
-        tags: ["Payment"],
-        responses: {
-          200: { description: "Payment history list" },
         },
       },
     },
