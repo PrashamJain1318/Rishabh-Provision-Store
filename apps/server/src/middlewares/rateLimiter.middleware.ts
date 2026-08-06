@@ -32,3 +32,19 @@ export const authRateLimiter = rateLimit({
     });
   },
 });
+
+// AI Endpoints Rate Limiter (Maximum 20 requests per 1 minute per IP/User)
+export const aiRateLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    return sendError({
+      res,
+      statusCode: 429,
+      message: "AI Request Limit Exceeded: Maximum 20 requests allowed per minute per user.",
+      errors: [{ limit: 20, windowMs: "1m" }],
+    });
+  },
+});

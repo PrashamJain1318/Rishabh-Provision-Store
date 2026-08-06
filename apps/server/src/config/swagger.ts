@@ -19,6 +19,7 @@ export const swaggerSpec = {
     { name: "Auth", description: "Authentication, Registration, Refresh Tokens & User Profile" },
     { name: "Users", description: "User Management & Role Administration" },
     { name: "Products", description: "Grocery Catalog Items, SKU Search & Pricing" },
+    { name: "AI Assistant", description: "Google Gemini 2.5 AI Business Intelligence & Forecasting" },
     { name: "Payment", description: "Razorpay Payments, Signature Verification, Refunds & Webhooks" },
     { name: "Upload", description: "Cloudinary CDN Image Processing & Media Assets" },
     { name: "Inventory", description: "Stock Levels, Batch Expiry Alert Monitor & Reorders" },
@@ -26,7 +27,6 @@ export const swaggerSpec = {
     { name: "Orders", description: "Omnichannel Orders & Fulfillment Stream" },
     { name: "POS", description: "Express Cashier POS Terminal Checkout & Thermal Receipts" },
     { name: "Notifications", description: "Merchant In-App Alerts & System Notifications" },
-    { name: "AI Assistant", description: "Gemini AI Business Assistant & Forecasting Queries" },
     { name: "Backup", description: "MongoDB Database Snapshots & Audit Trail" },
   ],
   components: {
@@ -46,6 +46,63 @@ export const swaggerSpec = {
         tags: ["System"],
         responses: {
           200: { description: "Server is online and healthy" },
+        },
+      },
+    },
+    "/ai/query": {
+      post: {
+        summary: "Query Google Gemini AI Business Intelligence Engine",
+        tags: ["AI Assistant"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["prompt"],
+                properties: {
+                  prompt: { type: "string", example: "Summarize today's business." },
+                  context: { type: "string", example: "Gross revenue ₹18,450" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Gemini AI response generated",
+            content: {
+              "application/json": {
+                example: {
+                  success: true,
+                  message: "Gemini AI query processed successfully",
+                  data: {
+                    prompt: "Summarize today's business.",
+                    response: "✨ Today's Summary: Gross Revenue ₹18,450 (+14.2%)....",
+                    model: "gemini-2.5-flash",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/ai/inventory-advice": {
+      post: {
+        summary: "Retrieve Gemini AI Inventory Optimization Advice",
+        tags: ["AI Assistant"],
+        responses: {
+          200: { description: "Reorder lists, dead stock & stockout predictions" },
+        },
+      },
+    },
+    "/ai/sales-forecast": {
+      post: {
+        summary: "Retrieve Gemini AI 7-Day and 30-Day Sales Demand Forecast",
+        tags: ["AI Assistant"],
+        responses: {
+          200: { description: "Revenue projections and growth insights" },
         },
       },
     },
@@ -70,23 +127,7 @@ export const swaggerSpec = {
           },
         },
         responses: {
-          201: {
-            description: "Razorpay order generated",
-            content: {
-              "application/json": {
-                example: {
-                  success: true,
-                  message: "Razorpay order created successfully",
-                  data: {
-                    orderId: "order_K7x9Pz2mQ4n1",
-                    amount: 50000,
-                    currency: "INR",
-                    keyId: "rzp_test_TMUGIqr1crkycf",
-                  },
-                },
-              },
-            },
-          },
+          201: { description: "Razorpay order generated" },
         },
       },
     },
@@ -94,25 +135,8 @@ export const swaggerSpec = {
       post: {
         summary: "Verify Razorpay Payment Signature (HMAC SHA-256)",
         tags: ["Payment"],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["razorpay_order_id", "razorpay_payment_id", "razorpay_signature"],
-                properties: {
-                  razorpay_order_id: { type: "string", example: "order_K7x9Pz2mQ4n1" },
-                  razorpay_payment_id: { type: "string", example: "pay_M9k8L7j6H5g4" },
-                  razorpay_signature: { type: "string", example: "4d7c88b9a0f1e2d3c4b5a6789" },
-                },
-              },
-            },
-          },
-        },
         responses: {
           200: { description: "Payment verified successfully" },
-          400: { description: "Signature verification failed" },
         },
       },
     },
@@ -120,22 +144,6 @@ export const swaggerSpec = {
       post: {
         summary: "Process Razorpay Payment Refund",
         tags: ["Payment"],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["paymentId"],
-                properties: {
-                  paymentId: { type: "string", example: "pay_M9k8L7j6H5g4" },
-                  amount: { type: "number", example: 500 },
-                  reason: { type: "string", example: "Item out of stock" },
-                },
-              },
-            },
-          },
-        },
         responses: {
           200: { description: "Refund processed successfully" },
         },
@@ -145,12 +153,6 @@ export const swaggerSpec = {
       get: {
         summary: "Retrieve Paginated Payment History Logs",
         tags: ["Payment"],
-        parameters: [
-          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
-          { name: "limit", in: "query", schema: { type: "integer", default: 20 } },
-          { name: "search", in: "query", schema: { type: "string" } },
-          { name: "status", in: "query", schema: { type: "string", enum: ["All", "PENDING", "CAPTURED", "FAILED", "REFUNDED"] } },
-        ],
         responses: {
           200: { description: "Payment history list" },
         },
@@ -160,35 +162,8 @@ export const swaggerSpec = {
       post: {
         summary: "Upload Product Image to Cloudinary CDN",
         tags: ["Upload"],
-        requestBody: {
-          required: true,
-          content: {
-            "multipart/form-data": {
-              schema: {
-                type: "object",
-                required: ["image"],
-                properties: {
-                  image: {
-                    type: "string",
-                    format: "binary",
-                    description: "Product image file (JPG, JPEG, PNG, WEBP max 5MB)",
-                  },
-                },
-              },
-            },
-          },
-        },
         responses: {
           200: { description: "Image uploaded successfully" },
-        },
-      },
-    },
-    "/auth/register": {
-      post: {
-        summary: "Register Store Staff or Customer Account",
-        tags: ["Auth"],
-        responses: {
-          201: { description: "Registration successful" },
         },
       },
     },
