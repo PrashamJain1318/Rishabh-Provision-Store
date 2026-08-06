@@ -30,6 +30,7 @@ const ProfilePage = lazy(() => import("./pages/Profile"));
 const AIAssistantPage = lazy(() => import("./pages/AIAssistant"));
 const AIForecastingPage = lazy(() => import("./pages/AIForecasting"));
 const SystemMonitoringPage = lazy(() => import("./pages/SystemMonitoring"));
+const LoadTestingDashboardPage = lazy(() => import("./pages/LoadTestingDashboard"));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen bg-slate-900 text-white">
@@ -51,9 +52,10 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
 
-            {/* Express POS Terminal Route */}
+            {/* Express POS Terminal & Monitoring Routes */}
             <Route path="/pos" element={<POSPage />} />
             <Route path="/monitoring" element={<SystemMonitoringPage />} />
+            <Route path="/load-testing" element={<LoadTestingDashboardPage />} />
 
             {/* Dashboard Sub-routes */}
             <Route path="/dashboard" element={<InventoryDashboardPage />} />
@@ -79,6 +81,7 @@ function App() {
             <Route path="/dashboard/ai-assistant" element={<AIAssistantPage />} />
             <Route path="/dashboard/ai-forecasting" element={<AIForecastingPage />} />
             <Route path="/dashboard/monitoring" element={<SystemMonitoringPage />} />
+            <Route path="/dashboard/load-testing" element={<LoadTestingDashboardPage />} />
 
             {/* Alias Redirects */}
             <Route path="/products" element={<Navigate to="/dashboard/products" replace />} />
