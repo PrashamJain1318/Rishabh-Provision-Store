@@ -7,6 +7,7 @@ import swaggerUi from "swagger-ui-express";
 import env from "./config/env";
 import { API_PREFIX } from "./config/constants";
 import { swaggerSpec } from "./config/swagger";
+import { getRedisStatus } from "./config/redis";
 import { sendSuccess } from "./utils/response";
 import { requestIdMiddleware } from "./middlewares/requestId.middleware";
 import { requestLogger } from "./middlewares/logger.middleware";
@@ -90,6 +91,15 @@ export const createApp = (): Application => {
         timestamp: new Date().toISOString(),
         version: "1.0.0",
       },
+    });
+  });
+
+  app.get(`${API_PREFIX}/health/redis`, async (req: Request, res: Response) => {
+    const redisHealth = await getRedisStatus();
+    return sendSuccess({
+      res,
+      message: "Redis cache status operational",
+      data: redisHealth,
     });
   });
 

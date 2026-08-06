@@ -22,6 +22,10 @@ export const env = {
   FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID || "",
   FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL || "",
   FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY || "",
+  REDIS_HOST: process.env.REDIS_HOST || "localhost",
+  REDIS_PORT: parseInt(process.env.REDIS_PORT || "6379", 10),
+  REDIS_PASSWORD: process.env.REDIS_PASSWORD || "",
+  REDIS_URL: process.env.REDIS_URL || "",
 };
 
 export default env;

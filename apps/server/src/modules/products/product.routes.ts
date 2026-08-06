@@ -4,11 +4,12 @@ import { validateBody, validateQuery } from "../../middlewares/validate.middlewa
 import { createProductSchema, updateProductSchema, productQuerySchema } from "./product.schema";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/role.middleware";
+import { cacheMiddleware } from "../../middlewares/cache.middleware";
 
 const router = Router();
 
-router.get("/", validateQuery(productQuerySchema), getProducts);
-router.get("/:id", getProductById);
+router.get("/", cacheMiddleware(1800, "products"), validateQuery(productQuerySchema), getProducts);
+router.get("/:id", cacheMiddleware(1800, "products"), getProductById);
 router.post("/", authenticate, authorize("OWNER", "MANAGER"), validateBody(createProductSchema), createProduct);
 router.patch("/:id", authenticate, authorize("OWNER", "MANAGER"), validateBody(updateProductSchema), updateProduct);
 router.delete("/:id", authenticate, authorize("OWNER", "MANAGER"), deleteProduct);
