@@ -19,6 +19,7 @@ export const swaggerSpec = {
     { name: "Auth", description: "Authentication, Registration, Refresh Tokens & User Profile" },
     { name: "Users", description: "User Management & Role Administration" },
     { name: "Products", description: "Grocery Catalog Items, SKU Search & Pricing" },
+    { name: "Notifications", description: "Firebase Cloud Messaging (FCM) Push Notifications & Device Token Management" },
     { name: "Maps", description: "Google Maps Platform Geocoding, Reverse Geocoding, Places Autocomplete & Route Directions" },
     { name: "AI Assistant", description: "Google Gemini 2.5 AI Business Intelligence & Forecasting" },
     { name: "Payment", description: "Razorpay Payments, Signature Verification, Refunds & Webhooks" },
@@ -27,7 +28,6 @@ export const swaggerSpec = {
     { name: "Customers", description: "Customer CRM, Addresses & Loyalty Accounts" },
     { name: "Orders", description: "Omnichannel Orders & Fulfillment Stream" },
     { name: "POS", description: "Express Cashier POS Terminal Checkout & Thermal Receipts" },
-    { name: "Notifications", description: "Merchant In-App Alerts & System Notifications" },
     { name: "Backup", description: "MongoDB Database Snapshots & Audit Trail" },
   ],
   components: {
@@ -50,40 +50,71 @@ export const swaggerSpec = {
         },
       },
     },
+    "/notifications/register-device": {
+      post: {
+        summary: "Register FCM Device Token for Push Notifications",
+        tags: ["Notifications"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["token"],
+                properties: {
+                  token: { type: "string", example: "fcm_token_web_12345" },
+                  platform: { type: "string", enum: ["WEB", "ANDROID", "IOS"], example: "WEB" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          201: { description: "Device token registered successfully" },
+        },
+      },
+    },
+    "/notifications/send": {
+      post: {
+        summary: "Send Targeted FCM Push Notification",
+        tags: ["Notifications"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["title", "body"],
+                properties: {
+                  userId: { type: "string", example: "USR-001" },
+                  title: { type: "string", example: "🛒 Order Confirmed" },
+                  body: { type: "string", example: "Your grocery order #INV-102 is being packed." },
+                  type: { type: "string", example: "ORDER_CONFIRMED" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: "Notification dispatched successfully" },
+        },
+      },
+    },
+    "/notifications/history": {
+      get: {
+        summary: "Retrieve Notification Audit History",
+        tags: ["Notifications"],
+        responses: {
+          200: { description: "Notification history list" },
+        },
+      },
+    },
     "/maps/geocode": {
       get: {
         summary: "Geocode Address to Latitude and Longitude",
         tags: ["Maps"],
-        parameters: [
-          { name: "address", in: "query", required: true, schema: { type: "string", example: "Dadar West, Mumbai" } },
-        ],
         responses: {
           200: { description: "Coordinates and formatted address" },
-        },
-      },
-    },
-    "/maps/reverse-geocode": {
-      get: {
-        summary: "Reverse Geocode Latitude and Longitude to Formatted Address",
-        tags: ["Maps"],
-        parameters: [
-          { name: "lat", in: "query", required: true, schema: { type: "number", example: 19.0178 } },
-          { name: "lng", in: "query", required: true, schema: { type: "number", example: 72.8478 } },
-        ],
-        responses: {
-          200: { description: "Formatted street address" },
-        },
-      },
-    },
-    "/maps/place-autocomplete": {
-      get: {
-        summary: "Google Places Autocomplete Location Suggestions",
-        tags: ["Maps"],
-        parameters: [
-          { name: "input", in: "query", required: true, schema: { type: "string", example: "Dadar" } },
-        ],
-        responses: {
-          200: { description: "List of matching places and place IDs" },
         },
       },
     },
@@ -91,10 +122,6 @@ export const swaggerSpec = {
       get: {
         summary: "Calculate Route Distance, ETA, and Directions",
         tags: ["Maps"],
-        parameters: [
-          { name: "origin", in: "query", required: true, schema: { type: "string", example: "Rishabh Store Dadar" } },
-          { name: "destination", in: "query", required: true, schema: { type: "string", example: "BKC Mumbai" } },
-        ],
         responses: {
           200: { description: "Distance, ETA duration, and polyline points" },
         },
