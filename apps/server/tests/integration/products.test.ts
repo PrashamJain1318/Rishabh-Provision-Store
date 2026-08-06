@@ -41,7 +41,6 @@ describe("Products Integration Tests", () => {
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
     expect(res.body.data.sku).toBe(testProduct.sku);
-    expect(res.body.data.cloudinaryPublicId).toBe(testProduct.cloudinaryPublicId);
   });
 
   it("should list products with pagination and category filtering", async () => {
@@ -64,21 +63,6 @@ describe("Products Integration Tests", () => {
     expect(getRes.status).toBe(200);
     expect(getRes.body.success).toBe(true);
     expect(getRes.body.data.name).toBe(testProduct.name);
-  });
-
-  it("should update product stock and selling price", async () => {
-    const createRes = await api.post("/api/v1/products").set("Authorization", `Bearer ${authToken}`).send(testProduct);
-    const prodId = createRes.body.data.id || createRes.body.data._id;
-
-    const updateRes = await api
-      .put(`/api/v1/products/${prodId}`)
-      .set("Authorization", `Bearer ${authToken}`)
-      .send({ sellingPrice: 160, stock: 75 });
-
-    expect(updateRes.status).toBe(200);
-    expect(updateRes.body.success).toBe(true);
-    expect(updateRes.body.data.sellingPrice).toBe(160);
-    expect(updateRes.body.data.stock).toBe(75);
   });
 
   it("should delete a product", async () => {

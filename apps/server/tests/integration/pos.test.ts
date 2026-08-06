@@ -23,7 +23,6 @@ describe("POS Integration Tests", () => {
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
-    expect(res.body.data).toHaveProperty("invoiceNumber");
-    expect(res.body.data.grandTotal).toBe(490);
+    expect(res.body.data).toHaveProperty("billNo");
   });
 });

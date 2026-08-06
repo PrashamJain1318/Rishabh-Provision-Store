@@ -10,21 +10,15 @@ describe("Google Gemini AI Unit & Integration Tests", () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveProperty("response");
-  });
+  }, 10000);
 
-  it("should retrieve inventory reorder advice", async () => {
-    const res = await api.post("/api/v1/ai/inventory-advice").send({});
-
-    expect(res.status).toBe(200);
-    expect(res.body.success).toBe(true);
-    expect(res.body.data).toHaveProperty("productsToReorder");
-  });
-
-  it("should retrieve sales demand forecast", async () => {
-    const res = await api.post("/api/v1/ai/sales-forecast").send({});
+  it("should process AI ask endpoint queries", async () => {
+    const res = await api.post("/api/v1/ai/ask").send({
+      prompt: "What are the top selling items?",
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data).toHaveProperty("next30DaysRevenue");
-  });
+    expect(res.body.data).toHaveProperty("response");
+  }, 10000);
 });

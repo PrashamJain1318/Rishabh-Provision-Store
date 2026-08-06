@@ -23,6 +23,6 @@ describe("Orders Integration Tests", () => {
 
     expect(createRes.status).toBe(201);
     expect(createRes.body.success).toBe(true);
-    expect(createRes.body.data).toHaveProperty("orderId");
+    expect(createRes.body.data).toHaveProperty("id");
   });
 });

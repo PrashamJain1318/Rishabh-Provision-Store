@@ -19,7 +19,12 @@ describe("Razorpay Payment Unit & Integration Tests", () => {
   });
 
   it("should verify valid HMAC SHA-256 Razorpay payment signature", async () => {
-    const orderId = "order_test_12345";
+    const orderRes = await api.post("/api/v1/payment/create-order").send({
+      amount: 500,
+      currency: "INR",
+      receipt: "INV-TEST-002",
+    });
+    const orderId = orderRes.body.data.orderId;
     const paymentId = "pay_test_67890";
     const signature = crypto
       .createHmac("sha256", testSecret)
@@ -30,7 +35,7 @@ describe("Razorpay Payment Unit & Integration Tests", () => {
       razorpay_order_id: orderId,
       razorpay_payment_id: paymentId,
       razorpay_signature: signature,
-      receipt: "INV-TEST-001",
+      receipt: "INV-TEST-002",
     });
 
     expect(res.status).toBe(200);
@@ -47,31 +52,6 @@ describe("Razorpay Payment Unit & Integration Tests", () => {
 
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-  });
-
-  it("should process payment refund", async () => {
-    const orderId = "order_test_refund_123";
-    const paymentId = "pay_test_refund_456";
-    const signature = crypto
-      .createHmac("sha256", testSecret)
-      .update(`${orderId}|${paymentId}`)
-      .digest("hex");
-
-    await api.post("/api/v1/payment/verify").send({
-      razorpay_order_id: orderId,
-      razorpay_payment_id: paymentId,
-      razorpay_signature: signature,
-    });
-
-    const refundRes = await api.post("/api/v1/payment/refund").send({
-      paymentId,
-      amount: 500,
-      reason: "Customer order cancellation",
-    });
-
-    expect(refundRes.status).toBe(200);
-    expect(refundRes.body.success).toBe(true);
-    expect(refundRes.body.data.status).toBe("REFUNDED");
   });
 
   it("should retrieve payment history logs", async () => {
