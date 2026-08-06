@@ -33,6 +33,7 @@ import { orderRouter } from "./modules/orders";
 import { deliveryRouter } from "./modules/delivery";
 import loyaltyRouter from "./modules/loyalty/loyalty.routes";
 import couponRouter from "./modules/coupons/coupon.routes";
+import wishlistRouter from "./modules/wishlist/wishlist.routes";
 import { getInvoices, getInvoiceById } from "./modules/pos/pos.controller";
 
 export const createApp = (): Application => {
@@ -97,6 +98,7 @@ export const createApp = (): Application => {
   app.use(`${API_PREFIX}/delivery`, deliveryRouter);
   app.use(`${API_PREFIX}/loyalty`, loyaltyRouter);
   app.use(`${API_PREFIX}/coupons`, couponRouter);
+  app.use(`${API_PREFIX}/wishlist`, wishlistRouter);
   app.use(`${API_PREFIX}/brands`, brandRouter);
   app.use(`${API_PREFIX}/units`, unitRouter);
   app.use(`${API_PREFIX}/categories`, categoryRouter);
