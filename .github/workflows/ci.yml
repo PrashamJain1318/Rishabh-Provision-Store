@@ -41,8 +41,7 @@ jobs:
         run: pnpm --filter @rishabh-store/web test
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps chromium
-        working-directory: apps/web
+        run: pnpm --filter @rishabh-store/web exec playwright install --with-deps chromium
 
       - name: Run Playwright E2E Tests
         run: pnpm --filter @rishabh-store/web test:e2e
