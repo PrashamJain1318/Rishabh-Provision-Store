@@ -9,7 +9,7 @@ describe("Google Gemini AI Unit & Integration Tests", () => {
 
     expect([200, 500]).toContain(res.status);
     expect(res.body).toHaveProperty("success");
-  });
+  }, 15000);
 
   it("should process AI ask endpoint queries", async () => {
     const res = await api.post("/api/v1/ai/ask").send({
@@ -18,5 +18,5 @@ describe("Google Gemini AI Unit & Integration Tests", () => {
 
     expect([200, 500]).toContain(res.status);
     expect(res.body).toHaveProperty("success");
-  });
+  }, 15000);
 });
