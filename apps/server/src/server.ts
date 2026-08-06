@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import { Server } from "http";
 import { createApp } from "./app";
 import { env } from "./config/env";

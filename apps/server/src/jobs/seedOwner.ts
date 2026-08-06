@@ -5,8 +5,13 @@ import { UserModel } from "../modules/users/user.model";
 
 export const seedOwnerAccount = async (): Promise<void> => {
   try {
+    const mongoUri = process.env.MONGODB_URI || env.MONGODB_URI;
+    if (!mongoUri || mongoUri.includes("<I WILL PASTE")) {
+      return;
+    }
+
     if (mongoose.connection.readyState !== 1) {
-      await mongoose.connect(env.MONGO_URI);
+      await mongoose.connect(mongoUri);
     }
 
     const existingOwner = await UserModel.findOne({

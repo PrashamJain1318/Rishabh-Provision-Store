@@ -6,37 +6,34 @@ const MAX_RETRIES = 5;
 const INITIAL_RETRY_INTERVAL_MS = 2000;
 
 export const connectDatabase = async (retryCount = 0): Promise<void> => {
+  const mongoUri = process.env.MONGODB_URI || env.MONGODB_URI;
+
+  if (!mongoUri || mongoUri.includes("<I WILL PASTE")) {
+    const missingErr = new Error("MONGODB_URI is not set or contains placeholder value in environment variables.");
+    console.error("❌ MongoDB Atlas Connection Error:", missingErr);
+    logger.error("❌ MongoDB Atlas Connection Error:", missingErr);
+    return;
+  }
+
   try {
     if (mongoose.connection.readyState === 1) {
-      logger.info("MongoDB Connection already active.");
+      console.log("✅ MongoDB Atlas Connected Successfully");
+      logger.info("✅ MongoDB Atlas Connected Successfully");
       return;
     }
 
-    logger.info(`Attempting MongoDB Connection to: ${env.MONGO_URI.replace(/:([^@]+)@/, ":****@")}`);
+    const sanitizedUri = mongoUri.replace(/:([^@]+)@/, ":****@");
+    logger.info(`Attempting MongoDB Atlas Connection to: ${sanitizedUri}`);
 
-    // Register Mongoose Connection Event Listeners
-    mongoose.connection.on("connected", () => {
-      logger.info("🟢 MongoDB Connection established successfully.");
-    });
-
-    mongoose.connection.on("error", (err) => {
-      logger.error("🔴 MongoDB Connection Error event:", err);
-    });
-
-    mongoose.connection.on("disconnected", () => {
-      logger.warn("🟡 MongoDB Disconnected from cluster.");
-    });
-
-    mongoose.connection.on("reconnected", () => {
-      logger.info("🟢 MongoDB Connection re-established.");
-    });
-
-    await mongoose.connect(env.MONGO_URI, {
+    await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
     });
 
+    console.log("✅ MongoDB Atlas Connected Successfully");
+    logger.info("✅ MongoDB Atlas Connected Successfully");
   } catch (error) {
+    console.error("❌ MongoDB Atlas Connection Error:", error);
     logger.error(`MongoDB Connection Failure (Attempt ${retryCount + 1}/${MAX_RETRIES}):`, error);
 
     if (retryCount < MAX_RETRIES) {
@@ -46,8 +43,7 @@ export const connectDatabase = async (retryCount = 0): Promise<void> => {
       return connectDatabase(retryCount + 1);
     }
 
-    logger.error("❌ Exceeded maximum MongoDB retry attempts.");
-    logger.warn("⚠️ Running in Standalone Mock Database mode for development testing.");
+    logger.error("❌ Exceeded maximum MongoDB Atlas retry attempts.");
   }
 };
 
