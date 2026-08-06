@@ -10,6 +10,10 @@
     "dev": "pnpm --filter \"*\" dev",
     "build": "pnpm --filter \"*\" build",
     "lint": "pnpm --filter \"*\" lint",
-    "test": "pnpm --filter \"*\" test"
+    "test": "pnpm --filter \"*\" test",
+    "test:watch": "pnpm --filter \"*\" test:watch",
+    "test:coverage": "pnpm --filter \"*\" test:coverage",
+    "test:backend": "pnpm --filter @rishabh-store/server test",
+    "test:frontend": "pnpm --filter @rishabh-store/web test"
   }
 }

@@ -7,22 +7,29 @@
     "seed": "tsx src/jobs/seedOwner.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "lint": "eslint . --ext ts"
+    "lint": "eslint . --ext ts",
+    "test": "cross-env NODE_ENV=test vitest run",
+    "test:watch": "cross-env NODE_ENV=test vitest",
+    "test:coverage": "cross-env NODE_ENV=test vitest run --coverage"
   },
   "dependencies": {
+    "@google/genai": "^2.16.0",
+    "@googlemaps/google-maps-services-js": "^3.4.2",
     "bcrypt": "^5.1.1",
-    "cloudinary": "^2.5.1",
+    "cloudinary": "^2.10.0",
     "compression": "^1.7.5",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
+    "firebase-admin": "^14.2.0",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.4",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
+    "razorpay": "^2.9.8",
     "swagger-ui-express": "^5.0.1",
     "winston": "^3.17.0",
     "zod": "^3.23.8"
@@ -37,8 +44,14 @@
     "@types/morgan": "^1.9.9",
     "@types/multer": "^1.4.12",
     "@types/node": "^22.10.1",
+    "@types/supertest": "^6.0.2",
     "@types/swagger-ui-express": "^4.1.7",
+    "@vitest/coverage-v8": "^3.2.7",
+    "cross-env": "^7.0.3",
+    "mongodb-memory-server": "^10.1.4",
+    "supertest": "^7.0.0",
     "tsx": "^4.19.2",
-    "typescript": "~5.6.2"
+    "typescript": "~5.6.2",
+    "vitest": "^3.2.7"
   }
 }

@@ -1,0 +1,41 @@
+name: Rishabh Provision Store Enterprise CI
+
+on:
+  push:
+    branches: [ main, development ]
+  pull_request:
+    branches: [ main, development ]
+
+jobs:
+  test:
+    name: Build, Lint & Automated Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install pnpm Package Manager
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9.15.9
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type Check & Build Server
+        run: pnpm --filter @rishabh-store/server build
+
+      - name: Type Check & Build Web
+        run: pnpm --filter @rishabh-store/web build
+
+      - name: Run Backend Integration & Unit Tests with Coverage
+        run: pnpm --filter @rishabh-store/server test:coverage
+
+      - name: Run Frontend Component & View Tests
+        run: pnpm --filter @rishabh-store/web test
