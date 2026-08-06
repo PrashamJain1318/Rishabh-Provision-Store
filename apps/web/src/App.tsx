@@ -14,6 +14,7 @@ import OrdersPage from "./pages/Orders";
 import POSPage from "./pages/POS";
 import CustomersPage from "./pages/Customers";
 import CustomerPortalPage from "./pages/CustomerPortal";
+import CustomerIntelligencePage from "./pages/CustomerIntelligence";
 import SuppliersPage from "./pages/Suppliers";
 import ReportsPage from "./pages/Reports";
 import FinancialDashboardPage from "./pages/FinancialDashboard";
@@ -45,6 +46,7 @@ function App() {
           <Route path="/dashboard/orders" element={<OrdersPage />} />
           <Route path="/dashboard/customers" element={<CustomersPage />} />
           <Route path="/dashboard/customer-portal" element={<CustomerPortalPage />} />
+          <Route path="/dashboard/customer-intelligence" element={<CustomerIntelligencePage />} />
           <Route path="/dashboard/inventory" element={<InventoryPage />} />
           <Route path="/dashboard/purchases" element={<PurchasesPage />} />
           <Route path="/dashboard/suppliers" element={<SuppliersPage />} />
@@ -62,6 +64,7 @@ function App() {
           <Route path="/orders" element={<Navigate to="/dashboard/orders" replace />} />
           <Route path="/customers" element={<Navigate to="/dashboard/customers" replace />} />
           <Route path="/customer-portal" element={<Navigate to="/dashboard/customer-portal" replace />} />
+          <Route path="/customer-intelligence" element={<Navigate to="/dashboard/customer-intelligence" replace />} />
           <Route path="/financial-analytics" element={<Navigate to="/dashboard/financial-analytics" replace />} />
           <Route path="/inventory" element={<Navigate to="/dashboard/inventory" replace />} />
           <Route path="/purchases" element={<Navigate to="/dashboard/purchases" replace />} />
