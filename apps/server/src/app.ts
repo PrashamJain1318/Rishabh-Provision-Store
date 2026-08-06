@@ -40,6 +40,7 @@ import backupRouter from "./modules/backup/backup.router";
 import aiRouter from "./modules/ai/ai.router";
 import { paymentRouter } from "./modules/payment";
 import { mapsRouter } from "./modules/maps";
+import jobsRouter from "./jobs/jobs.routes";
 import { getInvoices, getInvoiceById } from "./modules/pos/pos.controller";
 
 export const createApp = (): Application => {
@@ -119,6 +120,7 @@ export const createApp = (): Application => {
   app.use(`${API_PREFIX}/ai`, aiRouter);
   app.use(`${API_PREFIX}/payment`, paymentRouter);
   app.use(`${API_PREFIX}/maps`, mapsRouter);
+  app.use(`${API_PREFIX}/jobs`, jobsRouter);
   app.use(`${API_PREFIX}/brands`, brandRouter);
   app.use(`${API_PREFIX}/units`, unitRouter);
   app.use(`${API_PREFIX}/categories`, categoryRouter);

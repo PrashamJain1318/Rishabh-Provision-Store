@@ -19,6 +19,7 @@ export const swaggerSpec = {
     { name: "Auth", description: "Authentication, Registration, Refresh Tokens & User Profile" },
     { name: "Users", description: "User Management & Role Administration" },
     { name: "Products", description: "Grocery Catalog Items, SKU Search & Pricing" },
+    { name: "Jobs & Queues", description: "BullMQ Background Job Processing Dashboard & Queue Metrics" },
     { name: "Notifications", description: "Firebase Cloud Messaging (FCM) Push Notifications & Device Token Management" },
     { name: "Maps", description: "Google Maps Platform Geocoding, Reverse Geocoding, Places Autocomplete & Route Directions" },
     { name: "AI Assistant", description: "Google Gemini 2.5 AI Business Intelligence & Forecasting" },
@@ -50,62 +51,21 @@ export const swaggerSpec = {
         },
       },
     },
+    "/jobs/status": {
+      get: {
+        summary: "Retrieve BullMQ Queue Metrics and Worker Status",
+        tags: ["Jobs & Queues"],
+        responses: {
+          200: { description: "Real-time metrics for waiting, active, completed, failed and delayed jobs across all 7 queues" },
+        },
+      },
+    },
     "/notifications/register-device": {
       post: {
         summary: "Register FCM Device Token for Push Notifications",
         tags: ["Notifications"],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["token"],
-                properties: {
-                  token: { type: "string", example: "fcm_token_web_12345" },
-                  platform: { type: "string", enum: ["WEB", "ANDROID", "IOS"], example: "WEB" },
-                },
-              },
-            },
-          },
-        },
         responses: {
           201: { description: "Device token registered successfully" },
-        },
-      },
-    },
-    "/notifications/send": {
-      post: {
-        summary: "Send Targeted FCM Push Notification",
-        tags: ["Notifications"],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["title", "body"],
-                properties: {
-                  userId: { type: "string", example: "USR-001" },
-                  title: { type: "string", example: "🛒 Order Confirmed" },
-                  body: { type: "string", example: "Your grocery order #INV-102 is being packed." },
-                  type: { type: "string", example: "ORDER_CONFIRMED" },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          200: { description: "Notification dispatched successfully" },
-        },
-      },
-    },
-    "/notifications/history": {
-      get: {
-        summary: "Retrieve Notification Audit History",
-        tags: ["Notifications"],
-        responses: {
-          200: { description: "Notification history list" },
         },
       },
     },
@@ -115,15 +75,6 @@ export const swaggerSpec = {
         tags: ["Maps"],
         responses: {
           200: { description: "Coordinates and formatted address" },
-        },
-      },
-    },
-    "/maps/directions": {
-      get: {
-        summary: "Calculate Route Distance, ETA, and Directions",
-        tags: ["Maps"],
-        responses: {
-          200: { description: "Distance, ETA duration, and polyline points" },
         },
       },
     },

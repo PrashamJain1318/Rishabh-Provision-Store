@@ -13,10 +13,11 @@ const redisPassword = process.env.REDIS_PASSWORD || env.REDIS_PASSWORD || undefi
 try {
   if (redisUrl) {
     redisClient = new Redis(redisUrl, {
-      maxRetriesPerRequest: 3,
+      maxRetriesPerRequest: 1,
+      enableOfflineQueue: false,
       retryStrategy(times) {
-        if (times > 3) return null;
-        return Math.min(times * 100, 2000);
+        if (times > 1) return null;
+        return null;
       },
       lazyConnect: true,
     });
@@ -25,10 +26,11 @@ try {
       host: redisHost,
       port: redisPort,
       password: redisPassword,
-      maxRetriesPerRequest: 3,
+      maxRetriesPerRequest: 1,
+      enableOfflineQueue: false,
       retryStrategy(times) {
-        if (times > 3) return null;
-        return Math.min(times * 100, 2000);
+        if (times > 1) return null;
+        return null;
       },
       lazyConnect: true,
     });
@@ -39,9 +41,8 @@ try {
     logger.info("⚡ Redis Client Connected Successfully");
   });
 
-  redisClient.on("error", (err) => {
+  redisClient.on("error", () => {
     isConnected = false;
-    logger.warn(`Redis Connection Warning: ${err.message}. Operating in fallback cache mode.`);
   });
 } catch (err: any) {
   logger.warn(`Redis Initialization Warning: ${err.message}. Operating in fallback cache mode.`);
