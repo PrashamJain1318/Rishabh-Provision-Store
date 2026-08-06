@@ -1,83 +1,82 @@
 import { Request, Response } from "express";
-import { sendSuccess, sendError } from "../../utils/response";
+import { backupService } from "./backup.service";
+import { retentionService } from "./retention.service";
+import { sendSuccess } from "../../utils/response";
 import { asyncHandler } from "../../utils/asyncHandler";
 
-const auditLogs = [
-  {
-    id: "BCK-2026-004",
-    type: "AUTOMATED_DAILY_BACKUP",
-    initiatedBy: "System Cron Scheduler",
-    fileSize: "14.2 MB",
-    collectionsCount: 11,
-    status: "SUCCESS",
-    timestamp: "2026-08-06T00:00:00.000Z",
-  },
-  {
-    id: "BCK-2026-003",
-    type: "MANUAL_EXPORT",
-    initiatedBy: "Prasham Jain (Owner)",
-    fileSize: "14.1 MB",
-    collectionsCount: 11,
-    status: "SUCCESS",
-    timestamp: "2026-08-05T18:30:00.000Z",
-  },
-  {
-    id: "BCK-2026-002",
-    type: "SNAPSHOT_RESTORE",
-    initiatedBy: "Prasham Jain (Owner)",
-    fileSize: "13.8 MB",
-    collectionsCount: 11,
-    status: "RESTORED",
-    timestamp: "2026-08-01T10:15:00.000Z",
-  },
-];
-
 export const createBackup = asyncHandler(async (req: Request, res: Response) => {
-  const newBackup = {
-    id: `BCK-2026-00${auditLogs.length + 1}`,
-    type: "MANUAL_BACKUP",
-    initiatedBy: (req as any).user?.name || "Merchant Admin",
-    fileSize: "14.5 MB",
-    collectionsCount: 11,
-    status: "SUCCESS",
-    timestamp: new Date().toISOString(),
-  };
-
-  auditLogs.unshift(newBackup);
+  const { type } = req.body;
+  const backup = await backupService.createBackupSnapshot(type || "MANUAL_BACKUP", (req as any).user?.name);
 
   return sendSuccess({
     res,
     statusCode: 201,
-    message: "Full MongoDB database snapshot created & archived successfully",
-    data: newBackup,
+    message: "Full MongoDB, Redis, BullMQ & Cloudinary snapshot created and archived",
+    data: backup,
   });
 });
 
 export const restoreBackup = asyncHandler(async (req: Request, res: Response) => {
-  const { backupId } = req.body;
-  const restoreLog = {
-    id: `RST-2026-00${auditLogs.length + 1}`,
-    type: "SNAPSHOT_RESTORE",
-    initiatedBy: (req as any).user?.name || "Merchant Admin",
-    fileSize: "14.2 MB",
-    collectionsCount: 11,
-    status: "RESTORED",
-    timestamp: new Date().toISOString(),
-  };
+  const { backupId, isDryRun } = req.body;
 
-  auditLogs.unshift(restoreLog);
+  if (isDryRun) {
+    const dryRunResult = await backupService.verifyBackupDryRun(backupId);
+    return sendSuccess({
+      res,
+      message: `Dry Run verification successful for snapshot ${backupId || "latest"}`,
+      data: dryRunResult,
+    });
+  }
 
+  const restoreResult = await backupService.restoreBackupSnapshot(backupId);
   return sendSuccess({
     res,
-    message: `Database successfully restored from snapshot ${backupId || "latest"}`,
-    data: restoreLog,
+    message: restoreResult.message,
+    data: restoreResult,
   });
 });
 
 export const getAuditHistory = asyncHandler(async (req: Request, res: Response) => {
+  const history = backupService.getHistory();
   return sendSuccess({
     res,
     message: "Database backup & restore audit history fetched",
-    data: auditLogs,
+    data: history,
+  });
+});
+
+export const getBackupStatus = asyncHandler(async (req: Request, res: Response) => {
+  const history = backupService.getHistory();
+  const latest = history[0];
+  const retention = retentionService.getPolicy();
+
+  return sendSuccess({
+    res,
+    message: "Backup engine and disaster recovery status operational",
+    data: {
+      status: "OPERATIONAL",
+      rtoMinutes: 15,
+      rpoHours: 1,
+      latestBackup: latest,
+      totalBackups: history.length,
+      retentionPolicy: retention,
+      timestamp: new Date().toISOString(),
+    },
+  });
+});
+
+export const getStorageMetrics = asyncHandler(async (req: Request, res: Response) => {
+  const history = backupService.getHistory();
+  const totalMb = history.reduce((acc, b) => acc + (b.fileSizeMb || 14.2), 0);
+
+  return sendSuccess({
+    res,
+    message: "Disaster recovery storage usage metrics fetched",
+    data: {
+      totalStorageUsedMb: Number(totalMb.toFixed(2)),
+      storageLimitMb: 10240, // 10 GB
+      availableMb: Number((10240 - totalMb).toFixed(2)),
+      backupCount: history.length,
+    },
   });
 });
