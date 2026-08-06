@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { IUser } from "./user.types";
 import { UserRoleEnum } from "../../types/roles";
 
-export interface IUserDocument extends IUser, Document {
+export interface IUserDocument extends Omit<IUser, "id">, Document {
   comparePassword(candidatePassword: string): Promise<boolean>;
   softDelete(): Promise<IUserDocument>;
 }

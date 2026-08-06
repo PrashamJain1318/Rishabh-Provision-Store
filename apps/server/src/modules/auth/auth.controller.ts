@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
 import {
-  hashPassword,
-  comparePassword,
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
@@ -11,43 +9,21 @@ import { asyncHandler } from "../../utils/asyncHandler";
 import { UserModel } from "../users/user.model";
 import { AuthRequest } from "../../middlewares/auth.middleware";
 
-// Seed / Cache store for dev fallback
-const mockUsersDb: Record<string, any> = {
-  "rps_admin": {
-    id: "USR-001",
-    username: "rps_admin",
-    email: "admin@rishabhstore.com",
-    name: "Rishabh Store Admin",
-    role: "Owner",
-    passwordRaw: "rishabh1234@",
-    isActive: true,
-    isDeleted: false,
-  },
-  "admin@rishabhstore.com": {
-    id: "USR-001",
-    username: "rps_admin",
-    email: "admin@rishabhstore.com",
-    name: "Rishabh Store Admin",
-    role: "Owner",
-    passwordRaw: "rishabh1234@",
-    isActive: true,
-    isDeleted: false,
-  },
-};
-
+/**
+ * @desc    Register new user account in MongoDB Atlas
+ * @route   POST /api/v1/auth/register
+ * @access  Public
+ */
 export const register = asyncHandler(async (req: Request, res: Response) => {
   const { firstName, lastName, email, phone, password, role } = req.body;
   const normalizedEmail = email.toLowerCase().trim();
 
-  let existingUser = null;
-  try {
-    existingUser = await UserModel.findOne({
-      $or: [{ email: normalizedEmail }, ...(phone ? [{ phone }] : [])],
-      isDeleted: false,
-    });
-  } catch {}
+  const existingUser = await UserModel.findOne({
+    $or: [{ email: normalizedEmail }, ...(phone ? [{ phone }] : [])],
+    isDeleted: false,
+  });
 
-  if (existingUser || mockUsersDb[normalizedEmail]) {
+  if (existingUser) {
     return sendError({
       res,
       statusCode: 409,
@@ -56,35 +32,23 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     });
   }
 
-  const passwordHash = await hashPassword(password);
-  const newUserRecord = {
+  const newUser = new UserModel({
     firstName,
     lastName,
-    name: `${firstName} ${lastName}`,
     email: normalizedEmail,
     phone,
+    password,
     role: role || "Customer",
-    passwordHash,
-    isVerified: false,
-    isActive: true,
-    isDeleted: false,
+  });
+
+  await newUser.save();
+
+  const payload = {
+    id: newUser._id.toString(),
+    email: newUser.email,
+    role: newUser.role,
   };
 
-  try {
-    const dbUser = new UserModel({
-      firstName,
-      lastName,
-      email: normalizedEmail,
-      phone,
-      password,
-      role: role || "Customer",
-    });
-    await dbUser.save();
-  } catch {}
-
-  mockUsersDb[normalizedEmail] = newUserRecord;
-
-  const payload = { id: `USR-${Math.floor(1000 + Math.random() * 9000)}`, email: normalizedEmail, role: newUserRecord.role };
   const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
 
@@ -93,7 +57,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     path: "/",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 Days
   });
 
   return sendSuccess({
@@ -102,18 +66,23 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     message: "Registration successful",
     data: {
       user: {
-        id: payload.id,
-        firstName,
-        lastName,
-        email: normalizedEmail,
-        phone,
-        role: newUserRecord.role,
+        id: newUser._id.toString(),
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        phone: newUser.phone,
+        role: newUser.role,
       },
       accessToken,
     },
   });
 });
 
+/**
+ * @desc    Authenticate user login against MongoDB Atlas
+ * @route   POST /api/v1/auth/login
+ * @access  Public
+ */
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const { username, email, password } = req.body;
   const loginId = (username || email || "").toLowerCase().trim();
@@ -122,15 +91,10 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     return sendError({ res, statusCode: 400, message: "Email/Username and password are required." });
   }
 
-  let dbUser = null;
-  try {
-    dbUser = await UserModel.findOne({
-      $or: [{ email: loginId }, { username: loginId }],
-      isDeleted: false,
-    }).select("+password");
-  } catch {}
-
-  const user = dbUser || mockUsersDb[loginId];
+  const user = await UserModel.findOne({
+    $or: [{ email: loginId }, { phone: loginId }],
+    isDeleted: false,
+  }).select("+password");
 
   if (!user) {
     return sendError({ res, statusCode: 401, message: "Invalid email or password credentials." });
@@ -144,30 +108,18 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     });
   }
 
-  let isPasswordValid = false;
-  if (user.comparePassword && typeof user.comparePassword === "function") {
-    isPasswordValid = await user.comparePassword(password);
-  } else if (user.passwordHash) {
-    isPasswordValid = await comparePassword(password, user.passwordHash);
-  } else if (user.passwordRaw) {
-    isPasswordValid = user.passwordRaw === password || password === "rishabh1234@" || password === "admin123";
-  }
-
-  if (!isPasswordValid && password !== "rishabh1234@" && password !== "admin123") {
+  const isPasswordValid = await user.comparePassword(password);
+  if (!isPasswordValid) {
     return sendError({ res, statusCode: 401, message: "Invalid email or password credentials." });
   }
 
-  if (dbUser) {
-    try {
-      dbUser.lastLogin = new Date();
-      await dbUser.save();
-    } catch {}
-  }
+  user.lastLogin = new Date();
+  await user.save();
 
   const payload = {
-    id: user._id ? user._id.toString() : user.id || "USR-001",
-    email: user.email || loginId,
-    role: user.role || "Owner",
+    id: user._id.toString(),
+    email: user.email,
+    role: user.role,
   };
 
   const accessToken = generateAccessToken(payload);
@@ -178,7 +130,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     path: "/",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 Days
   });
 
   return sendSuccess({
@@ -186,18 +138,22 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     message: "Sign in successful",
     data: {
       user: {
-        id: payload.id,
-        username: user.username || loginId,
-        firstName: user.firstName || "Rishabh Store",
-        lastName: user.lastName || "Admin",
-        email: payload.email,
-        role: payload.role,
+        id: user._id.toString(),
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
       },
       accessToken,
     },
   });
 });
 
+/**
+ * @desc    Refresh JWT access token using refresh cookie
+ * @route   POST /api/v1/auth/refresh
+ * @access  Public
+ */
 export const refresh = asyncHandler(async (req: Request, res: Response) => {
   const refreshToken = req.cookies?.refreshToken;
 
@@ -219,6 +175,11 @@ export const refresh = asyncHandler(async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * @desc    Sign out user and clear refresh token cookie
+ * @route   POST /api/v1/auth/logout
+ * @access  Public
+ */
 export const logout = asyncHandler(async (req: Request, res: Response) => {
   res.clearCookie("refreshToken", {
     httpOnly: true,
@@ -234,10 +195,20 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
   });
 });
 
+/**
+ * @desc    Get authenticated user profile details from MongoDB Atlas
+ * @route   GET /api/v1/auth/profile or /api/v1/auth/me
+ * @access  Private
+ */
 export const getProfile = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const user = req.user;
-  if (!user) {
+  const authUser = req.user;
+  if (!authUser) {
     return sendError({ res, statusCode: 401, message: "Unauthorized request." });
+  }
+
+  const user = await UserModel.findById(authUser.id).select("-password");
+  if (!user) {
+    return sendError({ res, statusCode: 404, message: "User account not found in database." });
   }
 
   return sendSuccess({

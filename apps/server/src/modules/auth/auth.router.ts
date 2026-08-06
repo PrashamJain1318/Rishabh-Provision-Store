@@ -10,6 +10,7 @@ router.post("/register", validateBody(registerSchema), register);
 router.post("/login", validateBody(loginSchema), login);
 router.post("/refresh", refresh);
 router.post("/logout", logout);
+router.get("/profile", authenticate, getProfile);
 router.get("/me", authenticate, getProfile);
 
 export default router;
