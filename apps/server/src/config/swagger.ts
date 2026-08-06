@@ -20,9 +20,12 @@ export const swaggerSpec = {
     { name: "Users", description: "User Management & Role Administration" },
     { name: "Products", description: "Grocery Catalog Items, SKU Search & Pricing" },
     { name: "Inventory", description: "Stock Levels, Batch Expiry Alert Monitor & Reorders" },
+    { name: "Customers", description: "Customer CRM, Addresses & Loyalty Accounts" },
     { name: "Orders", description: "Omnichannel Orders & Fulfillment Stream" },
-    { name: "Billing", description: "Express Cashier POS Terminal Checkout & Thermal Receipts" },
-    { name: "Reports", description: "Business Intelligence Turnover Metrics & GSTR Exports" },
+    { name: "POS", description: "Express Cashier POS Terminal Checkout & Thermal Receipts" },
+    { name: "Notifications", description: "Merchant In-App Alerts & System Notifications" },
+    { name: "AI Assistant", description: "Gemini AI Business Assistant & Forecasting Queries" },
+    { name: "Backup", description: "MongoDB Database Snapshots & Audit Trail" },
   ],
   components: {
     securitySchemes: {
@@ -100,26 +103,7 @@ export const swaggerSpec = {
         },
       },
     },
-    "/auth/refresh": {
-      post: {
-        summary: "Renew Access Token using HttpOnly Refresh Cookie",
-        tags: ["Auth"],
-        responses: {
-          200: { description: "Access token refreshed successfully" },
-          401: { description: "Refresh token missing or expired" },
-        },
-      },
-    },
-    "/auth/logout": {
-      post: {
-        summary: "Sign Out & Evict HttpOnly Refresh Cookie",
-        tags: ["Auth"],
-        responses: {
-          200: { description: "User logged out successfully" },
-        },
-      },
-    },
-    "/auth/me": {
+    "/auth/profile": {
       get: {
         summary: "Retrieve Authenticated User Profile",
         tags: ["Auth"],
@@ -139,13 +123,79 @@ export const swaggerSpec = {
         },
       },
     },
-    "/billing/checkout": {
-      post: {
-        summary: "Process Express POS Transaction & Bill",
-        tags: ["Billing"],
-        security: [{ BearerAuth: [] }],
+    "/inventory": {
+      get: {
+        summary: "Retrieve Inventory Stock Valuation & Aging",
+        tags: ["Inventory"],
         responses: {
-          201: { description: "POS Bill generated successfully" },
+          200: { description: "Inventory items list" },
+        },
+      },
+    },
+    "/customers": {
+      get: {
+        summary: "Retrieve Customer CRM Profiles",
+        tags: ["Customers"],
+        responses: {
+          200: { description: "Customers list" },
+        },
+      },
+    },
+    "/orders": {
+      get: {
+        summary: "Retrieve Omnichannel Orders List",
+        tags: ["Orders"],
+        responses: {
+          200: { description: "Orders list" },
+        },
+      },
+    },
+    "/pos/checkout": {
+      post: {
+        summary: "Process Express POS 1-Click Transaction",
+        tags: ["POS"],
+        responses: {
+          200: { description: "POS transaction success" },
+        },
+      },
+    },
+    "/notifications": {
+      get: {
+        summary: "Retrieve Merchant In-App Alerts",
+        tags: ["Notifications"],
+        responses: {
+          200: { description: "Notifications list" },
+        },
+      },
+    },
+    "/ai/query": {
+      post: {
+        summary: "Query Gemini AI Business Assistant",
+        tags: ["AI Assistant"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  prompt: { type: "string", example: "Summarize today's business" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: "AI query response" },
+        },
+      },
+    },
+    "/backup/create": {
+      post: {
+        summary: "Generate 1-Click MongoDB Full Database Snapshot",
+        tags: ["Backup"],
+        responses: {
+          201: { description: "Backup snapshot generated" },
         },
       },
     },
