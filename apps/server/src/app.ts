@@ -43,6 +43,7 @@ import { paymentRouter } from "./modules/payment";
 import { mapsRouter } from "./modules/maps";
 import jobsRouter from "./jobs/jobs.routes";
 import monitoringRouter from "./monitoring/monitoring.routes";
+import securityRouter from "./security/security.routes";
 import { getInvoices, getInvoiceById } from "./modules/pos/pos.controller";
 
 export const createApp = (): Application => {
@@ -109,6 +110,7 @@ export const createApp = (): Application => {
 
   app.use(`${API_PREFIX}/health`, monitoringRouter);
   app.use(`${API_PREFIX}/monitoring`, monitoringRouter);
+  app.use(`${API_PREFIX}/security`, securityRouter);
 
   // REST API Routes
   app.use(`${API_PREFIX}/auth`, authRateLimiter, authRouter);
