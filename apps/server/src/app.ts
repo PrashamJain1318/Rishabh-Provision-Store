@@ -11,6 +11,7 @@ import { getRedisStatus } from "./config/redis";
 import { sendSuccess } from "./utils/response";
 import { requestIdMiddleware } from "./middlewares/requestId.middleware";
 import { requestLogger } from "./middlewares/logger.middleware";
+import { timingMiddleware } from "./middlewares/timing.middleware";
 import { globalRateLimiter, authRateLimiter } from "./middlewares/rateLimiter.middleware";
 import { notFoundHandler } from "./middlewares/notFound.middleware";
 import { errorHandler } from "./middlewares/error.middleware";
@@ -48,6 +49,7 @@ export const createApp = (): Application => {
   const app: Application = express();
 
   app.use(requestIdMiddleware);
+  app.use(timingMiddleware);
 
   app.use(
     helmet({

@@ -15,6 +15,19 @@ export default defineConfig({
   optimizeDeps: {
     include: ['recharts', 'framer-motion', 'lucide-react', '@react-three/fiber', '@react-three/drei', 'three', 'lenis'],
   },
+  build: {
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'lucide-vendor': ['lucide-react'],
+          'chart-vendor': ['recharts'],
+          'three-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
+        },
+      },
+    },
+  },
   server: {
     port: 5173,
     open: true,

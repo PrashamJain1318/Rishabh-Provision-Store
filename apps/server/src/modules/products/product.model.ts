@@ -39,6 +39,8 @@ productSchema.index(
 );
 
 productSchema.index({ category: 1, brand: 1, status: 1 });
+productSchema.index({ category: 1, sellingPrice: 1 });
+productSchema.index({ barcode: 1, status: 1 });
 productSchema.index({ supplier: 1, status: 1 });
 
 productSchema.pre<IProductDocument>("save", function (next) {
