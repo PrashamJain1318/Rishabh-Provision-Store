@@ -9,10 +9,10 @@ const productSchema = new Schema<IProductDocument>(
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
     sku: { type: String, required: true, unique: true, uppercase: true, trim: true, index: true },
     barcode: { type: String, trim: true, index: true },
-    brand: { type: Schema.Types.ObjectId as any, ref: "Brand", index: true },
-    category: { type: Schema.Types.ObjectId as any, ref: "Category", required: true, index: true },
+    brand: { type: Schema.Types.Mixed, ref: "Brand", index: true },
+    category: { type: Schema.Types.Mixed, ref: "Category", required: true, index: true },
     subcategory: { type: String, trim: true, index: true },
-    supplier: { type: Schema.Types.ObjectId as any, ref: "Supplier", index: true },
+    supplier: { type: Schema.Types.Mixed, ref: "Supplier", index: true },
     unit: { type: String, required: true, trim: true },
     description: { type: String, trim: true },
     purchasePrice: { type: Number, required: true, min: 0 },
@@ -27,14 +27,10 @@ const productSchema = new Schema<IProductDocument>(
     batchNumber: { type: String, trim: true },
     images: [{ type: String }],
     status: { type: String, enum: ["Active", "Inactive", "Out of Stock"], default: "Active", index: true },
-    createdBy: { type: Schema.Types.ObjectId as any, ref: "User" },
+    createdBy: { type: Schema.Types.Mixed, ref: "User" },
   },
   { timestamps: true }
 );
-
-// -------------------------------------------------------------------------
-// HIGH-PERFORMANCE INDEXES FOR SEARCH ENGINE
-// -------------------------------------------------------------------------
 
 productSchema.index(
   { name: "text", sku: "text", barcode: "text" },
