@@ -25,6 +25,7 @@ import SettingsPage from "./pages/Settings";
 import ProfilePage from "./pages/Profile";
 import AIAssistantPage from "./pages/AIAssistant";
 import AIForecastingPage from "./pages/AIForecasting";
+import SystemMonitoringPage from "./pages/SystemMonitoring";
 import "./index.css";
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
 
           {/* Express POS Terminal Route */}
           <Route path="/pos" element={<POSPage />} />
+          <Route path="/monitoring" element={<SystemMonitoringPage />} />
 
           {/* Dashboard Sub-routes */}
           <Route path="/dashboard" element={<InventoryDashboardPage />} />
@@ -63,6 +65,7 @@ function App() {
           <Route path="/dashboard/profile" element={<ProfilePage />} />
           <Route path="/dashboard/ai-assistant" element={<AIAssistantPage />} />
           <Route path="/dashboard/ai-forecasting" element={<AIForecastingPage />} />
+          <Route path="/dashboard/monitoring" element={<SystemMonitoringPage />} />
 
           {/* Alias Redirects */}
           <Route path="/products" element={<Navigate to="/dashboard/products" replace />} />

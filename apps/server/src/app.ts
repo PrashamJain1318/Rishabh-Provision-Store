@@ -41,6 +41,7 @@ import aiRouter from "./modules/ai/ai.router";
 import { paymentRouter } from "./modules/payment";
 import { mapsRouter } from "./modules/maps";
 import jobsRouter from "./jobs/jobs.routes";
+import monitoringRouter from "./monitoring/monitoring.routes";
 import { getInvoices, getInvoiceById } from "./modules/pos/pos.controller";
 
 export const createApp = (): Application => {
@@ -103,6 +104,9 @@ export const createApp = (): Application => {
       data: redisHealth,
     });
   });
+
+  app.use(`${API_PREFIX}/health`, monitoringRouter);
+  app.use(`${API_PREFIX}/monitoring`, monitoringRouter);
 
   // REST API Routes
   app.use(`${API_PREFIX}/auth`, authRateLimiter, authRouter);
