@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: Build, Lint & Automated Tests
+    name: Build, Lint & Automated Unit/Integration Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -39,3 +39,10 @@ jobs:
 
       - name: Run Frontend Component & View Tests
         run: pnpm --filter @rishabh-store/web test
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+
+      - name: Run Playwright E2E Tests
+        run: pnpm --filter @rishabh-store/web test:e2e

@@ -14,6 +14,7 @@
     "test:watch": "pnpm --filter \"*\" test:watch",
     "test:coverage": "pnpm --filter \"*\" test:coverage",
     "test:backend": "pnpm --filter @rishabh-store/server test",
-    "test:frontend": "pnpm --filter @rishabh-store/web test"
+    "test:frontend": "pnpm --filter @rishabh-store/web test",
+    "test:e2e": "pnpm --filter @rishabh-store/web test:e2e"
   }
 }
