@@ -31,6 +31,10 @@ const AIAssistantPage = lazy(() => import("./pages/AIAssistant"));
 const AIForecastingPage = lazy(() => import("./pages/AIForecasting"));
 const SystemMonitoringPage = lazy(() => import("./pages/SystemMonitoring"));
 const LoadTestingDashboardPage = lazy(() => import("./pages/LoadTestingDashboard"));
+const GSTDashboardPage = lazy(() => import("./pages/GSTDashboard"));
+const GSTSettingsPage = lazy(() => import("./pages/GSTSettings"));
+const GSTReportsPage = lazy(() => import("./pages/GSTReports"));
+const TaxSummaryPage = lazy(() => import("./pages/TaxSummary"));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen bg-slate-900 text-white">
@@ -82,6 +86,10 @@ function App() {
             <Route path="/dashboard/ai-forecasting" element={<AIForecastingPage />} />
             <Route path="/dashboard/monitoring" element={<SystemMonitoringPage />} />
             <Route path="/dashboard/load-testing" element={<LoadTestingDashboardPage />} />
+            <Route path="/dashboard/gst-dashboard" element={<GSTDashboardPage />} />
+            <Route path="/dashboard/gst-settings" element={<GSTSettingsPage />} />
+            <Route path="/dashboard/gst-reports" element={<GSTReportsPage />} />
+            <Route path="/dashboard/tax-summary" element={<TaxSummaryPage />} />
 
             {/* Alias Redirects */}
             <Route path="/products" element={<Navigate to="/dashboard/products" replace />} />

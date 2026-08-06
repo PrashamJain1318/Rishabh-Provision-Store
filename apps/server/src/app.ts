@@ -41,6 +41,7 @@ import backupRouter from "./modules/backup/backup.router";
 import aiRouter from "./modules/ai/ai.router";
 import { paymentRouter } from "./modules/payment";
 import { mapsRouter } from "./modules/maps";
+import gstRouter from "./modules/gst/gst.routes";
 import jobsRouter from "./jobs/jobs.routes";
 import monitoringRouter from "./monitoring/monitoring.routes";
 import securityRouter from "./security/security.routes";
@@ -128,6 +129,7 @@ export const createApp = (): Application => {
   app.use(`${API_PREFIX}/ai`, aiRouter);
   app.use(`${API_PREFIX}/payment`, paymentRouter);
   app.use(`${API_PREFIX}/maps`, mapsRouter);
+  app.use(`${API_PREFIX}/gst`, gstRouter);
   app.use(`${API_PREFIX}/jobs`, jobsRouter);
   app.use(`${API_PREFIX}/brands`, brandRouter);
   app.use(`${API_PREFIX}/units`, unitRouter);
