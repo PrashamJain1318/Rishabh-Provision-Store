@@ -22,6 +22,7 @@ import FinancialDashboardPage from "./pages/FinancialDashboard";
 import SettingsPage from "./pages/Settings";
 import ProfilePage from "./pages/Profile";
 import AIAssistantPage from "./pages/AIAssistant";
+import AIForecastingPage from "./pages/AIForecasting";
 import "./index.css";
 
 function App() {
@@ -57,6 +58,7 @@ function App() {
           <Route path="/dashboard/settings" element={<SettingsPage />} />
           <Route path="/dashboard/profile" element={<ProfilePage />} />
           <Route path="/dashboard/ai-assistant" element={<AIAssistantPage />} />
+          <Route path="/dashboard/ai-forecasting" element={<AIForecastingPage />} />
 
           {/* Alias Redirects */}
           <Route path="/products" element={<Navigate to="/dashboard/products" replace />} />
@@ -69,6 +71,7 @@ function App() {
           <Route path="/customer-intelligence" element={<Navigate to="/dashboard/customer-intelligence" replace />} />
           <Route path="/inventory-intelligence" element={<Navigate to="/dashboard/inventory-intelligence" replace />} />
           <Route path="/financial-analytics" element={<Navigate to="/dashboard/financial-analytics" replace />} />
+          <Route path="/ai-forecasting" element={<Navigate to="/dashboard/ai-forecasting" replace />} />
           <Route path="/inventory" element={<Navigate to="/dashboard/inventory" replace />} />
           <Route path="/purchases" element={<Navigate to="/dashboard/purchases" replace />} />
           <Route path="/suppliers" element={<Navigate to="/dashboard/suppliers" replace />} />
