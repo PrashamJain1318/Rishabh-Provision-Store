@@ -2,9 +2,8 @@
   "name": "@rishabh-store/server",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "node dist/server.js",
     "seed": "tsx src/jobs/seedOwner.ts",
     "build": "tsc",
     "start": "node dist/server.js",
